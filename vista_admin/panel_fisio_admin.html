@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Fisioterapeutas - Panel Administrador</title>
+    <style>
+        :root {
+            --primary: #0A2540;
+            --secondary: #00A3FF;
+            --accent: #00D4AA;
+            --background: #FFFFFF;
+            --background-alt: #F8FAFC;
+            --text: #0F172A;
+            --gray: #64748B;
+            --gray-light: #E2E8F0;
+            --gray-lighter: #F1F5F9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #17a2b8;
+            
+            --border-radius: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.2s ease;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-alt);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            padding: var(--spacing-md) 0;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-right: var(--spacing-sm);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: var(--spacing-sm) var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links li.active {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-left: 3px solid var(--secondary);
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links i {
+            margin-right: var(--spacing-sm);
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            background: var(--background-alt);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 44px;
+            height: 44px;
+            border-radius: 4px;
+            margin-right: var(--spacing-sm);
+            border: 2px solid var(--secondary);
+            object-fit: cover;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-details .user-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-text h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .banner-text p {
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .banner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-white:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        /* CARDS GRID */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .card {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .bg-primary { background-color: var(--primary); }
+        .bg-success { background-color: var(--success); }
+        .bg-warning { background-color: var(--warning); }
+        .bg-info { background-color: var(--info); }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .card-description {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: var(--spacing-sm) var(--spacing-sm);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: var(--gray-lighter);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* FILTROS */
+        .filters-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            align-items: end;
+            border: 1px solid var(--gray-light);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-light);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        /* TABLES */
+        .table-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-light);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-lighter);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--gray-lighter);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background-color: var(--gray-light);
+        }
+
+        tr:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* STATUS BADGES */
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-inactive {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* BOTONES */
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0090e0;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-sm);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--gray-light);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: var(--spacing-sm);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-sm);
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* FORMULARIOS */
+        .form-group {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* NOTIFICACIONES */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-info {
+            border-left-color: var(--info);
+        }
+
+        /* ESTADOS */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-lg) var(--spacing-sm);
+            color: var(--gray);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            color: var(--gray-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 400px;
+            margin: 0 auto var(--spacing-sm);
+        }
+
+        /* ESPECIALES */
+        .specialty-badge {
+            background-color: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .schedule-badge {
+            background-color: rgba(0, 163, 255, 0.1);
+            color: var(--secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: var(--spacing-sm);
+            }
+            
+            .banner-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .banner-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">FS</div>
+                <div class="logo-text">FisioSalud Admin</div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li class="active"><a href="#"><i class="fas fa-user-md"></i> Fisioterapeutas</a></li>
+                <li><a href="#"><i class="fas fa-hand-holding-medical"></i> Servicios</a></li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li><a href="#"><i class="fas fa-chart-bar"></i> Analíticas</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <h2>Gestión de Fisioterapeutas</h2>
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Administrador">
+                    <div class="user-details">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Clínica FisioSalud</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <h3>Panel de Administración de Fisioterapeutas</h3>
+                        <p>Gestiona el equipo de fisioterapeutas, sus especializaciones y horarios de trabajo.</p>
+                    </div>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-terapeutas">0</div>
+                            <div class="stat-label">Fisioterapeutas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="terapeutas-activos">0</div>
+                            <div class="stat-label">Activos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="especializaciones">0</div>
+                            <div class="stat-label">Especialidades</div>
+                        </div>
+                    </div>
+                    <div class="banner-actions">
+                        <button class="btn btn-white" onclick="openNewTherapistModal()">
+                            <i class="fas fa-user-plus"></i> Nuevo Fisioterapeuta
+                        </button>
+                        <button class="btn btn-white" onclick="exportTherapists()">
+                            <i class="fas fa-download"></i> Exportar Lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS GRID -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Total Terapeutas</div>
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-total-terapeutas">0</div>
+                    <div class="card-description">Registrados en el sistema</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Activos</div>
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-activos">0</div>
+                    <div class="card-description">Disponibles para citas</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Especialidades</div>
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-especialidades">0</div>
+                    <div class="card-description">Diferentes especializaciones</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Horarios</div>
+                        <div class="card-icon bg-info">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-horarios">0</div>
+                    <div class="card-description">Franjas horarias definidas</div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <div class="tab active" onclick="changeTab('lista')">Lista de Fisioterapeutas</div>
+                <div class="tab" onclick="changeTab('horarios')">Gestión de Horarios</div>
+                <div class="tab" onclick="changeTab('especialidades')">Especializaciones</div>
+            </div>
+
+            <!-- TAB CONTENT: LISTA -->
+            <div id="lista" class="tab-content active">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Fisioterapeutas Registrados</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="clearFilters()">
+                                <i class="fas fa-filter"></i> Limpiar Filtros
+                            </button>
+                            <button class="btn btn-primary" onclick="loadTherapists()">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- FILTROS -->
+                    <div class="filters-container">
+                        <div class="filter-group">
+                            <label for="filter-name">Nombre</label>
+                            <input type="text" class="filter-input" id="filter-name" placeholder="Buscar por nombre...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-specialty">Especialización</label>
+                            <select class="filter-select" id="filter-specialty">
+                                <option value="">Todas</option>
+                                <option value="Rehabilitación">Rehabilitación</option>
+                                <option value="Deportiva">Deportiva</option>
+                                <option value="Neurológica">Neurológica</option>
+                                <option value="Pediatría">Pediatría</option>
+                                <option value="Geriatría">Geriatría</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-status">Estado</label>
+                            <select class="filter-select" id="filter-status">
+                                <option value="">Todos</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                                <option value="Vacaciones">Vacaciones</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-primary" onclick="filterTherapists()" style="margin-top: 24px;">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- TABLA -->
+                    <div id="therapists-table">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <h3>Cargando fisioterapeutas...</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTRAS PESTAÑAS -->
+            <div id="horarios" class="tab-content">
+                <div class="table-container">
+                    <div id="schedules-table">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Gestión de Horarios</h3>
+                            <p>Configura las franjas horarias de cada fisioterapeuta</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="especialidades" class="tab-content">
+                <div class="table-container">
+                    <div id="specialties-table">
+                        <div class="empty-state">
+                            <i class="fas fa-stethoscope"></i>
+                            <h3>Especializaciones</h3>
+                            <p>Administra las especialidades de los fisioterapeutas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO FISIOTERAPEUTA -->
+    <div id="newTherapistModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Fisioterapeuta</h3>
+                <button class="modal-close" onclick="closeNewTherapistModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="therapistForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="therapist-codigo">Código Trabajador *</label>
+                            <input type="text" class="filter-input" id="therapist-codigo" required placeholder="Ej: FISIO-001">
+                        </div>
+                        <div class="form-group">
+                            <label for="therapist-nombre">Nombre Completo *</label>
+                            <input type="text" class="filter-input" id="therapist-nombre" required placeholder="Nombre completo">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="therapist-email">Correo Electrónico *</label>
+                            <input type="email" class="filter-input" id="therapist-email" required placeholder="fisio@clinica.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="therapist-phone">Teléfono *</label>
+                            <input type="tel" class="filter-input" id="therapist-phone" required placeholder="3001234567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="therapist-specialty">Especialización</label>
+                            <select class="filter-select" id="therapist-specialty">
+                                <option value="">Seleccionar especialidad</option>
+                                <option value="Rehabilitación">Rehabilitación</option>
+                                <option value="Deportiva">Deportiva</option>
+                                <option value="Neurológica">Neurológica</option>
+                                <option value="Pediatría">Pediatría</option>
+                                <option value="Geriatría">Geriatría</option>
+                                <option value="Traumatología">Traumatología</option>
+                                <option value="Columna Vertebral">Columna Vertebral</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="therapist-status">Estado *</label>
+                            <select class="filter-select" id="therapist-status" required>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                                <option value="Vacaciones">Vacaciones</option>
+                                <option value="Licencia">Licencia</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="therapist-days">Días Laborales</label>
+                            <input type="text" class="filter-input" id="therapist-days" placeholder="Lunes a Viernes">
+                        </div>
+                        <div class="form-group">
+                            <label for="therapist-hours">Horario Laboral</label>
+                            <input type="text" class="filter-input" id="therapist-hours" placeholder="8:00 AM - 5:00 PM">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeNewTherapistModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveTherapist()">Guardar Fisioterapeuta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR HORARIOS -->
+    <div id="editScheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="schedule-modal-title">Editar Horario</h3>
+                <button class="modal-close" onclick="closeEditScheduleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="schedule-content">
+                    <!-- Contenido dinámico -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeEditScheduleModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSchedule()">Guardar Horario</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    </script>
+</body>
+</html>

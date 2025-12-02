@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FisioSalud - Login Administrador</title>
+    <style>
+        :root {
+            --primary-color: #1a5a8a;
+            --secondary-color: #5cb8a0;
+            --accent-color: #edf8b1;
+            --dark-color: #152026;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            color: var(--dark-color);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--dark-color);
+            box-shadow: 0 0 0 3px rgba(21, 32, 38, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--dark-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #0f171c;
+            transform: translateY(-2px);
+        }
+
+        .security-notice {
+            background: var(--accent-color);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--dark-color);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <h1>FisioSalud</h1>
+            <p>Panel de Administración</p>
+        </div>
+
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="username">Usuario Administrador</label>
+                <input type="text" class="form-control" id="username" placeholder="admin" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn">
+                <i class="fas fa-lock"></i> Acceder al Sistema
+            </button>
+        </form>
+
+        <div class="security-notice">
+            <i class="fas fa-exclamation-triangle"></i>
+            Área restringida - Solo personal autorizado
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Aquí iría la lógica de autenticación
+            console.log('Admin login attempt:', { username, password });
+            
+            // Simulación de redirección
+            alert('Accediendo al panel de administración...');
+            // window.location.href = '/panel-admin';
+        });
+    </script>
+</body>
+</html>

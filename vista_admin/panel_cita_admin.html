@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Citas - Panel Administrador</title>
+    <style>
+        :root {
+            --primary: #0A2540;
+            --secondary: #00A3FF;
+            --accent: #00D4AA;
+            --background: #FFFFFF;
+            --background-alt: #F8FAFC;
+            --text: #0F172A;
+            --gray: #64748B;
+            --gray-light: #E2E8F0;
+            --gray-lighter: #F1F5F9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #17a2b8;
+            
+            --border-radius: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.2s ease;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-alt);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            padding: var(--spacing-md) 0;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-right: var(--spacing-sm);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: var(--spacing-sm) var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links li.active {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-left: 3px solid var(--secondary);
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links i {
+            margin-right: var(--spacing-sm);
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            background: var(--background-alt);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 44px;
+            height: 44px;
+            border-radius: 4px;
+            margin-right: var(--spacing-sm);
+            border: 2px solid var(--secondary);
+            object-fit: cover;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-details .user-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-text h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .banner-text p {
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .banner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-white:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        /* CONTROLES DE FECHA */
+        .date-controls {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            border: 1px solid var(--gray-light);
+        }
+
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .current-date {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        /* CALENDARIO */
+        .calendar-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-light);
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            min-height: 100px;
+            border: 1px solid var(--gray-lighter);
+            border-radius: 4px;
+            padding: 8px;
+            position: relative;
+            background: white;
+        }
+
+        .calendar-day.empty {
+            background: var(--gray-lighter);
+            border: 1px dashed var(--gray-light);
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--secondary);
+            background: rgba(0, 163, 255, 0.05);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .appointments-list {
+            max-height: 80px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+
+        .appointment-item {
+            background: var(--gray-lighter);
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .appointment-item:hover {
+            opacity: 0.8;
+        }
+
+        /* TABLA DE CITAS */
+        .table-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-light);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-lighter);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--gray-lighter);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background-color: var(--gray-light);
+        }
+
+        tr:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* STATUS BADGES */
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-confirmed {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-completed {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: var(--gray);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .status-canceled {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* BOTONES */
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0090e0;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-sm);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--gray-light);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: var(--spacing-sm);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-sm);
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* FORMULARIOS */
+        .form-group {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* NOTIFICACIONES */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        /* ESTADOS */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-lg) var(--spacing-sm);
+            color: var(--gray);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            color: var(--gray-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 400px;
+            margin: 0 auto var(--spacing-sm);
+        }
+
+        /* ESPECIALES */
+        .patient-badge {
+            background-color: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .service-badge {
+            background-color: rgba(0, 163, 255, 0.1);
+            color: var(--secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: var(--spacing-sm);
+            }
+            
+            .banner-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .date-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                font-size: 0.8rem;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 4px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .banner-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                font-size: 0.7rem;
+            }
+            
+            .calendar-day {
+                min-height: 70px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">FS</div>
+                <div class="logo-text">FisioSalud Admin</div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li><a href="#"><i class="fas fa-user-md"></i> Fisioterapeutas</a></li>
+                <li><a href="#"><i class="fas fa-hand-holding-medical"></i> Servicios</a></li>
+                <li class="active"><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li><a href="#"><i class="fas fa-chart-bar"></i> Analíticas</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <h2>Agenda de Citas - Vista Maestra</h2>
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Administrador">
+                    <div class="user-details">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Clínica FisioSalud</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <h3>Vista Maestra de la Agenda</h3>
+                        <p>Gestiona todas las citas programadas en la clínica. Visualiza, agenda y modifica citas de todos los fisioterapeutas.</p>
+                    </div>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-hoy">0</div>
+                            <div class="stat-label">Citas Hoy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-pendientes">0</div>
+                            <div class="stat-label">Pendientes</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-semana">0</div>
+                            <div class="stat-label">Esta Semana</div>
+                        </div>
+                    </div>
+                    <div class="banner-actions">
+                        <button class="btn btn-white" onclick="openNewAppointmentModal()">
+                            <i class="fas fa-plus"></i> Nueva Cita
+                        </button>
+                        <button class="btn btn-white" onclick="viewTodayAppointments()">
+                            <i class="fas fa-calendar-day"></i> Ver Hoy
+                        </button>
+                        <button class="btn btn-white" onclick="exportAppointments()">
+                            <i class="fas fa-download"></i> Exportar Agenda
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTROLES DE FECHA -->
+            <div class="date-controls">
+                <div class="date-navigation">
+                    <button class="btn btn-outline btn-sm" onclick="previousWeek()">
+                        <i class="fas fa-chevron-left"></i> Semana Anterior
+                    </button>
+                    <div class="current-date" id="current-week">Cargando...</div>
+                    <button class="btn btn-outline btn-sm" onclick="nextWeek()">
+                        Siguiente Semana <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div>
+                    <button class="btn btn-outline btn-sm" onclick="goToToday()">
+                        <i class="fas fa-calendar-day"></i> Hoy
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="loadAppointments()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- CALENDARIO SEMANAL -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div>Lunes</div>
+                    <div>Martes</div>
+                    <div>Miércoles</div>
+                    <div>Jueves</div>
+                    <div>Viernes</div>
+                    <div>Sábado</div>
+                    <div>Domingo</div>
+                </div>
+                <div class="calendar-grid" id="weekly-calendar">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <!-- TABLA DE CITAS -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Todas las Citas Programadas</h3>
+                    <div>
+                        <button class="btn btn-outline" onclick="clearFilters()">
+                            <i class="fas fa-filter"></i> Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- FILTROS -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="filter-date">Fecha</label>
+                        <input type="date" class="filter-input" id="filter-date">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-patient">Paciente</label>
+                        <input type="text" class="filter-input" id="filter-patient" placeholder="Buscar paciente...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-therapist">Fisioterapeuta</label>
+                        <select class="filter-select" id="filter-therapist">
+                            <option value="">Todos</option>
+                            <option value="Dr. Carlos Mendoza">Dr. Carlos Mendoza</option>
+                            <option value="Dra. Ana López">Dra. Ana López</option>
+                            <option value="Dr. Javier Rodríguez">Dr. Javier Rodríguez</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-status">Estado</label>
+                        <select class="filter-select" id="filter-status">
+                            <option value="">Todos</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Confirmada">Confirmada</option>
+                            <option value="Completada">Completada</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary" onclick="filterAppointments()" style="margin-top: 24px;">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- TABLA -->
+                <div id="appointments-table">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Cargando citas...</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA CITA -->
+    <div id="newAppointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Cita</h3>
+                <button class="modal-close" onclick="closeNewAppointmentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointment-patient">Paciente *</label>
+                            <select class="filter-select" id="appointment-patient" required>
+                                <option value="">Seleccionar paciente</option>
+                                <option value="María González">María González</option>
+                                <option value="Carlos Rodríguez">Carlos Rodríguez</option>
+                                <option value="Ana Martínez">Ana Martínez</option>
+                                <option value="Luis Fernández">Luis Fernández</option>
+                                <option value="Laura Sánchez">Laura Sánchez</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment-service">Servicio *</label>
+                            <select class="filter-select" id="appointment-service" required>
+                                <option value="">Seleccionar servicio</option>
+                                <option value="Masaje Terapéutico">Masaje Terapéutico</option>
+                                <option value="Rehabilitación Post-operatoria">Rehabilitación Post-operatoria</option>
+                                <option value="Terapia Deportiva">Terapia Deportiva</option>
+                                <option value="Neuromodulación">Neuromodulación</option>
+                                <option value="Terapia Pediátrica">Terapia Pediátrica</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointment-therapist">Fisioterapeuta *</label>
+                            <select class="filter-select" id="appointment-therapist" required>
+                                <option value="">Seleccionar fisioterapeuta</option>
+                                <option value="Dr. Carlos Mendoza">Dr. Carlos Mendoza</option>
+                                <option value="Dra. Ana López">Dra. Ana López</option>
+                                <option value="Dr. Javier Rodríguez">Dr. Javier Rodríguez</option>
+                                <option value="Dra. María Fernández">Dra. María Fernández</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment-type">Tipo de Pago *</label>
+                            <select class="filter-select" id="appointment-type" required>
+                                <option value="">Seleccionar tipo</option>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta Crédito">Tarjeta Crédito</option>
+                                <option value="Tarjeta Débito">Tarjeta Débito</option>
+                                <option value="Transferencia">Transferencia</option>
+                                <option value="Seguro">Seguro Médico</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointment-date">Fecha *</label>
+                            <input type="date" class="filter-input" id="appointment-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment-time">Hora *</label>
+                            <input type="time" class="filter-input" id="appointment-time" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointment-notes">Notas Adicionales</label>
+                        <textarea class="filter-input" id="appointment-notes" rows="3" placeholder="Observaciones, comentarios o notas importantes..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointment-status">Estado *</label>
+                        <select class="filter-select" id="appointment-status" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Confirmada">Confirmada</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeNewAppointmentModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveAppointment()">Guardar Cita</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLES CITA -->
+    <div id="appointmentDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="appointment-details-title">Detalles de la Cita</h3>
+                <button class="modal-close" onclick="closeAppointmentDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="appointment-details-content">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAppointmentDetailsModal()">Cerrar</button>
+                <button class="btn btn-primary" onclick="editAppointment()">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-danger" onclick="deleteAppointment()">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    </script>
+</body>
+</html>
+

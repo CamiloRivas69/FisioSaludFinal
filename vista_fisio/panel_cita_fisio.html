@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Citas - FisioSalud</title>
+    <style>
+        :root {
+            /* COLORES EXACTOS */
+            --primary: #0A2540;
+            --secondary: #00A3FF;
+            --accent: #00D4AA;
+            --background: #FFFFFF;
+            --background-alt: #F8FAFC;
+            --text: #0F172A;
+            --gray: #64748B;
+            --gray-light: #E2E8F0;
+            --gray-lighter: #F1F5F9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #17a2b8;
+            
+            /* VARIABLES CSS EXACTAS */
+            --border-radius-sm: 4px;
+            --border-radius: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-alt);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR EXACTO ===== */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            padding: var(--spacing-md) 0;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-right: var(--spacing-sm);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: var(--spacing-sm) var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links li.active {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-left: 3px solid var(--secondary);
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links i {
+            margin-right: var(--spacing-sm);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            background: var(--background-alt);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--border-radius-sm);
+            margin-right: var(--spacing-sm);
+            border: 2px solid var(--secondary);
+            object-fit: cover;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* ===== WELCOME BANNER ===== */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 163, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .banner-text h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            line-height: 1.2;
+        }
+
+        .banner-text p {
+            opacity: 0.9;
+            max-width: 600px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .banner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+            color: white;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-white:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== CARDS GRID ===== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .card {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .bg-primary {
+            background-color: var(--primary);
+        }
+
+        .bg-success {
+            background-color: var(--success);
+        }
+
+        .bg-warning {
+            background-color: var(--warning);
+        }
+
+        .bg-info {
+            background-color: var(--info);
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .card-description {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: var(--gray-lighter);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== BADGE ===== */
+        .badge {
+            display: inline-block;
+            padding: 3px 7px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            border-radius: 10px;
+            background-color: var(--danger);
+            color: white;
+            margin-left: var(--spacing-xs);
+        }
+
+        /* ===== FILTROS ===== */
+        .filters-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            align-items: end;
+            border: 1px solid var(--gray-light);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background-color: var(--background);
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(0, 163, 255, 0.1);
+        }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-light);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: var(--spacing-sm);
+            text-align: left;
+            border-bottom: 1px solid var(--gray-lighter);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--gray-lighter);
+            font-weight: 600;
+            color: var(--text);
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background-color: var(--gray-light);
+        }
+
+        th.sort-asc::after {
+            content: ' ↑';
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        th.sort-desc::after {
+            content: ' ↓';
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        tr:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-confirmed {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-completed {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: var(--gray);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .status-canceled {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0090e0;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #0d9c6d;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--text);
+        }
+
+        .btn-warning:hover {
+            background-color: #e69e0a;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--gray-light);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: var(--spacing-md);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* ===== FORMULARIOS ===== */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        /* ===== NOTIFICACIONES ===== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-info {
+            border-left-color: var(--info);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex: 1;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .notification-close:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* ===== ESTADOS ===== */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            color: var(--gray);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-light);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 400px;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-lighter);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--spacing-sm);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== DETALLES TABLA ===== */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 0 -20px;
+            padding: 0 20px;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) 0;
+            border-top: 1px solid var(--gray-light);
+            margin-top: var(--spacing-md);
+        }
+
+        .table-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .patient-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .patient-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .patient-email {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .badge-id {
+            background-color: var(--gray-lighter);
+            color: var(--gray);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .service-badge {
+            background-color: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .date-cell, .time-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-cell i {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: var(--spacing-md);
+            }
+            
+            .welcome-banner {
+                padding: var(--spacing-lg);
+            }
+            
+            .banner-text h3 {
+                font-size: 1.5rem;
+            }
+            
+            .banner-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--spacing-sm);
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .banner-actions {
+                flex-direction: column;
+            }
+            
+            .btn-white {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .btn-group {
+                flex-wrap: wrap;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .banner-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-banner::before {
+                display: none;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <!-- IMPORT EXACTO DE GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR EXACTO -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">FS</div>
+                <div class="logo-text">FisioSalud</div>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="/panel_citas_fisio"><i class="fas fa-calendar-alt"></i> Mis Citas</a></li>
+                <li><a href="/panel_pacientes_fisio"><i class="fas fa-user-injured"></i> Mis Pacientes</a></li>
+                <li><a href="/panel_progreso_fisio"><i class="fas fa-chart-line"></i> Progreso</a></li>
+                <li><a href="/logout-fisio"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER EXACTO -->
+            <div class="header">
+                <h2>Gestión de Mis Citas</h2>
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=32" alt="Usuario">
+                    <div class="user-details">
+                        <div class="user-name" id="user-name">{{ fisioterapeuta.nombre_completo }}</div>
+                        <div class="user-role" id="user-role">{{ fisioterapeuta.especializacion }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <h3>Bienvenido de nuevo, {{ fisioterapeuta.nombre_completo.split(' ')[0] }}</h3>
+                        <p>Gestiona tus citas, visualiza tu agenda y organiza tu jornada de manera eficiente.</p>
+                    </div>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="today-appointments-banner">0</div>
+                            <div class="stat-label">Citas Hoy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="pending-appointments-banner">0</div>
+                            <div class="stat-label">Pendientes</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="weekly-appointments-banner">0</div>
+                            <div class="stat-label">Esta Semana</div>
+                        </div>
+                    </div>
+                    <div class="banner-actions">
+                        <button class="btn btn-white" onclick="showTodaySchedule()">
+                            <i class="fas fa-calendar-day"></i> Ver Hoy
+                        </button>
+                        <button class="btn btn-white" onclick="openModal()">
+                            <i class="fas fa-plus"></i> Nueva Cita
+                        </button>
+                        <button class="btn btn-white" onclick="exportSchedule()">
+                            <i class="fas fa-download"></i> Exportar Agenda
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS GRID -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Citas Hoy</div>
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="today-appointments">0</div>
+                    <div class="card-description" id="today-pending">0 pendientes</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Citas Semana</div>
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="week-appointments">0</div>
+                    <div class="card-description" id="week-pending">0 esta semana</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Por Confirmar</div>
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="pending-appointments">0</div>
+                    <div class="card-description">Necesitan acción</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Completadas</div>
+                        <div class="card-icon bg-info">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="completed-appointments">0</div>
+                    <div class="card-description">Este mes</div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <div class="tab active" onclick="changeTab('total-citas')">Total de Citas Actuales</div>
+                <div class="tab" onclick="changeTab('hoy')">Hoy</div>
+                <div class="tab" onclick="changeTab('pendientes')">
+                    Por Confirmar
+                    <span class="badge" id="pending-badge">0</span>
+                </div>
+                <div class="tab" onclick="changeTab('historial')">Historial</div>
+            </div>
+
+            <!-- TAB CONTENT: TOTAL CITAS -->
+            <div id="total-citas" class="tab-content active">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 id="total-citas-title">Total de Citas Actuales</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="clearFilters()">
+                                <i class="fas fa-filter"></i> Limpiar Filtros
+                            </button>
+                            <button class="btn btn-primary" onclick="loadAppointments()">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- FILTROS -->
+                    <div class="filters-container">
+                        <div class="filter-group">
+                            <label for="filter-date">Fecha</label>
+                            <input type="date" class="filter-input" id="filter-date">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-patient">Paciente</label>
+                            <input type="text" class="filter-input" id="filter-patient" placeholder="Buscar paciente...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-service">Servicio</label>
+                            <select class="filter-select" id="filter-service">
+                                <option value="">Todos los servicios</option>
+                                <option value="Masaje relajante">Masaje relajante</option>
+                                <option value="Fisioterapia">Fisioterapia</option>
+                                <option value="Rehabilitación">Rehabilitación</option>
+                                <option value="Terapia física">Terapia física</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-status">Estado</label>
+                            <select class="filter-select" id="filter-status">
+                                <option value="">Todos los estados</option>
+                                <option value="pending">Pendiente</option>
+                                <option value="confirmed">Confirmada</option>
+                                <option value="completed">Completada</option>
+                                <option value="canceled">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-primary" onclick="filterAppointments()" style="margin-top: 24px;">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- TABLA DE CITAS -->
+                    <div id="appointments-table">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner loading-spinner"></i>
+                            <h3>Cargando citas...</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTRAS PESTAÑAS -->
+            <div id="hoy" class="tab-content">
+                <div class="table-container">
+                    <div id="hoy-table">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-check"></i>
+                            <h3>Citas de Hoy</h3>
+                            <p>Esta sección mostrará las citas programadas para hoy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pendientes" class="tab-content">
+                <div class="table-container">
+                    <div id="pendientes-table">
+                        <div class="empty-state">
+                            <i class="fas fa-question-circle"></i>
+                            <h3>Citas por Confirmar</h3>
+                            <p>Esta sección mostrará las citas que requieren confirmación</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historial" class="tab-content">
+                <div class="table-container">
+                    <div id="historial-table">
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <h3>Historial de Citas</h3>
+                            <p>Esta sección mostrará el historial completo de citas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA CITA -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Cita</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre_paciente">Nombre del Paciente *</label>
+                            <input type="text" class="filter-input" id="nombre_paciente" required placeholder="Nombre completo del paciente">
+                        </div>
+                        <div class="form-group">
+                            <label for="servicio">Servicio *</label>
+                            <select class="filter-select" id="servicio" required>
+                                <option value="">Seleccionar servicio</option>
+                                <option value="Masaje relajante">Masaje relajante</option>
+                                <option value="Fisioterapia">Fisioterapia</option>
+                                <option value="Rehabilitación">Rehabilitación</option>
+                                <option value="Terapia física">Terapia física</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="terapeuta_designado">Terapeuta Designado</label>
+                            <input type="text" class="filter-input" id="terapeuta_designado" value="{{ fisioterapeuta.nombre_completo }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo_pago">Tipo de Pago *</label>
+                            <select class="filter-select" id="tipo_pago" required>
+                                <option value="">Seleccionar tipo de pago</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta_credito">Tarjeta de Crédito</option>
+                                <option value="tarjeta_debito">Tarjeta de Débito</option>
+                                <option value="transferencia">Transferencia</option>
+                                <option value="seguro">Seguro Médico</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" class="filter-input" id="telefono" placeholder="Número de teléfono">
+                        </div>
+                        <div class="form-group">
+                            <label for="correo">Correo Electrónico</label>
+                            <input type="email" class="filter-input" id="correo" placeholder="correo@ejemplo.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fecha_cita">Fecha de Cita *</label>
+                            <input type="date" class="filter-input" id="fecha_cita" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora_cita">Hora de Cita *</label>
+                            <input type="time" class="filter-input" id="hora_cita" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notas_adicionales">Notas Adicionales</label>
+                        <textarea class="filter-input" id="notas_adicionales" rows="3" placeholder="Observaciones, comentarios o notas importantes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveAppointment()">Guardar Cita</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// =============================================
+// VARIABLES GLOBALES
+// =============================================
+
+let allAppointments = [];
+let currentFilteredAppointments = [];
+let currentTab = 'total-citas';
+let currentSortColumn = 'fecha_cita';
+let currentSortDirection = 'desc';
+
+// =============================================
+// FUNCIONES DE DEBUG Y DIAGNÓSTICO
+// =============================================
+
+async function debugSession() {
+    try {
+        console.log('🔍 Iniciando diagnóstico de sesión...');
+        
+        // Ver datos del template
+        console.log('📋 Datos del fisioterapeuta en template:', {
+            nombre: "{{ fisioterapeuta.nombre_completo }}",
+            especializacion: "{{ fisioterapeuta.especializacion }}",
+            codigo: "{{ fisioterapeuta.codigo_trabajador }}",
+            email: "{{ fisioterapeuta.email }}",
+            logged_in: "{{ fisioterapeuta.logged_in }}"
+        });
+        
+        // Llamar al endpoint para ver qué responde
+        console.log('🔄 Llamando a /api/citas/panel_terapeuta...');
+        
+        const response = await fetch('/api/citas/panel_terapeuta', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+        
+        const result = await response.json();
+        
+        console.log('📡 Respuesta del servidor:', {
+            status: response.status,
+            success: result.success,
+            terapeuta_filtrado: result.terapeuta,
+            total_citas: result.total,
+            error: result.error,
+            debug: result.debug
+        });
+        
+        // Mostrar alerta con resultado
+        if (result.success) {
+            alert(`✅ Fisioterapeuta en sesión: ${result.terapeuta}\n📅 Citas encontradas: ${result.total}`);
+        } else {
+            alert(`❌ Error: ${result.error || 'Desconocido'}\n\nRevisa la consola para más detalles.`);
+        }
+        
+        return result;
+        
+    } catch (error) {
+        console.error('❌ Error en debugSession:', error);
+        alert('Error de conexión: ' + error.message);
+    }
+}
+
+// =============================================
+// FUNCIONES DE UI Y MODAL
+// =============================================
+
+function openModal() {
+    document.getElementById('appointmentModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Establecer valores por defecto
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha_cita').value = today;
+    
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    now.setMinutes(0, 0, 0);
+    const timeString = now.toTimeString().substring(0, 5);
+    document.getElementById('hora_cita').value = timeString;
+    
+    // Establecer terapeuta designado automáticamente (DEL TEMPLATE)
+    const terapeutaNombre = "{{ fisioterapeuta.nombre_completo }}";
+    document.getElementById('terapeuta_designado').value = terapeutaNombre;
+    
+    console.log('📝 Modal abierto para terapeuta:', terapeutaNombre);
+    
+    // Focus en el primer campo
+    setTimeout(() => {
+        document.getElementById('nombre_paciente').focus();
+    }, 100);
+}
+
+function closeModal() {
+    document.getElementById('appointmentModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+    document.getElementById('appointmentForm').reset();
+    
+    // Restablecer valores por defecto
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha_cita').value = today;
+    document.getElementById('terapeuta_designado').value = "{{ fisioterapeuta.nombre_completo }}";
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('appointmentModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+});
+
+// Cerrar modal con Escape
+document.addEventListener('keydown', function(event) {
+    const modal = document.getElementById('appointmentModal');
+    if (event.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// =============================================
+// FUNCIONES DE NAVEGACIÓN POR PESTAÑAS
+// =============================================
+
+function changeTab(tabName) {
+    // Actualizar variable global
+    currentTab = tabName;
+    
+    // Ocultar todas las pestañas
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remover clase active de todas las pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Activar la pestaña seleccionada
+    document.getElementById(tabName).classList.add('active');
+    document.querySelector(`.tab[onclick="changeTab('${tabName}')"]`).classList.add('active');
+    
+    // Cargar datos según la pestaña
+    if (tabName === 'total-citas') {
+        loadAppointments();
+    } else if (tabName === 'hoy') {
+        filterTodayAppointments();
+    } else if (tabName === 'pendientes') {
+        filterPendingAppointments();
+    } else if (tabName === 'historial') {
+        showHistorial();
+    }
+}
+
+// =============================================
+// FUNCIONES DE CARGA DE DATOS - CORREGIDAS
+// =============================================
+
+async function loadAppointments() {
+    try {
+        showLoadingState();
+        
+        console.log('🔄 Cargando citas del fisioterapeuta...');
+        
+        // ¡IMPORTANTE: credentials: 'include' para enviar cookies de sesión!
+        const response = await fetch('/api/citas/panel_terapeuta', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+        
+        console.log('📡 Status de respuesta:', response.status, response.statusText);
+        
+        if (response.status === 401) {
+            // No autorizado - sesión expirada
+            console.warn('⚠️ Sesión expirada o no válida');
+            showNotification('Sesión expirada. Redirigiendo al login...', 'warning');
+            setTimeout(() => {
+                window.location.href = '/login-fisio-page';
+            }, 2000);
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        console.log('📊 Datos recibidos:', {
+            success: result.success,
+            total_citas: result.total,
+            terapeuta_filtrado: result.terapeuta,
+            error: result.error
+        });
+        
+        if (result.success) {
+            allAppointments = result.data || [];
+            
+            console.log(`✅ Cargadas ${allAppointments.length} citas para: ${result.terapeuta || 'Terapeuta no especificado'}`);
+            
+            // Procesar fechas para ordenamiento
+            allAppointments = allAppointments.map(apt => ({
+                ...apt,
+                fecha_original: apt.fecha_cita,
+                fecha_cita: new Date(apt.fecha_cita)
+            }));
+            
+            // Aplicar filtros según la pestaña actual
+            if (currentTab === 'hoy') {
+                filterTodayAppointments();
+            } else if (currentTab === 'pendientes') {
+                filterPendingAppointments();
+            } else {
+                currentFilteredAppointments = [...allAppointments];
+                sortAppointments(currentSortColumn, currentSortDirection);
+                renderAppointmentsTable();
+            }
+            
+            updateStatistics();
+            updateBannerStats();
+            
+        } else {
+            // Error del servidor
+            const errorMsg = result.error || 'Error al cargar las citas';
+            console.error('❌ Error en la respuesta:', result);
+            showErrorState(errorMsg);
+            showNotification(errorMsg, 'error');
+        }
+    } catch (error) {
+        console.error('❌ Error completo al cargar citas:', error);
+        showErrorState('Error de conexión: ' + error.message);
+        showNotification('Error de conexión al servidor', 'error');
+    }
+}
+
+function showLoadingState() {
+    const tableContainer = document.getElementById('appointments-table');
+    tableContainer.innerHTML = `
+        <div class="empty-state">
+            <div style="margin-bottom: 16px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--secondary);"></i>
+            </div>
+            <h3>Cargando citas...</h3>
+            <p>Por favor, espere un momento</p>
+        </div>
+    `;
+}
+
+function showErrorState(message) {
+    const tableContainer = document.getElementById('appointments-table');
+    tableContainer.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 2rem; margin-bottom: 16px;"></i>
+            <h3>Error al cargar las citas</h3>
+            <p>${message}</p>
+            <button class="btn btn-primary" onclick="loadAppointments()">
+                <i class="fas fa-redo"></i> Reintentar
+            </button>
+            <button class="btn btn-outline" onclick="debugSession()" style="margin-top: 10px;">
+                <i class="fas fa-bug"></i> Diagnosticar problema
+            </button>
+        </div>
+    `;
+}
+
+// =============================================
+// FUNCIONES DE FILTRADO
+// =============================================
+
+function filterTodayAppointments() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    currentFilteredAppointments = allAppointments.filter(appointment => {
+        const appointmentDate = new Date(appointment.fecha_original).toISOString().split('T')[0];
+        return appointmentDate === today;
+    });
+    
+    sortAppointments('hora_cita', 'asc');
+    renderAppointmentsTable('hoy-table');
+}
+
+function filterPendingAppointments() {
+    currentFilteredAppointments = allAppointments.filter(appointment => 
+        appointment.estado === 'pending'
+    );
+    
+    sortAppointments('fecha_cita', 'asc');
+    renderAppointmentsTable('pendientes-table');
+}
+
+function filterAppointments() {
+    const dateFilter = document.getElementById('filter-date').value;
+    const patientFilter = document.getElementById('filter-patient').value.toLowerCase();
+    const serviceFilter = document.getElementById('filter-service').value;
+    const statusFilter = document.getElementById('filter-status').value;
+
+    currentFilteredAppointments = allAppointments.filter(appointment => {
+        const appointmentDate = new Date(appointment.fecha_original).toISOString().split('T')[0];
+        const appointmentPatient = appointment.nombre_paciente ? appointment.nombre_paciente.toLowerCase() : '';
+        const appointmentService = appointment.servicio || '';
+        
+        const matchesDate = !dateFilter || appointmentDate === dateFilter;
+        const matchesPatient = !patientFilter || appointmentPatient.includes(patientFilter);
+        const matchesService = !serviceFilter || appointmentService === serviceFilter;
+        const matchesStatus = !statusFilter || appointment.estado === statusFilter;
+
+        return matchesDate && matchesPatient && matchesService && matchesStatus;
+    });
+
+    sortAppointments(currentSortColumn, currentSortDirection);
+    renderAppointmentsTable();
+}
+
+function clearFilters() {
+    document.getElementById('filter-date').value = '';
+    document.getElementById('filter-patient').value = '';
+    document.getElementById('filter-service').value = '';
+    document.getElementById('filter-status').value = '';
+    
+    currentFilteredAppointments = [...allAppointments];
+    sortAppointments(currentSortColumn, currentSortDirection);
+    renderAppointmentsTable();
+}
+
+// =============================================
+// FUNCIONES DE ORDENAMIENTO
+// =============================================
+
+function sortAppointments(column, direction) {
+    currentSortColumn = column;
+    currentSortDirection = direction;
+    
+    currentFilteredAppointments.sort((a, b) => {
+        let valueA, valueB;
+        
+        switch(column) {
+            case 'fecha_cita':
+                valueA = a.fecha_cita;
+                valueB = b.fecha_cita;
+                break;
+            case 'hora_cita':
+                valueA = a.hora_cita || '';
+                valueB = b.hora_cita || '';
+                break;
+            case 'nombre_paciente':
+                valueA = (a.nombre_paciente || '').toLowerCase();
+                valueB = (b.nombre_paciente || '').toLowerCase();
+                break;
+            case 'servicio':
+                valueA = (a.servicio || '').toLowerCase();
+                valueB = (b.servicio || '').toLowerCase();
+                break;
+            case 'estado':
+                valueA = a.estado || '';
+                valueB = b.estado || '';
+                break;
+            default:
+                valueA = a[column] || '';
+                valueB = b[column] || '';
+        }
+        
+        if (direction === 'asc') {
+            return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+        } else {
+            return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+        }
+    });
+}
+
+function sortTable(column) {
+    // Cambiar dirección si es la misma columna
+    if (currentSortColumn === column) {
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortColumn = column;
+        currentSortDirection = 'asc';
+    }
+    
+    sortAppointments(column, currentSortDirection);
+    renderAppointmentsTable();
+    updateSortIndicators();
+}
+
+function updateSortIndicators() {
+    // Remover indicadores anteriores
+    document.querySelectorAll('th').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+    });
+    
+    // Agregar nuevo indicador
+    const headerCell = document.querySelector(`th[onclick="sortTable('${currentSortColumn}')"]`);
+    if (headerCell) {
+        headerCell.classList.add(`sort-${currentSortDirection}`);
+    }
+}
+
+// =============================================
+// FUNCIONES DE RENDERIZADO
+// =============================================
+
+function renderAppointmentsTable(containerId = 'appointments-table') {
+    const tableContainer = document.getElementById(containerId);
+    
+    if (currentFilteredAppointments.length === 0) {
+        tableContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No hay citas</h3>
+                <p>No se encontraron citas con los filtros aplicados</p>
+                ${containerId === 'appointments-table' ? `
+                <button class="btn btn-outline" onclick="openModal()">
+                    <i class="fas fa-plus"></i> Crear Nueva Cita
+                </button>` : ''}
+            </div>
+        `;
+        return;
+    }
+
+    let tableHTML = `
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('cita_id')">ID Cita</th>
+                        <th onclick="sortTable('nombre_paciente')">Paciente</th>
+                        <th onclick="sortTable('servicio')">Servicio</th>
+                        <th onclick="sortTable('fecha_cita')">Fecha</th>
+                        <th onclick="sortTable('hora_cita')">Hora</th>
+                        <th>Teléfono</th>
+                        <th onclick="sortTable('estado')">Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    currentFilteredAppointments.forEach(appointment => {
+        const fecha = appointment.fecha_cita ? 
+            new Date(appointment.fecha_original).toLocaleDateString('es-ES', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : 'No especificada';
+            
+        const hora = appointment.hora_cita ? 
+            appointment.hora_cita.substring(0, 5) : '--:--';
+        
+        const estado = appointment.estado || 'pending';
+        
+        // Clase CSS para el estado
+        const estadoClass = getStatusClass(estado);
+        const estadoTexto = getStatusText(estado);
+        const estadoIcon = getStatusIcon(estado);
+        
+        tableHTML += `
+            <tr data-cita-id="${appointment.cita_id}">
+                <td><span class="badge-id">${escapeHtml(appointment.cita_id)}</span></td>
+                <td>
+                    <div class="patient-info">
+                        <div class="patient-name">${escapeHtml(appointment.nombre_paciente || 'No especificado')}</div>
+                        ${appointment.correo ? `<div class="patient-email">${escapeHtml(appointment.correo)}</div>` : ''}
+                    </div>
+                </td>
+                <td>
+                    <span class="service-badge">${escapeHtml(appointment.servicio || 'No especificado')}</span>
+                </td>
+                <td>
+                    <div class="date-cell">
+                        <div class="date-display">${fecha}</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="time-cell">
+                        <i class="far fa-clock"></i>
+                        <span>${hora}</span>
+                    </div>
+                </td>
+                <td>${escapeHtml(appointment.telefono || 'N/A')}</td>
+                <td>
+                    <span class="status ${estadoClass}">
+                        <i class="${estadoIcon}"></i>
+                        ${estadoTexto}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-info" onclick="viewAppointmentDetails('${appointment.cita_id}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="changeAppointmentStatus('${appointment.cita_id}', 'confirmed')" 
+                            title="Confirmar" ${estado === 'confirmed' || estado === 'completed' || estado === 'canceled' ? 'disabled' : ''}>
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="changeAppointmentStatus('${appointment.cita_id}', 'completed')" 
+                            title="Completar" ${estado === 'completed' || estado === 'canceled' ? 'disabled' : ''}>
+                            <i class="fas fa-flag-checkered"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="changeAppointmentStatus('${appointment.cita_id}', 'canceled')" 
+                            title="Cancelar" ${estado === 'canceled' ? 'disabled' : ''}>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="table-info">
+                Mostrando ${currentFilteredAppointments.length} de ${allAppointments.length} citas
+            </div>
+            <div class="table-actions">
+                <button class="btn btn-outline btn-sm" onclick="exportToCSV()">
+                    <i class="fas fa-download"></i> Exportar CSV
+                </button>
+            </div>
+        </div>
+    `;
+
+    tableContainer.innerHTML = tableHTML;
+    updateSortIndicators();
+}
+
+function showHistorial() {
+    // Filtrar citas completadas y canceladas para historial
+    currentFilteredAppointments = allAppointments.filter(appointment => 
+        appointment.estado === 'completed' || appointment.estado === 'canceled'
+    );
+    
+    sortAppointments('fecha_cita', 'desc');
+    renderAppointmentsTable('historial-table');
+}
+
+// =============================================
+// FUNCIONES DE ESTADO
+// =============================================
+
+function getStatusClass(status) {
+    const statusClasses = {
+        'pending': 'status-pending',
+        'confirmed': 'status-confirmed',
+        'completed': 'status-completed',
+        'canceled': 'status-canceled'
+    };
+    return statusClasses[status] || 'status-pending';
+}
+
+function getStatusText(status) {
+    const statusTexts = {
+        'pending': 'Pendiente',
+        'confirmed': 'Confirmada',
+        'completed': 'Completada',
+        'canceled': 'Cancelada'
+    };
+    return statusTexts[status] || status;
+}
+
+function getStatusIcon(status) {
+    const statusIcons = {
+        'pending': 'far fa-clock',
+        'confirmed': 'fas fa-check-circle',
+        'completed': 'fas fa-flag-checkered',
+        'canceled': 'fas fa-times-circle'
+    };
+    return statusIcons[status] || 'far fa-clock';
+}
+
+// =============================================
+// FUNCIONES DE ACTUALIZACIÓN DE ESTADO - CORREGIDAS
+// =============================================
+
+async function changeAppointmentStatus(citaId, newStatus) {
+    try {
+        const statusTexts = {
+            'confirmed': 'Confirmar',
+            'completed': 'Completar',
+            'canceled': 'Cancelar'
+        };
+        
+        if (!confirm(`¿Está seguro de que desea ${statusTexts[newStatus] || 'cambiar el estado de'} esta cita?`)) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('cita_id', citaId);
+        formData.append('nuevo_estado', newStatus);
+
+        // ¡IMPORTANTE: credentials: 'include' para enviar cookies!
+        const response = await fetch('/api/citas/actualizar-estado', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification(result.message || 'Estado actualizado correctamente', 'success');
+            loadAppointments(); // Recargar la tabla
+        } else {
+            showNotification('Error: ' + (result.error || 'No se pudo actualizar el estado'), 'error');
+        }
+    } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        showNotification('Error de conexión al cambiar el estado', 'error');
+    }
+}
+
+// =============================================
+// FUNCIONES DE ESTADÍSTICAS
+// =============================================
+
+function updateStatistics() {
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    
+    // Citas de hoy
+    const todayAppointments = allAppointments.filter(apt => {
+        const aptDate = new Date(apt.fecha_original).toISOString().split('T')[0];
+        return aptDate === today;
+    });
+    const todayPending = todayAppointments.filter(apt => apt.estado === 'pending').length;
+    document.getElementById('today-appointments').textContent = todayAppointments.length;
+    document.getElementById('today-pending').textContent = `${todayPending} pendientes`;
+    
+    // Citas de la semana (próximos 7 días)
+    const weekStart = new Date();
+    const weekEnd = new Date();
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    
+    const weekAppointments = allAppointments.filter(apt => {
+        const aptDate = new Date(apt.fecha_original);
+        return aptDate >= weekStart && aptDate <= weekEnd;
+    });
+    const weekPending = weekAppointments.filter(apt => apt.estado === 'pending').length;
+    document.getElementById('week-appointments').textContent = weekAppointments.length;
+    document.getElementById('week-pending').textContent = `${weekPending} esta semana`;
+    
+    // Citas pendientes
+    const pendingAppointments = allAppointments.filter(apt => apt.estado === 'pending');
+    document.getElementById('pending-appointments').textContent = pendingAppointments.length;
+    document.getElementById('pending-badge').textContent = pendingAppointments.length;
+    
+    // Citas completadas este mes
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const completedAppointments = allAppointments.filter(apt => {
+        if (apt.estado !== 'completed') return false;
+        const aptDate = new Date(apt.fecha_original);
+        return aptDate.getMonth() === currentMonth && aptDate.getFullYear() === currentYear;
+    });
+    document.getElementById('completed-appointments').textContent = completedAppointments.length;
+}
+
+function updateBannerStats() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Citas de hoy
+    const todayAppointments = allAppointments.filter(apt => {
+        const aptDate = new Date(apt.fecha_original).toISOString().split('T')[0];
+        return aptDate === today;
+    });
+    document.getElementById('today-appointments-banner').textContent = todayAppointments.length;
+    
+    // Citas pendientes
+    const pendingAppointments = allAppointments.filter(apt => apt.estado === 'pending');
+    document.getElementById('pending-appointments-banner').textContent = pendingAppointments.length;
+    
+    // Citas de la semana (próximos 7 días)
+    const weekStart = new Date();
+    const weekEnd = new Date();
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    
+    const weekAppointments = allAppointments.filter(apt => {
+        const aptDate = new Date(apt.fecha_original);
+        return aptDate >= weekStart && aptDate <= weekEnd;
+    });
+    document.getElementById('weekly-appointments-banner').textContent = weekAppointments.length;
+}
+
+// =============================================
+// FUNCIONES DE FORMULARIO Y GUARDADO - CORREGIDAS
+// =============================================
+
+async function saveAppointment() {
+    const appointmentData = {
+        servicio: document.getElementById('servicio').value,
+        terapeuta_designado: document.getElementById('terapeuta_designado').value,
+        nombre_paciente: document.getElementById('nombre_paciente').value,
+        telefono: document.getElementById('telefono').value,
+        correo: document.getElementById('correo').value,
+        fecha_cita: document.getElementById('fecha_cita').value,
+        hora_cita: document.getElementById('hora_cita').value,
+        notas_adicionales: document.getElementById('notas_adicionales').value,
+        tipo_pago: document.getElementById('tipo_pago').value
+    };
+
+    // Validación básica
+    if (!appointmentData.nombre_paciente || !appointmentData.fecha_cita || !appointmentData.hora_cita || !appointmentData.servicio || !appointmentData.tipo_pago) {
+        showNotification('Por favor, complete todos los campos obligatorios (*).', 'error');
+        return;
+    }
+
+    // Validar formato de email si se proporciona
+    if (appointmentData.correo && !isValidEmail(appointmentData.correo)) {
+        showNotification('Por favor, ingrese un correo electrónico válido.', 'error');
+        return;
+    }
+
+    // Validar fecha futura
+    const appointmentDateTime = new Date(`${appointmentData.fecha_cita}T${appointmentData.hora_cita}`);
+    if (appointmentDateTime < new Date()) {
+        if (!confirm('La fecha y hora de la cita están en el pasado. ¿Desea continuar de todos modos?')) {
+            return;
+        }
+    }
+
+    try {
+        const formData = new FormData();
+        for (const key in appointmentData) {
+            if (appointmentData[key]) {
+                formData.append(key, appointmentData[key]);
+            }
+        }
+
+        console.log('💾 Enviando datos de cita:', appointmentData);
+        
+        // ¡IMPORTANTE: credentials: 'include' para enviar cookies!
+        const response = await fetch('/api/citas/crear', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+        console.log('📨 Respuesta del servidor:', result);
+
+        if (result.success) {
+            showNotification('Cita guardada exitosamente', 'success');
+            closeModal();
+            loadAppointments();
+        } else {
+            showNotification('Error al guardar la cita: ' + result.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error completo:', error);
+        showNotification('Error de conexión al guardar la cita: ' + error.message, 'error');
+    }
+}
+
+// =============================================
+// FUNCIONES AUXILIARES
+// =============================================
+
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+function showNotification(message, type = 'info') {
+    // Crear notificación
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Agregar al cuerpo
+    document.body.appendChild(notification);
+    
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+function viewAppointmentDetails(citaId) {
+    const appointment = allAppointments.find(apt => apt.cita_id == citaId);
+    if (!appointment) return;
+    
+    // Crear modal de detalles
+    const modalHTML = `
+        <div class="modal active" id="detailsModal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3>Detalles de la Cita #${appointment.cita_id}</h3>
+                    <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Paciente:</label>
+                            <span>${escapeHtml(appointment.nombre_paciente)}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Servicio:</label>
+                            <span>${escapeHtml(appointment.servicio)}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Fecha:</label>
+                            <span>${new Date(appointment.fecha_original).toLocaleDateString('es-ES', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            })}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Hora:</label>
+                            <span>${appointment.hora_cita || 'No especificada'}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Teléfono:</label>
+                            <span>${escapeHtml(appointment.telefono || 'N/A')}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Correo:</label>
+                            <span>${escapeHtml(appointment.correo || 'N/A')}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Estado:</label>
+                            <span class="status ${getStatusClass(appointment.estado)}">${getStatusText(appointment.estado)}</span>
+                        </div>
+                        ${appointment.notas_adicionales ? `
+                        <div style="grid-column: 1 / -1;">
+                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Notas adicionales:</label>
+                            <div style="background: var(--gray-lighter); padding: 12px; border-radius: var(--border-radius-sm);">${escapeHtml(appointment.notas_adicionales)}</div>
+                        </div>` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    document.getElementById('detailsModal').style.display = 'flex';
+}
+
+function closeDetailsModal() {
+    const modal = document.getElementById('detailsModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function exportToCSV() {
+    if (currentFilteredAppointments.length === 0) {
+        showNotification('No hay datos para exportar', 'warning');
+        return;
+    }
+    
+    const headers = ['ID', 'Paciente', 'Servicio', 'Fecha', 'Hora', 'Teléfono', 'Correo', 'Estado', 'Notas'];
+    const csvData = currentFilteredAppointments.map(apt => [
+        apt.cita_id,
+        apt.nombre_paciente || '',
+        apt.servicio || '',
+        new Date(apt.fecha_original).toLocaleDateString('es-ES'),
+        apt.hora_cita || '',
+        apt.telefono || '',
+        apt.correo || '',
+        getStatusText(apt.estado),
+        apt.notas_adicionales || ''
+    ]);
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += headers.join(",") + "\n";
+    csvContent += csvData.map(row => 
+        row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(",")
+    ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `citas_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('CSV exportado exitosamente', 'success');
+}
+
+// =============================================
+// FUNCIONES DEL BANNER
+// =============================================
+
+function showTodaySchedule() {
+    changeTab('hoy');
+}
+
+function createNewAppointment() {
+    openModal();
+}
+
+function exportSchedule() {
+    exportToCSV();
+}
+
+// =============================================
+// INICIALIZACIÓN MEJORADA
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏥 Panel de Citas Fisioterapeuta - Inicializando...');
+    
+    // Mostrar info del fisioterapeuta en consola
+    console.log('👤 Fisioterapeuta logueado:', {
+        nombre: "{{ fisioterapeuta.nombre_completo }}",
+        especializacion: "{{ fisioterapeuta.especializacion }}",
+        codigo: "{{ fisioterapeuta.codigo_trabajador }}",
+        email: "{{ fisioterapeuta.email }}"
+    });
+    
+    // Configurar fechas por defecto
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('filter-date').value = today;
+    document.getElementById('fecha_cita').min = today;
+    
+    // Establecer hora por defecto
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    now.setMinutes(0, 0, 0);
+    const timeString = now.toTimeString().substring(0, 5);
+    document.getElementById('hora_cita').value = timeString;
+    
+    // Establecer terapeuta designado (DEL TEMPLATE)
+    const terapeutaNombre = "{{ fisioterapeuta.nombre_completo }}";
+    const terapeutaInput = document.getElementById('terapeuta_designado');
+    if (terapeutaInput) {
+        terapeutaInput.value = terapeutaNombre;
+        console.log('📝 Terapeuta designado en formulario:', terapeutaNombre);
+    }
+    
+    // Setup para debug
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.addEventListener('dblclick', function() {
+            debugSession();
+        });
+    }
+    
+    // Atajo de teclado: Ctrl+Shift+D para debug
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+            e.preventDefault();
+            debugSession();
+        }
+    });
+    
+    // Cargar citas al iniciar (con delay para asegurar que todo esté listo)
+    setTimeout(() => {
+        loadAppointments();
+    }, 300);
+    
+    // Configurar listeners
+    setupEventListeners();
+    
+    // Auto-debug si hay parámetro en URL
+    if (window.location.search.includes('debug=true')) {
+        setTimeout(debugSession, 1000);
+    }
+});
+
+function setupEventListeners() {
+    // Filtros en tiempo real
+    document.getElementById('filter-patient').addEventListener('input', debounce(filterAppointments, 300));
+    document.getElementById('filter-service').addEventListener('change', filterAppointments);
+    document.getElementById('filter-status').addEventListener('change', filterAppointments);
+    document.getElementById('filter-date').addEventListener('change', filterAppointments);
+    
+    // Validación en tiempo real del formulario
+    const requiredFields = ['nombre_paciente', 'servicio', 'fecha_cita', 'hora_cita', 'tipo_pago'];
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.classList.add('error');
+                } else {
+                    this.classList.remove('error');
+                }
+            });
+        }
+    });
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+</body>
+</html>

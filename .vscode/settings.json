@@ -1,0 +1,5 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/64d51a6c-866d-47bf-badd-ede33ade6d72/resourceGroups/fisioproject/providers/Microsoft.Web/sites/fisiosalud",
+    "appService.deploySubpath": ".",
+    "liveServer.settings.port": 5501
+}

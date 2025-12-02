@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - FisioSalud</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4d6d5f;
+            --primary-light: #121a15;
+            --primary-dark: #33296b;
+            --secondary: #FF9A76;
+            --accent: #4A6572;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .contact-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin: 0 auto 15px;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .logo-subtitle {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        .contact-info {
+            margin-bottom: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .contact-item:hover {
+            transform: translateX(5px);
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .contact-item:hover .contact-icon {
+            background: white;
+            color: var(--primary);
+        }
+
+        .contact-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+
+        .contact-value {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        .contact-item:hover .contact-value {
+            color: white;
+        }
+
+        .contact-item:hover .contact-label {
+            color: white;
+        }
+
+        .hours-section {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .hours-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .hours-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .hour-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .hour-item:last-child {
+            border-bottom: none;
+        }
+
+        .day {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .time {
+            color: var(--gray);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-call {
+            background: var(--secondary);
+        }
+
+        .btn-call:hover {
+            background: #FF8A5F;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+        }
+
+        .emergency-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            color: #856404;
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 480px) {
+            .contact-container {
+                padding: 25px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .contact-item {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="contact-container">
+        <div class="logo">
+            <div class="logo-icon">FS</div>
+            <div class="logo-text">FisioSalud</div>
+            <div class="logo-subtitle">Tu bienestar es nuestra prioridad</div>
+        </div>
+
+        <div class="contact-info">
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-label">Teléfono Principal</div>
+                    <div class="contact-value">320 2914521</div>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-label">Correo Electrónico</div>
+                    <div class="contact-value">fisiosalud@gmail.com</div>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-label">Dirección</div>
+                    <div class="contact-value">Av. Salud #123, Bogotá, Colombia</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hours-section">
+            <h3 class="hours-title">
+                <i class="fas fa-clock"></i>
+                Horarios de Atención
+            </h3>
+            <div class="hours-grid">
+                <div class="hour-item">
+                    <span class="day">Lunes - Viernes</span>
+                    <span class="time">7:00 AM - 8:00 PM</span>
+                </div>
+                <div class="hour-item">
+                    <span class="day">Sábados</span>
+                    <span class="time">8:00 AM - 6:00 PM</span>
+                </div>
+                <div class="hour-item">
+                    <span class="day">Domingos</span>
+                    <span class="time">9:00 AM - 2:00 PM</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="tel:3202914521" class="btn btn-call">
+                <i class="fas fa-phone"></i>
+                Llamar Ahora
+            </a>
+            <a href="https://wa.me/573202914521" class="btn btn-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                WhatsApp
+            </a>
+            <a href="mailto:fisiosalud@gmail.com" class="btn">
+                <i class="fas fa-envelope"></i>
+                Email
+            </a>
+        </div>
+
+        <div class="emergency-notice">
+            <i class="fas fa-exclamation-circle"></i>
+            Para emergencias fuera de horario, llame al mismo número
+        </div>
+
+        <div class="social-links">
+            <a href="#" class="social-icon">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-icon">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="social-icon">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Agregar funcionalidad de click a los elementos de contacto
+            const contactItems = document.querySelectorAll('.contact-item');
+            
+            contactItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const value = this.querySelector('.contact-value').textContent;
+                    const label = this.querySelector('.contact-label').textContent;
+                    
+                    if (label.includes('Teléfono')) {
+                        window.location.href = 'tel:3202914521';
+                    } else if (label.includes('Correo')) {
+                        window.location.href = 'mailto:fisiosalud@gmail.com';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

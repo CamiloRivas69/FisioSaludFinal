@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pacientes - Panel Administrador FisioSalud</title>
+    <style>
+        :root {
+            /* COLORES EXACTOS (Mismos que el panel anterior) */
+            --primary: #0A2540;
+            --secondary: #00A3FF;
+            --accent: #00D4AA;
+            --background: #FFFFFF;
+            --background-alt: #F8FAFC;
+            --text: #0F172A;
+            --gray: #64748B;
+            --gray-light: #E2E8F0;
+            --gray-lighter: #F1F5F9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #17a2b8;
+            
+            /* VARIABLES CSS EXACTAS */
+            --border-radius-sm: 4px;
+            --border-radius: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-alt);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR EXACTO ===== */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            padding: var(--spacing-md) 0;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-right: var(--spacing-sm);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: var(--spacing-sm) var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links li.active {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-left: 3px solid var(--secondary);
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links i {
+            margin-right: var(--spacing-sm);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            background: var(--background-alt);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--border-radius-sm);
+            margin-right: var(--spacing-sm);
+            border: 2px solid var(--secondary);
+            object-fit: cover;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* ===== WELCOME BANNER ===== */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 163, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .banner-text h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            line-height: 1.2;
+        }
+
+        .banner-text p {
+            opacity: 0.9;
+            max-width: 600px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .banner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+            color: white;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-white:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== CARDS GRID ===== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .card {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .bg-primary {
+            background-color: var(--primary);
+        }
+
+        .bg-success {
+            background-color: var(--success);
+        }
+
+        .bg-warning {
+            background-color: var(--warning);
+        }
+
+        .bg-info {
+            background-color: var(--info);
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .card-description {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: var(--gray-lighter);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== BADGE ===== */
+        .badge {
+            display: inline-block;
+            padding: 3px 7px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            border-radius: 10px;
+            background-color: var(--danger);
+            color: white;
+            margin-left: var(--spacing-xs);
+        }
+
+        /* ===== FILTROS ===== */
+        .filters-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            align-items: end;
+            border: 1px solid var(--gray-light);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background-color: var(--background);
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(0, 163, 255, 0.1);
+        }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-light);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: var(--spacing-sm);
+            text-align: left;
+            border-bottom: 1px solid var(--gray-lighter);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--gray-lighter);
+            font-weight: 600;
+            color: var(--text);
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background-color: var(--gray-light);
+        }
+
+        th.sort-asc::after {
+            content: ' ↑';
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        th.sort-desc::after {
+            content: ' ↓';
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        tr:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-inactive {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-patient {
+            background-color: rgba(0, 163, 255, 0.1);
+            color: var(--secondary);
+            border: 1px solid rgba(0, 163, 255, 0.2);
+        }
+
+        .status-user {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: var(--gray);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0090e0;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #0d9c6d;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--text);
+        }
+
+        .btn-warning:hover {
+            background-color: #e69e0a;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--gray-light);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: var(--spacing-md);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* ===== FORMULARIOS ===== */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+        }
+
+        .form-checkbox input {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ===== NOTIFICACIONES ===== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-info {
+            border-left-color: var(--info);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex: 1;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .notification-close:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* ===== ESTADOS ===== */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            color: var(--gray);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-light);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 400px;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-lighter);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--spacing-sm);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== DETALLES TABLA ===== */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 0 -20px;
+            padding: 0 20px;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) 0;
+            border-top: 1px solid var(--gray-light);
+            margin-top: var(--spacing-md);
+        }
+
+        .table-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .user-info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .badge-id {
+            background-color: var(--gray-lighter);
+            color: var(--gray);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .gender-badge {
+            background-color: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .patient-badge {
+            background-color: rgba(0, 163, 255, 0.1);
+            color: var(--secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .view-history-btn {
+            background: none;
+            border: 1px solid var(--gray-light);
+            color: var(--gray);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .view-history-btn:hover {
+            background-color: var(--gray-lighter);
+            color: var(--text);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: var(--spacing-md);
+            }
+            
+            .welcome-banner {
+                padding: var(--spacing-lg);
+            }
+            
+            .banner-text h3 {
+                font-size: 1.5rem;
+            }
+            
+            .banner-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--spacing-sm);
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .banner-actions {
+                flex-direction: column;
+            }
+            
+            .btn-white {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .btn-group {
+                flex-wrap: wrap;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .banner-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-banner::before {
+                display: none;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ===== HISTORIAL MODAL ===== */
+        .history-content {
+            background-color: var(--gray-lighter);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* ===== ESPECIALES PARA PACIENTES ===== */
+        .patient-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .detail-item {
+            background-color: var(--gray-lighter);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--text);
+        }
+    </style>
+    <!-- IMPORT EXACTO DE GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR PARA ADMINISTRADOR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">FS</div>
+                <div class="logo-text">FisioSalud Admin</div>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li><a href="#"><i class="fas fa-user-md"></i> Fisioterapeutas</a></li>
+                <li><a href="#"><i class="fas fa-hand-holding-medical"></i> Servicios</a></li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li><a href="#"><i class="fas fa-chart-bar"></i> Analíticas</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <h2>Gestión de Pacientes y Usuarios</h2>
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Administrador">
+                    <div class="user-details">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Clínica FisioSalud</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <h3>Panel de Administración de Pacientes</h3>
+                        <p>Gestiona usuarios del sistema y pacientes registrados. Crea, edita y monitoriza toda la información relacionada.</p>
+                    </div>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-usuarios">0</div>
+                            <div class="stat-label">Usuarios Totales</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-pacientes">0</div>
+                            <div class="stat-label">Pacientes Activos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="usuarios-activos">0</div>
+                            <div class="stat-label">Usuarios Activos</div>
+                        </div>
+                    </div>
+                    <div class="banner-actions">
+                        <button class="btn btn-white" onclick="openNewUserModal()">
+                            <i class="fas fa-user-plus"></i> Nuevo Usuario
+                        </button>
+                        <button class="btn btn-white" onclick="openNewPatientModal()">
+                            <i class="fas fa-user-injured"></i> Nuevo Paciente
+                        </button>
+                        <button class="btn btn-white" onclick="exportUsersToCSV()">
+                            <i class="fas fa-download"></i> Exportar Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS GRID -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Usuarios Totales</div>
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-total-usuarios">0</div>
+                    <div class="card-description">Registrados en el sistema</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Pacientes Registrados</div>
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-total-pacientes">0</div>
+                    <div class="card-description">Con historial médico</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Usuarios Activos</div>
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-usuarios-activos">0</div>
+                    <div class="card-description">Estado "Activo"</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Con Historial</div>
+                        <div class="card-icon bg-info">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="card-con-historial">0</div>
+                    <div class="card-description">Historial médico</div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <div class="tab active" onclick="changeTab('usuarios')">Usuarios del Sistema</div>
+                <div class="tab" onclick="changeTab('pacientes')">Pacientes Registrados</div>
+                <div class="tab" onclick="changeTab('historial')">Historial Médico</div>
+                <div class="tab" onclick="changeTab('busqueda')">
+                    Búsqueda Avanzada
+                    <span class="badge" id="search-badge">0</span>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: USUARIOS -->
+            <div id="usuarios" class="tab-content active">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Usuarios Registrados en el Sistema</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="clearUserFilters()">
+                                <i class="fas fa-filter"></i> Limpiar Filtros
+                            </button>
+                            <button class="btn btn-primary" onclick="loadUsers()">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- FILTROS USUARIOS -->
+                    <div class="filters-container">
+                        <div class="filter-group">
+                            <label for="filter-user-name">Nombre/Apellido</label>
+                            <input type="text" class="filter-input" id="filter-user-name" placeholder="Buscar por nombre...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-user-email">Correo</label>
+                            <input type="email" class="filter-input" id="filter-user-email" placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-user-status">Estado</label>
+                            <select class="filter-select" id="filter-user-status">
+                                <option value="">Todos los estados</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                                <option value="Pendiente">Pendiente</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-primary" onclick="filterUsers()" style="margin-top: 24px;">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- TABLA DE USUARIOS -->
+                    <div id="users-table">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner loading-spinner"></i>
+                            <h3>Cargando usuarios...</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: PACIENTES -->
+            <div id="pacientes" class="tab-content">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Pacientes Registrados con Historial</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="clearPatientFilters()">
+                                <i class="fas fa-filter"></i> Limpiar Filtros
+                            </button>
+                            <button class="btn btn-primary" onclick="loadPatients()">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- FILTROS PACIENTES -->
+                    <div class="filters-container">
+                        <div class="filter-group">
+                            <label for="filter-patient-name">Nombre Paciente</label>
+                            <input type="text" class="filter-input" id="filter-patient-name" placeholder="Buscar paciente...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-patient-therapist">Terapeuta Asignado</label>
+                            <input type="text" class="filter-input" id="filter-patient-therapist" placeholder="Nombre del terapeuta">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-patient-plan">Tipo de Plan</label>
+                            <select class="filter-select" id="filter-patient-plan">
+                                <option value="">Todos los planes</option>
+                                <option value="Básico">Básico</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Personalizado">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-primary" onclick="filterPatients()" style="margin-top: 24px;">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- TABLA DE PACIENTES -->
+                    <div id="patients-table">
+                        <div class="empty-state">
+                            <i class="fas fa-user-injured"></i>
+                            <h3>Pacientes Registrados</h3>
+                            <p>Esta sección mostrará todos los pacientes con historial médico</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTRAS PESTAÑAS -->
+            <div id="historial" class="tab-content">
+                <div class="table-container">
+                    <div id="history-table">
+                        <div class="empty-state">
+                            <i class="fas fa-file-medical"></i>
+                            <h3>Historial Médico</h3>
+                            <p>Visualización de historiales médicos de pacientes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="busqueda" class="tab-content">
+                <div class="table-container">
+                    <div id="search-table">
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>Búsqueda Avanzada</h3>
+                            <p>Búsqueda combinada en usuarios y pacientes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO USUARIO -->
+    <div id="newUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Usuario del Sistema</h3>
+                <button class="modal-close" onclick="closeNewUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-nombre">Nombre *</label>
+                            <input type="text" class="filter-input" id="user-nombre" required placeholder="Nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-apellido">Apellido *</label>
+                            <input type="text" class="filter-input" id="user-apellido" required placeholder="Apellido">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-genero">Género</label>
+                            <select class="filter-select" id="user-genero">
+                                <option value="">Seleccionar género</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-estado">Estado *</label>
+                            <select class="filter-select" id="user-estado" required>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                                <option value="Pendiente">Pendiente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-correo">Correo Electrónico *</label>
+                            <input type="email" class="filter-input" id="user-correo" required placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-telefono">Teléfono *</label>
+                            <input type="tel" class="filter-input" id="user-telefono" required placeholder="Número de teléfono">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-password">Contraseña *</label>
+                            <input type="password" class="filter-input" id="user-password" required placeholder="Contraseña segura">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-password-confirm">Confirmar Contraseña *</label>
+                            <input type="password" class="filter-input" id="user-password-confirm" required placeholder="Repetir contraseña">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user-historial">Historial Médico (Opcional)</label>
+                        <textarea class="filter-input" id="user-historial" rows="3" placeholder="Información médica relevante..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="user-is-patient">
+                            <label for="user-is-patient">Registrar también como paciente</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeNewUserModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveUser()">Guardar Usuario</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO PACIENTE -->
+    <div id="newPatientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Paciente</h3>
+                <button class="modal-close" onclick="closeNewPatientModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="patientForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-user-id">ID Usuario *</label>
+                            <select class="filter-select" id="patient-user-id" required>
+                                <option value="">Seleccionar usuario existente</option>
+                                <!-- Se llenará dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-codigo-cita">Código Cita *</label>
+                            <input type="text" class="filter-input" id="patient-codigo-cita" required placeholder="Ej: CIT-2024-001">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-nombre-completo">Nombre Completo *</label>
+                            <input type="text" class="filter-input" id="patient-nombre-completo" required placeholder="Nombre completo del paciente">
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-acudiente">ID Acudiente</label>
+                            <input type="number" class="filter-input" id="patient-acudiente" placeholder="ID del acudiente">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-terapeuta">Terapeuta Asignado</label>
+                            <input type="text" class="filter-input" id="patient-terapeuta" placeholder="Nombre del terapeuta">
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-estado-cita">Estado Cita</label>
+                            <select class="filter-select" id="patient-estado-cita">
+                                <option value="">Seleccionar estado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Confirmada">Confirmada</option>
+                                <option value="Completada">Completada</option>
+                                <option value="Cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-tipo-plan">Tipo de Plan</label>
+                            <select class="filter-select" id="patient-tipo-plan">
+                                <option value="">Seleccionar plan</option>
+                                <option value="Básico">Básico</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Personalizado">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-precio-plan">Precio Plan (USD)</label>
+                            <input type="number" class="filter-input" id="patient-precio-plan" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-historial-medico">Historial Médico</label>
+                        <textarea class="filter-input" id="patient-historial-medico" rows="4" placeholder="Información médica completa, alergias, tratamientos previos..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-ejercicios">Ejercicios Registrados</label>
+                        <textarea class="filter-input" id="patient-ejercicios" rows="3" placeholder="Ejercicios asignados, frecuencia, observaciones..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-reporte">Reporte Médico</label>
+                        <textarea class="filter-input" id="patient-reporte" rows="3" placeholder="Informe médico del paciente..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeNewPatientModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePatient()">Guardar Paciente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VER HISTORIAL -->
+    <div id="viewHistoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="history-modal-title">Historial Médico</h3>
+                <button class="modal-close" onclick="closeViewHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="history-content">
+                    <!-- Contenido dinámico del historial -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeViewHistoryModal()">Cerrar</button>
+                <button class="btn btn-primary" onclick="printHistory()">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLES PACIENTE -->
+    <div id="patientDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="patient-details-title">Detalles del Paciente</h3>
+                <button class="modal-close" onclick="closePatientDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="patient-details-grid" id="patient-details-grid">
+                    <!-- Detalles dinámicos -->
+                </div>
+                
+                <div class="form-group">
+                    <h4 style="margin-bottom: var(--spacing-sm);">Historial Médico</h4>
+                    <div class="history-content" id="patient-full-history">
+                        <!-- Historial médico -->
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h4 style="margin-bottom: var(--spacing-sm);">Ejercicios Registrados</h4>
+                    <div class="history-content" id="patient-exercises">
+                        <!-- Ejercicios -->
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h4 style="margin-bottom: var(--spacing-sm);">Último Reporte</h4>
+                    <div class="history-content" id="patient-last-report">
+                        <!-- Reporte -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePatientDetailsModal()">Cerrar</button>
+                <button class="btn btn-primary" onclick="editPatient()">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-danger" onclick="deletePatient()">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+</script>
+</body>
+</html>

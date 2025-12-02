@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analíticas - Panel Administrador</title>
+    <style>
+        :root {
+            --primary: #0A2540;
+            --secondary: #00A3FF;
+            --accent: #00D4AA;
+            --background: #FFFFFF;
+            --background-alt: #F8FAFC;
+            --text: #0F172A;
+            --gray: #64748B;
+            --gray-light: #E2E8F0;
+            --gray-lighter: #F1F5F9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #17a2b8;
+            
+            --border-radius: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.2s ease;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-alt);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            padding: var(--spacing-md) 0;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-right: var(--spacing-sm);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: var(--spacing-sm) var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links li.active {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-left: 3px solid var(--secondary);
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links i {
+            margin-right: var(--spacing-sm);
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            background: var(--background-alt);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 44px;
+            height: 44px;
+            border-radius: 4px;
+            margin-right: var(--spacing-sm);
+            border: 2px solid var(--secondary);
+            object-fit: cover;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-details .user-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-text h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .banner-text p {
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .banner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-white:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        /* FILTROS */
+        .filters-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            align-items: end;
+            border: 1px solid var(--gray-light);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-light);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        /* GRID DE ESTADÍSTICAS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            border: 1px solid var(--gray-light);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .stat-card-content {
+            margin-top: var(--spacing-sm);
+        }
+
+        .chart-container {
+            height: 200px;
+            position: relative;
+            margin-top: var(--spacing-sm);
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: var(--spacing-sm) var(--spacing-sm);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: var(--gray-lighter);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* TABLAS */
+        .table-container {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-light);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-lighter);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--gray-lighter);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: var(--gray-lighter);
+        }
+
+        /* BOTONES */
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0090e0;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        /* NOTIFICACIONES */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        /* ESTADOS */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-lg) var(--spacing-sm);
+            color: var(--gray);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            color: var(--gray-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 400px;
+            margin: 0 auto var(--spacing-sm);
+        }
+
+        /* ESPECIALES */
+        .trend-up {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .trend-down {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .metric-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--gray-lighter);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: var(--spacing-sm);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary);
+            border-radius: 4px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: var(--spacing-sm);
+            }
+            
+            .banner-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .banner-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">FS</div>
+                <div class="logo-text">FisioSalud Admin</div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li><a href="#"><i class="fas fa-user-md"></i> Fisioterapeutas</a></li>
+                <li><a href="#"><i class="fas fa-hand-holding-medical"></i> Servicios</a></li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li class="active"><a href="#"><i class="fas fa-chart-bar"></i> Analíticas</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <h2>Analíticas y Reportes</h2>
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Administrador">
+                    <div class="user-details">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Clínica FisioSalud</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <h3>Dashboard de Analíticas</h3>
+                        <p>Visualiza métricas clave, tendencias y reportes de la clínica. Toma decisiones basadas en datos.</p>
+                    </div>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-ingresos">$0</div>
+                            <div class="stat-label">Ingresos Mensuales</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-citas">0</div>
+                            <div class="stat-label">Citas Este Mes</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="ocupacion">0%</div>
+                            <div class="stat-label">Tasa de Ocupación</div>
+                        </div>
+                    </div>
+                    <div class="banner-actions">
+                        <button class="btn btn-white" onclick="generateMonthlyReport()">
+                            <i class="fas fa-file-pdf"></i> Reporte Mensual
+                        </button>
+                        <button class="btn btn-white" onclick="exportAllData()">
+                            <i class="fas fa-download"></i> Exportar Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="filter-period">Período</label>
+                    <select class="filter-select" id="filter-period" onchange="updateCharts()">
+                        <option value="month">Este Mes</option>
+                        <option value="week">Esta Semana</option>
+                        <option value="quarter">Este Trimestre</option>
+                        <option value="year">Este Año</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+                <div class="filter-group" id="custom-dates" style="display: none;">
+                    <label for="filter-from">Desde</label>
+                    <input type="date" class="filter-input" id="filter-from">
+                </div>
+                <div class="filter-group" id="custom-dates-to" style="display: none;">
+                    <label for="filter-to">Hasta</label>
+                    <input type="date" class="filter-input" id="filter-to">
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary" onclick="updateCharts()" style="margin-top: 24px;">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- GRID DE ESTADÍSTICAS -->
+            <div class="stats-grid">
+                <!-- INGRESOS -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Ingresos</div>
+                        <div class="stat-card-icon" style="background-color: var(--success);">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="revenue-value">$0</div>
+                    <div class="metric-label" id="revenue-trend">Cargando...</div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- CITAS -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Citas</div>
+                        <div class="stat-card-icon" style="background-color: var(--primary);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="appointments-value">0</div>
+                    <div class="metric-label" id="appointments-trend">Cargando...</div>
+                    <div class="chart-container">
+                        <canvas id="appointmentsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- PACIENTES -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Pacientes</div>
+                        <div class="stat-card-icon" style="background-color: var(--info);">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="patients-value">0</div>
+                    <div class="metric-label" id="patients-trend">Cargando...</div>
+                    <div class="chart-container">
+                        <canvas id="patientsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- OCUPACIÓN -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Ocupación</div>
+                        <div class="stat-card-icon" style="background-color: var(--warning);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="occupancy-value">0%</div>
+                    <div class="metric-label" id="occupancy-trend">Cargando...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="occupancy-bar" style="width: 0%;"></div>
+                    </div>
+                    <div style="margin-top: var(--spacing-sm); font-size: 0.9rem;">
+                        <div>Dr. Carlos Mendoza: <span id="occupancy-mendoza">0%</span></div>
+                        <div>Dra. Ana López: <span id="occupancy-lopez">0%</span></div>
+                        <div>Dr. Javier Rodríguez: <span id="occupancy-rodriguez">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <div class="tab active" onclick="changeTab('servicios')">Servicios Más Populares</div>
+                <div class="tab" onclick="changeTab('terapeutas')">Rendimiento Terapeutas</div>
+                <div class="tab" onclick="changeTab('financiero')">Reporte Financiero</div>
+                <div class="tab" onclick="changeTab('tendencias')">Tendencias</div>
+            </div>
+
+            <!-- TAB CONTENT: SERVICIOS -->
+            <div id="servicios" class="tab-content active">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Servicios Más Solicitados</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="exportServicesReport()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="services-table">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <h3>Cargando datos de servicios...</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: TERAPEUTAS -->
+            <div id="terapeutas" class="tab-content">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Rendimiento por Fisioterapeuta</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="exportTherapistsReport()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="therapists-table">
+                        <div class="empty-state">
+                            <i class="fas fa-user-md"></i>
+                            <h3>Rendimiento de Fisioterapeutas</h3>
+                            <p>Métricas de productividad y efectividad</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: FINANCIERO -->
+            <div id="financiero" class="tab-content">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Reporte Financiero Detallado</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="exportFinancialReport()">
+                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div id="financial-table">
+                        <div class="empty-state">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3>Reporte Financiero</h3>
+                            <p>Ingresos, gastos y métricas financieras</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: TENDENCIAS -->
+            <div id="tendencias" class="tab-content">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Tendencias y Análisis Predictivo</h3>
+                        <div>
+                            <button class="btn btn-outline" onclick="exportTrendsReport()">
+                                <i class="fas fa-chart-line"></i> Exportar Tendencias
+                            </button>
+                        </div>
+                    </div>
+                    <div id="trends-content">
+                        <div class="empty-state">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Análisis de Tendencias</h3>
+                            <p>Patrones, predicciones y análisis temporal</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// =============================================
+// DATOS DE EJEMPLO PARA ANALÍTICAS
+// =============================================
+const analyticsData = {
+    // Datos de ingresos mensuales (últimos 6 meses)
+    revenue: {
+        labels: ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        data: [12000, 13500, 15000, 16500, 18000, 19500],
+        current: 19500,
+        previous: 18000,
+        trend: '+8.3%'
+    },
+    
+    // Datos de citas mensuales
+    appointments: {
+        labels: ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        data: [85, 92, 105, 115, 125, 135],
+        current: 135,
+        previous: 125,
+        trend: '+8.0%'
+    },
+    
+    // Datos de pacientes nuevos
+    patients: {
+        labels: ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        data: [15, 18, 22, 25, 28, 32],
+        current: 32,
+        previous: 28,
+        trend: '+14.3%'
+    },
+    
+    // Ocupación por terapeuta
+    occupancy: {
+        overall: 78,
+        therapists: [
+            { name: 'Dr. Carlos Mendoza', occupancy: 85, appointments: 45 },
+            { name: 'Dra. Ana López', occupancy: 72, appointments: 38 },
+            { name: 'Dr. Javier Rodríguez', occupancy: 65, appointments: 28 }
+        ]
+    },
+    
+    // Servicios más populares
+    popularServices: [
+        { name: 'Masaje Terapéutico', count: 45, revenue: 2250, growth: '+12%' },
+        { name: 'Rehabilitación Post-operatoria', count: 32, revenue: 2560, growth: '+8%' },
+        { name: 'Terapia Deportiva', count: 28, revenue: 1960, growth: '+15%' },
+        { name: 'Neuromodulación', count: 18, revenue: 1620, growth: '+5%' },
+        { name: 'Terapia Pediátrica', count: 12, revenue: 960, growth: '+20%' }
+    ],
+    
+    // Datos financieros
+    financials: {
+        income: {
+            services: 19500,
+            products: 3200,
+            total: 22700
+        },
+        expenses: {
+            salaries: 12000,
+            supplies: 2500,
+            rent: 3000,
+            utilities: 800,
+            marketing: 1500,
+            total: 19800
+        },
+        net: 2900
+    },
+    
+    // Tendencias
+    trends: {
+        peakHours: ['9:00', '14:00', '16:00'],
+        peakDays: ['Lunes', 'Miércoles', 'Viernes'],
+        popularMonths: ['Octubre', 'Noviembre', 'Diciembre']
+    }
+};
+
+let charts = {};
+let currentTab = 'servicios';
+
+// =============================================
+// INICIALIZACIÓN
+// =============================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📊 Panel de Analíticas - Inicializando...');
+    
+    // Configurar filtro de fechas personalizadas
+    document.getElementById('filter-period').addEventListener('change', function() {
+        const isCustom = this.value === 'custom';
+        document.getElementById('custom-dates').style.display = isCustom ? 'block' : 'none';
+        document.getElementById('custom-dates-to').style.display = isCustom ? 'block' : 'none';
+    });
+    
+    // Inicializar gráficos
+    initCharts();
+    
+    // Cargar datos iniciales
+    loadAnalyticsData();
+    
+    // Actualizar tablas
+    updateServicesTable();
+});
+
+// =============================================
+// FUNCIONES DE GRÁFICOS
+// =============================================
+function initCharts() {
+    // Gráfico de ingresos
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    charts.revenue = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: analyticsData.revenue.labels,
+            datasets: [{
+                label: 'Ingresos ($)',
+                data: analyticsData.revenue.data,
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { display: true }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    
+    // Gráfico de citas
+    const appointmentsCtx = document.getElementById('appointmentsChart').getContext('2d');
+    charts.appointments = new Chart(appointmentsCtx, {
+        type: 'bar',
+        data: {
+            labels: analyticsData.appointments.labels,
+            datasets: [{
+                label: 'Citas',
+                data: analyticsData.appointments.data,
+                backgroundColor: '#00A3FF',
+                borderColor: '#0090e0',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { display: true }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    
+    // Gráfico de pacientes
+    const patientsCtx = document.getElementById('patientsChart').getContext('2d');
+    charts.patients = new Chart(patientsCtx, {
+        type: 'line',
+        data: {
+            labels: analyticsData.patients.labels,
+            datasets: [{
+                label: 'Pacientes Nuevos',
+                data: analyticsData.patients.data,
+                borderColor: '#17a2b8',
+                backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { display: true }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// =============================================
+// FUNCIONES DE CARGA DE DATOS
+// =============================================
+function loadAnalyticsData() {
+    // Actualizar valores principales
+    document.getElementById('total-ingresos').textContent = `$${analyticsData.revenue.current.toLocaleString()}`;
+    document.getElementById('total-citas').textContent = analyticsData.appointments.current;
+    document.getElementById('ocupacion').textContent = `${analyticsData.occupancy.overall}%`;
+    
+    // Actualizar tarjetas de métricas
+    document.getElementById('revenue-value').textContent = `$${analyticsData.revenue.current.toLocaleString()}`;
+    document.getElementById('revenue-trend').innerHTML = `vs mes anterior: <span class="trend-up">${analyticsData.revenue.trend}</span>`;
+    
+    document.getElementById('appointments-value').textContent = analyticsData.appointments.current;
+    document.getElementById('appointments-trend').innerHTML = `vs mes anterior: <span class="trend-up">${analyticsData.appointments.trend}</span>`;
+    
+    document.getElementById('patients-value').textContent = analyticsData.patients.current;
+    document.getElementById('patients-trend').innerHTML = `vs mes anterior: <span class="trend-up">${analyticsData.patients.trend}</span>`;
+    
+    document.getElementById('occupancy-value').textContent = `${analyticsData.occupancy.overall}%`;
+    document.getElementById('occupancy-trend').innerHTML = `Tasa de ocupación promedio`;
+    document.getElementById('occupancy-bar').style.width = `${analyticsData.occupancy.overall}%`;
+    
+    // Actualizar ocupación por terapeuta
+    document.getElementById('occupancy-mendoza').textContent = `${analyticsData.occupancy.therapists[0].occupancy}%`;
+    document.getElementById('occupancy-lopez').textContent = `${analyticsData.occupancy.therapists[1].occupancy}%`;
+    document.getElementById('occupancy-rodriguez').textContent = `${analyticsData.occupancy.therapists[2].occupancy}%`;
+}
+
+function updateCharts() {
+    const period = document.getElementById('filter-period').value;
+    
+    // Aquí normalmente se haría una llamada al backend con los filtros
+    // Por ahora solo simulamos una actualización
+    showNotification(`Datos actualizados para el período: ${period}`, 'success');
+}
+
+// =============================================
+// FUNCIONES DE NAVEGACIÓN POR PESTAÑAS
+// =============================================
+function changeTab(tabName) {
+    currentTab = tabName;
+    
+    // Ocultar todas las pestañas
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remover clase active de todas las pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Activar la pestaña seleccionada
+    document.getElementById(tabName).classList.add('active');
+    document.querySelector(`.tab[onclick="changeTab('${tabName}')"]`).classList.add('active');
+    
+    // Actualizar contenido según la pestaña
+    if (tabName === 'servicios') {
+        updateServicesTable();
+    } else if (tabName === 'terapeutas') {
+        updateTherapistsTable();
+    } else if (tabName === 'financiero') {
+        updateFinancialTable();
+    } else if (tabName === 'tendencias') {
+        updateTrendsContent();
+    }
+}
+
+// =============================================
+// FUNCIONES DE RENDERIZADO DE TABLAS
+// =============================================
+function updateServicesTable() {
+    const tableContainer = document.getElementById('services-table');
+    
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Servicio</th>
+                    <th>Citas</th>
+                    <th>Ingresos</th>
+                    <th>Crecimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    analyticsData.popularServices.forEach(service => {
+        const growthClass = service.growth.includes('+') ? 'trend-up' : 'trend-down';
+        
+        html += `
+            <tr>
+                <td>
+                    <div style="font-weight: 600;">${service.name}</div>
+                </td>
+                <td>${service.count}</td>
+                <td>$${service.revenue}</td>
+                <td><span class="${growthClass}">${service.growth}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline" onclick="viewServiceDetails('${service.name}')">
+                        <i class="fas fa-chart-bar"></i> Detalles
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+        <div style="margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: var(--gray-lighter); border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">Resumen:</div>
+            <div>Total ingresos por servicios: <strong>$${analyticsData.popularServices.reduce((sum, s) => sum + s.revenue, 0).toLocaleString()}</strong></div>
+            <div>Total citas atendidas: <strong>${analyticsData.popularServices.reduce((sum, s) => sum + s.count, 0)}</strong></div>
+        </div>
+    `;
+    
+    tableContainer.innerHTML = html;
+}
+
+function updateTherapistsTable() {
+    const tableContainer = document.getElementById('therapists-table');
+    
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Fisioterapeuta</th>
+                    <th>Ocupación</th>
+                    <th>Citas</th>
+                    <th>Ingresos Generados</th>
+                    <th>Calificación</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    analyticsData.occupancy.therapists.forEach(therapist => {
+        const revenue = therapist.appointments * 50; // Estimado de $50 por cita
+        const rating = Math.min(5, 3.5 + (therapist.occupancy - 65) / 20); // Calificación simulada
+        
+        html += `
+            <tr>
+                <td>
+                    <div style="font-weight: 600;">${therapist.name}</div>
+                </td>
+                <td>
+                    <div>${therapist.occupancy}%</div>
+                    <div class="progress-bar" style="height: 6px; margin-top: 4px;">
+                        <div class="progress-fill" style="width: ${therapist.occupancy}%; background-color: ${therapist.occupancy > 75 ? '#10B981' : therapist.occupancy > 60 ? '#F59E0B' : '#EF4444'};"></div>
+                    </div>
+                </td>
+                <td>${therapist.appointments}</td>
+                <td>$${revenue}</td>
+                <td>
+                    ${'★'.repeat(Math.floor(rating))}${'☆'.repeat(5 - Math.floor(rating))}
+                    <span style="margin-left: 8px; color: var(--gray);">(${rating.toFixed(1)})</span>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+        <div style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: var(--gray);">
+            <i class="fas fa-info-circle"></i> La ocupación se calcula basada en horas disponibles vs horas trabajadas
+        </div>
+    `;
+    
+    tableContainer.innerHTML = html;
+}
+
+function updateFinancialTable() {
+    const tableContainer = document.getElementById('financial-table');
+    
+    let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <!-- INGRESOS -->
+            <div style="background: rgba(16, 185, 129, 0.1); padding: var(--spacing-sm); border-radius: var(--border-radius);">
+                <div style="font-weight: 600; color: var(--success); margin-bottom: var(--spacing-sm);">INGRESOS</div>
+                <div style="margin-bottom: 4px;">Servicios: <strong>$${analyticsData.financials.income.services}</strong></div>
+                <div style="margin-bottom: 4px;">Productos: <strong>$${analyticsData.financials.income.products}</strong></div>
+                <div style="border-top: 1px solid var(--gray-light); margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); font-size: 1.2rem; font-weight: 700;">
+                    Total: $${analyticsData.financials.income.total}
+                </div>
+            </div>
+            
+            <!-- GASTOS -->
+            <div style="background: rgba(239, 68, 68, 0.1); padding: var(--spacing-sm); border-radius: var(--border-radius);">
+                <div style="font-weight: 600; color: var(--danger); margin-bottom: var(--spacing-sm);">GASTOS</div>
+                <div style="margin-bottom: 4px;">Salarios: <strong>$${analyticsData.financials.expenses.salaries}</strong></div>
+                <div style="margin-bottom: 4px;">Insumos: <strong>$${analyticsData.financials.expenses.supplies}</strong></div>
+                <div style="margin-bottom: 4px;">Alquiler: <strong>$${analyticsData.financials.expenses.rent}</strong></div>
+                <div style="margin-bottom: 4px;">Servicios: <strong>$${analyticsData.financials.expenses.utilities}</strong></div>
+                <div style="margin-bottom: 4px;">Marketing: <strong>$${analyticsData.financials.expenses.marketing}</strong></div>
+                <div style="border-top: 1px solid var(--gray-light); margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); font-size: 1.2rem; font-weight: 700;">
+                    Total: $${analyticsData.financials.expenses.total}
+                </div>
+            </div>
+            
+            <!-- RESULTADO -->
+            <div style="background: rgba(0, 163, 255, 0.1); padding: var(--spacing-sm); border-radius: var(--border-radius);">
+                <div style="font-weight: 600; color: var(--secondary); margin-bottom: var(--spacing-sm);">RESULTADO NETO</div>
+                <div style="font-size: 2rem; font-weight: 700; text-align: center; margin: var(--spacing-sm) 0; color: ${analyticsData.financials.net >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                    $${analyticsData.financials.net}
+                </div>
+                <div style="text-align: center; color: var(--gray);">
+                    ${analyticsData.financials.net >= 0 ? '💰 Utilidad' : '📉 Pérdida'}
+                </div>
+                <div style="margin-top: var(--spacing-sm);">
+                    <div>Margen de beneficio: <strong>${((analyticsData.financials.net / analyticsData.financials.income.total) * 100).toFixed(1)}%</strong></div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: var(--gray-lighter); padding: var(--spacing-sm); border-radius: var(--border-radius);">
+            <div style="font-weight: 600; margin-bottom: var(--spacing-sm);">Análisis Financiero</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-sm);">
+                <div>
+                    <div style="font-size: 0.9rem; color: var(--gray);">Ingreso por Cita</div>
+                    <div style="font-weight: 600;">$${(analyticsData.financials.income.services / analyticsData.appointments.current).toFixed(2)}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: var(--gray);">Costo por Cita</div>
+                    <div style="font-weight: 600;">$${(analyticsData.financials.expenses.total / analyticsData.appointments.current).toFixed(2)}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: var(--gray);">ROI Marketing</div>
+                    <div style="font-weight: 600;">${((analyticsData.financials.income.total / analyticsData.financials.expenses.marketing) * 100).toFixed(1)}%</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    tableContainer.innerHTML = html;
+}
+
+function updateTrendsContent() {
+    const tableContainer = document.getElementById('trends-content');
+    
+    let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-md);">
+            <!-- HORAS PICO -->
+            <div style="background: white; padding: var(--spacing-sm); border-radius: var(--border-radius); border: 1px solid var(--gray-light);">
+                <div style="font-weight: 600; margin-bottom: var(--spacing-sm); color: var(--primary);">
+                    <i class="fas fa-clock"></i> Horas Pico de Citas
+                </div>
+                <ul style="list-style: none; padding-left: 0;">
+                    ${analyticsData.trends.peakHours.map(hour => `
+                        <li style="padding: 8px 0; border-bottom: 1px solid var(--gray-lighter); display: flex; justify-content: space-between;">
+                            <span>${hour}</span>
+                            <span style="color: var(--success); font-weight: 600;">Alta demanda</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <!-- DÍAS CON MÁS TRABAJO -->
+            <div style="background: white; padding: var(--spacing-sm); border-radius: var(--border-radius); border: 1px solid var(--gray-light);">
+                <div style="font-weight: 600; margin-bottom: var(--spacing-sm); color: var(--primary);">
+                    <i class="fas fa-calendar-day"></i> Días con Más Trabajo
+                </div>
+                <ul style="list-style: none; padding-left: 0;">
+                    ${analyticsData.trends.peakDays.map(day => `
+                        <li style="padding: 8px 0; border-bottom: 1px solid var(--gray-lighter); display: flex; justify-content: space-between;">
+                            <span>${day}</span>
+                            <span style="color: var(--warning); font-weight: 600;">+15-20% citas</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <!-- MESES MÁS OCUPADOS -->
+            <div style="background: white; padding: var(--spacing-sm); border-radius: var(--border-radius); border: 1px solid var(--gray-light);">
+                <div style="font-weight: 600; margin-bottom: var(--spacing-sm); color: var(--primary);">
+                    <i class="fas fa-chart-line"></i> Temporadas Altas
+                </div>
+                <ul style="list-style: none; padding-left: 0;">
+                    ${analyticsData.trends.popularMonths.map(month => `
+                        <li style="padding: 8px 0; border-bottom: 1px solid var(--gray-lighter); display: flex; justify-content: space-between;">
+                            <span>${month}</span>
+                            <span style="color: var(--info); font-weight: 600;">+25% ingresos</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        </div>
+        
+        <!-- PREDICCIÓN -->
+        <div style="background: linear-gradient(135deg, var(--primary), #0d2e4d); color: white; padding: var(--spacing-md); border-radius: var(--border-radius); margin-top: var(--spacing-md);">
+            <div style="font-weight: 600; margin-bottom: var(--spacing-sm); font-size: 1.1rem;">
+                <i class="fas fa-crystal-ball"></i> Predicción para el Próximo Mes
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-sm);">
+                <div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Ingresos Esperados</div>
+                    <div style="font-size: 1.5rem; font-weight: 700;">$${(analyticsData.revenue.current * 1.08).toFixed(0)}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Citas Estimadas</div>
+                    <div style="font-size: 1.5rem; font-weight: 700;">${Math.round(analyticsData.appointments.current * 1.1)}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Pacientes Nuevos</div>
+                    <div style="font-size: 1.5rem; font-weight: 700;">${Math.round(analyticsData.patients.current * 1.15)}</div>
+                </div>
+            </div>
+            <div style="margin-top: var(--spacing-sm); font-size: 0.9rem; opacity: 0.9;">
+                <i class="fas fa-info-circle"></i> Basado en tendencias históricas y crecimiento promedio
+            </div>
+        </div>
+    `;
+    
+    tableContainer.innerHTML = html;
+}
+
+// =============================================
+// FUNCIONES AUXILIARES
+// =============================================
+function viewServiceDetails(serviceName) {
+    alert(`Detalles de ${serviceName}\n\nEsta función mostraría estadísticas detalladas, tendencias y análisis específicos del servicio.`);
+}
+
+function generateMonthlyReport() {
+    showNotification('Generando reporte mensual en PDF... Esto puede tomar unos momentos.', 'info');
+    // Aquí se integraría con una librería de generación de PDFs
+    setTimeout(() => {
+        showNotification('Reporte mensual generado exitosamente', 'success');
+    }, 2000);
+}
+
+function exportAllData() {
+    showNotification('Exportando todos los datos analíticos...', 'info');
+    // Aquí se generaría un archivo CSV/Excel con todos los datos
+    setTimeout(() => {
+        showNotification('Datos exportados exitosamente', 'success');
+    }, 1500);
+}
+
+function exportServicesReport() {
+    showNotification('Exportando reporte de servicios...', 'info');
+    // Exportar datos de servicios
+}
+
+function exportTherapistsReport() {
+    showNotification('Exportando reporte de fisioterapeutas...', 'info');
+    // Exportar datos de terapeutas
+}
+
+function exportFinancialReport() {
+    showNotification('Exportando reporte financiero a Excel...', 'info');
+    // Exportar datos financieros
+}
+
+function exportTrendsReport() {
+    showNotification('Exportando análisis de tendencias...', 'info');
+    // Exportar datos de tendencias
+}
+
+function showNotification(message, type = 'info') {
+    // Crear notificación
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Agregar al cuerpo
+    document.body.appendChild(notification);
+    
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+    </script>
+</body>
+</html>
