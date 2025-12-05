@@ -25,7 +25,7 @@ class CitaController:
             templates = Jinja2Templates(directory="./vista")
             
             return templates.TemplateResponse(
-                "cita.html",  # Asegúrate que este es el nombre correcto del template
+                "cita.html",
                 {
                     "request": request,
                     "servicios": servicios,
@@ -41,7 +41,6 @@ class CitaController:
         """API endpoint para obtener servicios de terapia"""
         try:
             servicios = CitaModel.obtener_servicios_terapia()
-            
             return JSONResponse(content={"servicios": servicios})
             
         except Exception as e:
@@ -61,18 +60,17 @@ class CitaController:
         correo: str = Form(...),
         fecha_cita: str = Form(...),
         hora_cita: str = Form(...),
-        notas_adicionales: Optional[str] = Form(None),
         tipo_pago: str = Form(...),
+        notas_adicionales: Optional[str] = Form(None),
         acudiente_nombre: Optional[str] = Form(None),
         acudiente_id: Optional[str] = Form(None),
         acudiente_telefono: Optional[str] = Form(None),
         acudiente_correo: Optional[str] = Form(None),
-        acudiente_direccion: Optional[str] = Form(None),
         emails_adicionales: Optional[str] = Form(None)
     ):
-        """Procesa el agendamiento de una nueva cita"""
+        """Procesa el agendamiento de una nueva cita por usuario"""
         try:
-            print(f"Iniciando agendamiento para: {nombre_paciente}")
+            print(f"Iniciando agendamiento para usuario: {nombre_paciente}")
             
             # Validaciones básicas
             if not all([servicio, terapeuta_designado, nombre_paciente, telefono, correo, fecha_cita, hora_cita, tipo_pago]):
@@ -119,7 +117,8 @@ class CitaController:
                 'tipo_pago': tipo_pago
             }
             
-            codigo_cita = CitaModel.crear_cita(datos_cita)
+            # Usar tipo_usuario = 'usuario' para autogestión
+            codigo_cita = CitaModel.crear_cita(datos_cita, tipo_usuario='usuario')
             
             if not codigo_cita:
                 return JSONResponse(
@@ -134,8 +133,7 @@ class CitaController:
                     'nombre_completo': acudiente_nombre,
                     'identificacion': acudiente_id,
                     'telefono': acudiente_telefono or '',
-                    'correo': acudiente_correo or '',
-                    'direccion': acudiente_direccion or ''
+                    'correo': acudiente_correo or ''
                 }
                 
                 acudiente_creado = CitaModel.crear_acudiente(codigo_cita, datos_acudiente)
@@ -158,7 +156,8 @@ class CitaController:
             response_data = {
                 "success": True,
                 "message": "Cita agendada exitosamente",
-                "codigo_cita": codigo_cita,  # Código alfanumérico (FS-0001)
+                "codigo_cita": codigo_cita,
+                "tipo_usuario": "usuario",
                 "cita": {
                     "servicio": servicio,
                     "terapeuta_designado": terapeuta_designado,
@@ -170,7 +169,7 @@ class CitaController:
                 "emails_adicionales": emails_list
             }
             
-            print(f"Cita agendada exitosamente: {codigo_cita}")
+            print(f"Cita agendada exitosamente por usuario: {codigo_cita}")
             return JSONResponse(content=response_data)
             
         except Exception as e:

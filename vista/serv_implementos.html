@@ -1590,144 +1590,63 @@
     </footer>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filtrado de implementos por categoría
+            const filterCards = document.querySelectorAll('.filter-card');
+            const equipmentCards = document.querySelectorAll('.equipment-card');
+            const clearFiltersBtn = document.querySelector('.clear-filters');
 
-        async function comprarProducto(productoId, productoNombre, productoPrecio, productoTipo) {
-    try {
-        console.log(`🛒 Agregando producto al carrito: ${productoId} (${productoTipo})`);
-        
-        const response = await fetch('/api/carrito/agregar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                producto_id: productoId,
-                producto_tipo: productoTipo,
-                cantidad: 1
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            mostrarNotificacion(`✅ "${productoNombre}" agregado al carrito`, 'success');
-            actualizarContadorCarrito(data.items_count);
-        } else {
-            if (data.message.includes('No autorizado') || response.status === 401) {
-                mostrarNotificacion('❌ Debes iniciar sesión para comprar', 'error');
-                setTimeout(() => {
-                    window.location.href = '/login_user';
-                }, 2000);
-            } else {
-                mostrarNotificacion(`❌ Error: ${data.message}`, 'error');
+            function filterEquipment(category) {
+                equipmentCards.forEach(equipmentCard => {
+                    const equipmentCategories = equipmentCard.getAttribute('data-category').split(' ');
+                    
+                    if (category === 'all' || equipmentCategories.includes(category)) {
+                        equipmentCard.style.display = 'block';
+                        setTimeout(() => {
+                            equipmentCard.style.opacity = '1';
+                            equipmentCard.style.transform = 'translateY(0)';
+                        }, 50);
+                    } else {
+                        equipmentCard.style.opacity = '0';
+                        equipmentCard.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            equipmentCard.style.display = 'none';
+                        }, 300);
+                    }
+                });
             }
-        }
-        
-    } catch (error) {
-        console.error('Error al agregar al carrito:', error);
-        mostrarNotificacion('❌ Error de conexión', 'error');
-    }
-}
 
-        function mostrarNotificacion(mensaje, tipo = 'info') {
-    const notificacion = document.createElement('div');
-    notificacion.className = `notificacion notificacion-${tipo}`;
-    notificacion.innerHTML = `
-        <div class="notificacion-contenido">
-            <span class="notificacion-mensaje">${mensaje}</span>
-            <button class="notificacion-cerrar">&times;</button>
-        </div>
-    `;
-    
-    notificacion.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${tipo === 'success' ? '#10B981' : tipo === 'error' ? '#EF4444' : '#3B82F6'};
-        color: white;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        max-width: 300px;
-        animation: slideInRight 0.3s ease-out;
-    `;
-    
-    document.body.appendChild(notificacion);
-    
-    setTimeout(() => {
-        if (notificacion.parentNode) {
-            notificacion.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => notificacion.remove(), 300);
-        }
-    }, 4000);
-    
-    notificacion.querySelector('.notificacion-cerrar').onclick = () => {
-        notificacion.style.animation = 'slideOutRight 0.3s ease-in';
-        setTimeout(() => notificacion.remove(), 300);
-    };
-}
+            filterCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remover active de todos los filtros
+                    filterCards.forEach(c => c.classList.remove('active'));
+                    // Agregar active al filtro clickeado
+                    this.classList.add('active');
 
-function actualizarContadorCarrito(count) {
-    const contador = document.getElementById('carrito-contador');
-    if (contador) {
-        contador.textContent = count;
-        contador.style.display = count > 0 ? 'flex' : 'none';
-    }
-}
+                    const category = this.getAttribute('data-category');
+                    filterEquipment(category);
+                });
+            });
 
-// Inicializar eventos
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.comprar-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productoId = this.getAttribute('data-producto-id');
-            const productoNombre = this.getAttribute('data-producto-nombre');
-            const productoPrecio = this.getAttribute('data-producto-precio');
-            const productoTipo = this.getAttribute('data-producto-tipo');
-            
-            comprarProducto(productoId, productoNombre, productoPrecio, productoTipo);
+            // Limpiar filtros
+            clearFiltersBtn.addEventListener('click', function() {
+                filterCards.forEach(c => c.classList.remove('active'));
+                filterCards[0].classList.add('active'); // Activar "Todos"
+                filterEquipment('all');
+            });
+
+            // Animación inicial de las cards
+            equipmentCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
         });
-    });
-    
-    document.querySelectorAll('.comprar-btn-detalle').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productoId = this.getAttribute('data-producto-id');
-            const productoNombre = this.getAttribute('data-producto-nombre');
-            const productoPrecio = this.getAttribute('data-producto-precio');
-            const productoTipo = this.getAttribute('data-producto-tipo');
-            
-            comprarProducto(productoId, productoNombre, productoPrecio, productoTipo);
-        });
-    });
-});
-
-// Animaciones CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    .notificacion-contenido {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .notificacion-cerrar {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-        margin-left: 10px;
-    }
-`;
-document.head.appendChild(style);
-</script>
+    </script>
 </body>
 </html>

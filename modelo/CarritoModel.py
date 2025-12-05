@@ -1,4 +1,6 @@
 # modelo/CarritoModel.py
+import json
+import uuid
 from bd.conexion_bd import get_db_connection, close_db_connection
 from datetime import datetime
 
@@ -196,5 +198,164 @@ class CarritoModel:
         except Exception as e:
             print(f"Error en modelo vaciar_carrito: {e}")
             return False, "Error interno al vaciar carrito"
+        finally:
+            close_db_connection(conn)
+    
+    @staticmethod
+    def confirmar_compra(usuario_id, direccion_envio, ciudad, codigo_postal, metodo_pago):
+        """
+        Confirma la compra y guarda toda la información en una sola tabla
+        """
+        conn = get_db_connection()
+        if not conn:
+            return False, "Error de conexión con la base de datos", None
+
+        try:
+            with conn.cursor() as cursor:
+                # 1. Obtener todos los items del carrito del usuario con información completa
+                cursor.execute("""
+                    SELECT c.id as carrito_id, c.producto_id, c.producto_tipo, c.cantidad,
+                           COALESCE(sn.nombre, si.nombre) as nombre_producto,
+                           COALESCE(sn.descripcion, si.descripcion) as descripcion,
+                           COALESCE(sn.precio, si.precio) as precio_unitario
+                    FROM carrito c
+                    LEFT JOIN servicio_nutricion sn 
+                        ON c.producto_id = sn.codigo AND c.producto_tipo = 'nutricion'
+                    LEFT JOIN servicio_implementos si 
+                        ON c.producto_id = si.codigo AND c.producto_tipo = 'implemento'
+                    WHERE c.usuario_id = %s
+                """, (usuario_id,))
+                
+                items_carrito = cursor.fetchall()
+                
+                if not items_carrito:
+                    return False, "El carrito está vacío", None
+                
+                # 2. Calcular total y preparar datos
+                total = 0
+                cantidad_total = 0
+                items_detalle = []
+                
+                for item in items_carrito:
+                    precio = float(item['precio_unitario']) if item['precio_unitario'] else 0
+                    cantidad = int(item['cantidad'])
+                    subtotal = precio * cantidad
+                    
+                    total += subtotal
+                    cantidad_total += cantidad
+                    
+                    # Agregar a items_detalle en formato JSON
+                    items_detalle.append({
+                        'producto_id': item['producto_id'],
+                        'producto_tipo': item['producto_tipo'],
+                        'nombre': item['nombre_producto'],
+                        'descripcion': item['descripcion'],
+                        'precio_unitario': precio,
+                        'cantidad': cantidad,
+                        'subtotal': subtotal
+                    })
+                
+                # 3. Generar ID de orden único
+                orden_id = "ORD" + str(uuid.uuid4().hex)[:12].upper()
+                
+                # 4. Tomar el primer producto como referencia principal
+                primer_producto = items_carrito[0]
+                
+                # 5. Crear compra en compras_confirmadas (una sola tabla)
+                query = """
+                INSERT INTO compras_confirmadas 
+                (usuario_id, orden_id, fecha_compra, total, estado, 
+                 direccion_envio, ciudad, codigo_postal, metodo_pago,
+                 producto_id, producto_tipo, producto_nombre, 
+                 cantidad_total, items_detalle, creado_en)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                
+                fecha_actual = datetime.now()
+                direccion_completa = f"{direccion_envio}, {ciudad}, CP: {codigo_postal}"
+                
+                cursor.execute(query, (
+                    usuario_id, 
+                    orden_id, 
+                    fecha_actual, 
+                    total, 
+                    'confirmada',
+                    direccion_completa,
+                    ciudad,
+                    codigo_postal,
+                    metodo_pago,
+                    primer_producto['producto_id'],
+                    primer_producto['producto_tipo'],
+                    primer_producto['nombre_producto'],
+                    cantidad_total,
+                    json.dumps(items_detalle),  # Guardar todos los items como JSON
+                    fecha_actual
+                ))
+                
+                # 6. Vaciar el carrito
+                cursor.execute("DELETE FROM carrito WHERE usuario_id = %s", (usuario_id,))
+                
+                # 7. Confirmar transacción
+                conn.commit()
+                
+                return True, "Compra confirmada exitosamente", {
+                    "orden_id": orden_id,
+                    "fecha": fecha_actual.strftime("%d/%m/%Y %H:%M"),
+                    "total": total,
+                    "items": cantidad_total,
+                    "productos": len(items_carrito)
+                }
+
+        except Exception as e:
+            print(f"Error en modelo confirmar_compra: {e}")
+            conn.rollback()
+            return False, "Error interno al confirmar la compra", None
+        finally:
+            close_db_connection(conn)
+
+    @staticmethod
+    def obtener_historial_compras(usuario_id):
+        """
+        Obtiene el historial de compras del usuario
+        """
+        conn = get_db_connection()
+        if not conn:
+            return None, "Error de conexión con la base de datos"
+
+        try:
+            with conn.cursor() as cursor:
+                query = """
+                SELECT id, orden_id, fecha_compra, total, estado, 
+                       direccion_envio, ciudad, metodo_pago,
+                       producto_nombre, cantidad_total,
+                       items_detalle
+                FROM compras_confirmadas 
+                WHERE usuario_id = %s 
+                ORDER BY fecha_compra DESC
+                """
+                cursor.execute(query, (usuario_id,))
+                compras = cursor.fetchall()
+                
+                # Procesar el JSON de items_detalle
+                for compra in compras:
+                    if compra['items_detalle']:
+                        try:
+                            compra['items_detalle'] = json.loads(compra['items_detalle'])
+                        except:
+                            compra['items_detalle'] = []
+                    
+                    # Convertir fechas a string
+                    if compra['fecha_compra']:
+                        compra['fecha_compra_str'] = compra['fecha_compra'].strftime("%d/%m/%Y %H:%M")
+                    
+                    # Convertir Decimal a float
+                    if 'total' in compra and compra['total'] is not None:
+                        compra['total'] = float(compra['total'])
+                
+                return compras, None
+
+        except Exception as e:
+            print(f"Error en modelo obtener_historial_compras: {e}")
+            return None, "Error interno al obtener historial"
         finally:
             close_db_connection(conn)

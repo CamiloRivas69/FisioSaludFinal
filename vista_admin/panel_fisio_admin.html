@@ -771,13 +771,12 @@
                 <div class="logo-text">FisioSalud Admin</div>
             </div>
             <ul class="nav-links">
-                <li><a href="#"><i class="fas fa-user-injured"></i> Pacientes</a></li>
-                <li class="active"><a href="#"><i class="fas fa-user-md"></i> Fisioterapeutas</a></li>
-                <li><a href="#"><i class="fas fa-hand-holding-medical"></i> Servicios</a></li>
-                <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
-                <li><a href="#"><i class="fas fa-chart-bar"></i> Analíticas</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
-                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                <li class="active"><a href="/admin/panel-usuarios"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li><a href="/admin/panel-fisio"><i class="fas fa-user-md"></i> Fisioterapeutas</a></li>
+                <li><a href="/admin/panel-servicios"><i class="fas fa-hand-holding-medical"></i> Servicios</a></li>
+                <li><a href="/admin/panel-agenda"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li><a href="/admin/panel-correos"><i class="fas fa-cog"></i> Correos recibidos</a></li>
+                <li><a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
             </ul>
         </div>
 
@@ -877,7 +876,6 @@
             <!-- TABS -->
             <div class="tabs">
                 <div class="tab active" onclick="changeTab('lista')">Lista de Fisioterapeutas</div>
-                <div class="tab" onclick="changeTab('horarios')">Gestión de Horarios</div>
                 <div class="tab" onclick="changeTab('especialidades')">Especializaciones</div>
             </div>
 
@@ -1061,6 +1059,519 @@
     </div>
 
     <script>
+// Variables globales
+let allTherapists = [];
+let currentTab = 'lista';
+let currentFilters = {};
+
+// ===== INICIALIZACIÓN =====
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 Panel de fisioterapeutas cargado');
+    
+    // Cargar datos iniciales
+    loadStats();
+    loadTherapists();
+    
+    // Configurar eventos de logout
+    const logoutBtn = document.querySelector('a[href="/admin/logout"]');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/admin/logout';
+        });
+    }
+});
+
+// ===== FUNCIONES DE ESTADÍSTICAS =====
+async function loadStats() {
+    console.log('📊 Cargando estadísticas de fisioterapeutas...');
+    
+    try {
+        const response = await fetch('/api/admin/fisio/estadisticas', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Actualizar banner
+            document.getElementById('total-terapeutas').textContent = data.data.total_terapeutas;
+            document.getElementById('terapeutas-activos').textContent = data.data.terapeutas_activos;
+            document.getElementById('especializaciones').textContent = data.data.especializaciones;
+            
+            // Actualizar cards
+            document.getElementById('card-total-terapeutas').textContent = data.data.total_terapeutas;
+            document.getElementById('card-activos').textContent = data.data.terapeutas_activos;
+            document.getElementById('card-especialidades').textContent = data.data.especializaciones;
+            document.getElementById('card-horarios').textContent = data.data.horarios_definidos;
+            
+            console.log('✅ Estadísticas cargadas:', data.data);
+        } else {
+            console.error('❌ Error en estadísticas:', data.error);
+            showNotification('Error al cargar estadísticas', 'error');
+        }
+    } catch (error) {
+        console.error('❌ Error al cargar estadísticas:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+// ===== FUNCIONES DE TERAPEUTAS =====
+async function loadTherapists(filters = {}) {
+    console.log('👨‍⚕️ Cargando terapeutas...', filters);
+    
+    const therapistsTable = document.getElementById('therapists-table');
+    therapistsTable.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <h3>Cargando fisioterapeutas...</h3>
+        </div>
+    `;
+    
+    try {
+        // Construir query string
+        const params = new URLSearchParams();
+        if (filters.nombre) params.append('nombre', filters.nombre);
+        if (filters.especializacion) params.append('especializacion', filters.especializacion);
+        if (filters.estado) params.append('estado', filters.estado);
+        
+        const response = await fetch(`/api/admin/fisio/terapeutas?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allTherapists = data.data;
+            renderTherapistsTable(allTherapists);
+            console.log(`✅ ${data.total} terapeutas cargados`);
+        } else {
+            console.error('❌ Error al cargar terapeutas:', data.error);
+            showNotification('Error al cargar terapeutas', 'error');
+            therapistsTable.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error al cargar terapeutas</h3>
+                    <p>${data.error || 'Intenta nuevamente'}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('❌ Error al cargar terapeutas:', error);
+        showNotification('Error de conexión', 'error');
+        therapistsTable.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Error de conexión</h3>
+                <p>No se pudieron cargar los terapeutas</p>
+            </div>
+        `;
+    }
+}
+
+function renderTherapistsTable(therapists) {
+    if (!therapists || therapists.length === 0) {
+        document.getElementById('therapists-table').innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-user-md"></i>
+                <h3>No hay fisioterapeutas registrados</h3>
+                <p>Registra el primer fisioterapeuta del sistema</p>
+                <button class="btn btn-primary" onclick="openNewTherapistModal()">
+                    <i class="fas fa-user-plus"></i> Crear Fisioterapeuta
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    let tableHTML = `
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre Completo</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Especialización</th>
+                        <th>Horario</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    therapists.forEach(therapist => {
+        const estadoClass = therapist.estado === 'Activo' ? 'status-active' : 
+                          therapist.estado === 'Inactivo' ? 'status-inactive' : 'status-pending';
+        
+        const horario = therapist.franja_horaria_dias && therapist.franja_horaria_horas ? 
+                       `${therapist.franja_horaria_dias} (${therapist.franja_horaria_horas})` : 
+                       'No definido';
+        
+        tableHTML += `
+            <tr>
+                <td><strong>${therapist.Codigo_trabajador}</strong></td>
+                <td>${therapist.nombre_completo}</td>
+                <td>${therapist.fisio_correo}</td>
+                <td>${therapist.telefono}</td>
+                <td>
+                    ${therapist.especializacion ? 
+                      `<span class="specialty-badge">${therapist.especializacion}</span>` : 
+                      'No especificada'}
+                </td>
+                <td>
+                    ${horario !== 'No definido' ? 
+                      `<span class="schedule-badge">${horario}</span>` : 
+                      'No definido'}
+                </td>
+                <td><span class="status ${estadoClass}">${therapist.estado || 'Activo'}</span></td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" onclick="editTherapist('${therapist.Codigo_trabajador}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${therapist.estado === 'Activo' ? `
+                        <button class="btn btn-sm btn-warning" onclick="changeTherapistStatus('${therapist.Codigo_trabajador}', 'Inactivo')">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        ` : `
+                        <button class="btn btn-sm btn-success" onclick="changeTherapistStatus('${therapist.Codigo_trabajador}', 'Activo')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        `}
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer" style="margin-top: 20px; padding: 10px 0; display: flex; justify-content: space-between;">
+            <div class="table-info">
+                Mostrando ${therapists.length} fisioterapeuta${therapists.length !== 1 ? 's' : ''}
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('therapists-table').innerHTML = tableHTML;
+}
+
+function filterTherapists() {
+    const filters = {
+        nombre: document.getElementById('filter-name').value.trim(),
+        especializacion: document.getElementById('filter-specialty').value,
+        estado: document.getElementById('filter-status').value
+    };
+    
+    currentFilters = filters;
+    loadTherapists(filters);
+}
+
+function clearFilters() {
+    document.getElementById('filter-name').value = '';
+    document.getElementById('filter-specialty').value = '';
+    document.getElementById('filter-status').value = '';
+    
+    currentFilters = {};
+    loadTherapists();
+}
+
+// ===== FUNCIONES DE TABS =====
+function changeTab(tabName) {
+    console.log(`📁 Cambiando a pestaña: ${tabName}`);
+    
+    // Actualizar tabs activos
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Activar tab seleccionado
+    const activeTab = document.querySelector(`.tab[onclick*="${tabName}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+    
+    const activeContent = document.getElementById(tabName);
+    if (activeContent) {
+        activeContent.classList.add('active');
+    }
+    
+    currentTab = tabName;
+    
+    // Cargar datos según la pestaña
+    switch(tabName) {
+        case 'lista':
+            loadTherapists(currentFilters);
+            break;
+        case 'horarios':
+            loadSchedules();
+            break;
+        case 'especialidades':
+            loadSpecialties();
+            break;
+    }
+}
+
+// ===== FUNCIONES DE MODALES =====
+function openNewTherapistModal() {
+    document.getElementById('newTherapistModal').classList.add('active');
+    document.getElementById('therapistForm').reset();
+}
+
+function closeNewTherapistModal() {
+    document.getElementById('newTherapistModal').classList.remove('active');
+}
+
+// ===== FUNCIONES DE GUARDADO =====
+async function saveTherapist() {
+    const formData = {
+        Codigo_trabajador: document.getElementById('therapist-codigo').value,
+        nombre_completo: document.getElementById('therapist-nombre').value,
+        fisio_correo: document.getElementById('therapist-email').value,
+        telefono: document.getElementById('therapist-phone').value,
+        especializacion: document.getElementById('therapist-specialty').value,
+        franja_horaria_dias: document.getElementById('therapist-days').value,
+        franja_horaria_horas: document.getElementById('therapist-hours').value,
+        estado: document.getElementById('therapist-status').value
+    };
+    
+    try {
+        const response = await fetch('/api/admin/fisio/terapeutas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Fisioterapeuta creado exitosamente', 'success');
+            closeNewTherapistModal();
+            loadTherapists();
+            loadStats(); // Actualizar estadísticas
+        } else {
+            showNotification(`Error: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error al guardar terapeuta:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+// ===== FUNCIONES DE EDICIÓN =====
+async function editTherapist(codigo) {
+    try {
+        const response = await fetch(`/api/admin/fisio/terapeutas/${codigo}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const therapist = data.data;
+            
+            // Llenar el modal con los datos
+            document.getElementById('therapist-codigo').value = therapist.Codigo_trabajador;
+            document.getElementById('therapist-codigo').readOnly = true; // No se puede cambiar el código
+            document.getElementById('therapist-nombre').value = therapist.nombre_completo;
+            document.getElementById('therapist-email').value = therapist.fisio_correo;
+            document.getElementById('therapist-phone').value = therapist.telefono;
+            document.getElementById('therapist-specialty').value = therapist.especializacion || '';
+            document.getElementById('therapist-days').value = therapist.franja_horaria_dias || '';
+            document.getElementById('therapist-hours').value = therapist.franja_horaria_horas || '';
+            document.getElementById('therapist-status').value = therapist.estado || 'Activo';
+            
+            // Cambiar el título del modal
+            document.querySelector('#newTherapistModal .modal-title').textContent = 'Editar Fisioterapeuta';
+            
+            // Cambiar el botón de guardar para que actualice
+            const saveBtn = document.querySelector('#newTherapistModal .btn-primary');
+            saveBtn.textContent = 'Actualizar Fisioterapeuta';
+            saveBtn.onclick = function() { updateTherapist(codigo); };
+            
+            openNewTherapistModal();
+        } else {
+            showNotification(`Error: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error al cargar terapeuta:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+async function updateTherapist(codigo) {
+    const formData = {
+        nombre_completo: document.getElementById('therapist-nombre').value,
+        fisio_correo: document.getElementById('therapist-email').value,
+        telefono: document.getElementById('therapist-phone').value,
+        especializacion: document.getElementById('therapist-specialty').value,
+        franja_horaria_dias: document.getElementById('therapist-days').value,
+        franja_horaria_horas: document.getElementById('therapist-hours').value,
+        estado: document.getElementById('therapist-status').value
+    };
+    
+    try {
+        const response = await fetch(`/api/admin/fisio/terapeutas/${codigo}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Fisioterapeuta actualizado exitosamente', 'success');
+            closeNewTherapistModal();
+            loadTherapists();
+            loadStats(); // Actualizar estadísticas
+            
+            // Restaurar el modal a su estado original
+            setTimeout(() => {
+                document.querySelector('#newTherapistModal .modal-title').textContent = 'Nuevo Fisioterapeuta';
+                const saveBtn = document.querySelector('#newTherapistModal .btn-primary');
+                saveBtn.textContent = 'Guardar Fisioterapeuta';
+                saveBtn.onclick = function() { saveTherapist(); };
+                document.getElementById('therapist-codigo').readOnly = false;
+            }, 300);
+        } else {
+            showNotification(`Error: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error al actualizar terapeuta:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+// ===== FUNCIONES DE ESTADO =====
+async function changeTherapistStatus(codigo, nuevoEstado) {
+    if (!confirm(`¿Estás seguro de cambiar el estado a "${nuevoEstado}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/admin/fisio/terapeutas/${codigo}/estado`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ estado: nuevoEstado })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(`Estado cambiado a "${nuevoEstado}" exitosamente`, 'success');
+            loadTherapists(currentFilters);
+            loadStats(); // Actualizar estadísticas
+        } else {
+            showNotification(`Error: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+// ===== FUNCIONES PARA OTRAS PESTAÑAS =====
+async function loadSchedules() {
+    // Por implementar
+    console.log('⏰ Cargando horarios...');
+    showNotification('Funcionalidad de horarios en desarrollo', 'info');
+}
+
+async function loadSpecialties() {
+    try {
+        const response = await fetch('/api/admin/fisio/especializaciones');
+        const data = await response.json();
+        
+        if (data.success) {
+            const specialtiesHTML = data.data.map(esp => 
+                `<div class="specialty-badge" style="margin: 5px; padding: 10px;">${esp}</div>`
+            ).join('');
+            
+            document.getElementById('specialties-table').innerHTML = `
+                <div style="padding: 20px;">
+                    <h4 style="margin-bottom: 20px;">Especializaciones Registradas</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        ${specialtiesHTML || '<p>No hay especializaciones registradas</p>'}
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error al cargar especializaciones:', error);
+    }
+}
+
+// ===== FUNCIONES DE EXPORTACIÓN =====
+function exportTherapists() {
+    showNotification('Funcionalidad de exportación en desarrollo', 'info');
+}
+
+// ===== FUNCIONES DE UTILIDAD =====
+function showNotification(message, type = 'info') {
+    // Eliminar notificaciones existentes
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => {
+        notification.remove();
+    });
+    
+    // Crear nueva notificación
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    
+    let icon = 'fas fa-info-circle';
+    if (type === 'success') icon = 'fas fa-check-circle';
+    if (type === 'error') icon = 'fas fa-exclamation-circle';
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="${icon}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Función para cerrar modal de horarios
+function closeEditScheduleModal() {
+    document.getElementById('editScheduleModal').classList.remove('active');
+}
     </script>
 </body>
 </html>

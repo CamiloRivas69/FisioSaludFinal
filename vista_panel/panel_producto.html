@@ -1082,9 +1082,9 @@
     let productosNutricion = [];
     let productosImplementos = [];
     let carritoBackend = [];
+    let historialCompras = [];
     let usuario = null;
     
-    let carrito = [];
     let productosFiltrados = [];
     let currentProduct = null;
 
@@ -1123,8 +1123,17 @@
                 }
             }
 
+            // 4. Cargar historial de compras
+            const responseHistorial = await fetch('/api/carrito/historial');
+            if (responseHistorial.ok) {
+                const data = await responseHistorial.json();
+                if (data.success) {
+                    historialCompras = data.compras || [];
+                    console.log('📜 Historial de compras cargado:', historialCompras.length);
+                }
+            }
+
             // Inicializar variables
-            carrito = carritoBackend;
             productosFiltrados = [
                 ...productosNutricion.map(p => ({ ...p, tipo: 'nutricion' })),
                 ...productosImplementos.map(p => ({ ...p, tipo: 'implementos' }))
@@ -1362,6 +1371,7 @@
         shippingElement.textContent = shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`;
         totalElement.textContent = `$${total.toFixed(2)}`;
         
+        // Actualizar también en el modal de checkout
         document.getElementById('checkout-subtotal').textContent = `$${subtotal.toFixed(2)}`;
         document.getElementById('checkout-shipping').textContent = shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`;
         document.getElementById('checkout-total').textContent = `$${total.toFixed(2)}`;
@@ -1521,8 +1531,8 @@
         document.getElementById('checkout-modal').classList.remove('active');
     }
 
-    // Función para confirmar compra
-    function confirmPurchase() {
+    // ✅ Función para confirmar compra - AHORA CON API
+    async function confirmPurchase() {
         const form = document.getElementById('checkout-form');
         const address = document.getElementById('shipping-address').value;
         const city = document.getElementById('shipping-city').value;
@@ -1536,42 +1546,53 @@
         
         mostrarNotificacion('Procesando tu compra...', 'info');
         
-        setTimeout(() => {
-            const ordenId = 'ORD' + Date.now().toString().slice(-6);
-            guardarEnHistorial(ordenId);
-            clearCart();
-            closeModal();
-            form.reset();
-            mostrarNotificacion(`¡Compra exitosa! Orden #${ordenId}`, 'success');
-            changeTab('historial');
-        }, 2000);
+        try {
+            const response = await fetch('/api/carrito/confirmar-compra', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    direccion_envio: address,
+                    ciudad: city,
+                    codigo_postal: zip,
+                    metodo_pago: payment
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                mostrarNotificacion(`¡Compra exitosa! Orden #${data.compra.orden_id}`, 'success');
+                
+                // Cerrar modal y limpiar formulario
+                closeModal();
+                form.reset();
+                
+                // Cambiar a pestaña de historial
+                changeTab('historial');
+                
+                // Recargar datos para actualizar carrito vacío y nuevo historial
+                setTimeout(() => {
+                    cargarTodosLosDatos();
+                }, 1000);
+                
+            } else {
+                mostrarNotificacion('Error: ' + data.message, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarNotificacion('Error al procesar la compra', 'error');
+        }
     }
 
-    // Función para guardar compra en historial local
-    function guardarEnHistorial(ordenId) {
-        const historial = JSON.parse(localStorage.getItem('historialCompras') || '[]');
-        
-        const nuevaCompra = {
-            ordenId: ordenId,
-            fecha: new Date().toLocaleDateString('es-ES'),
-            productos: [...carritoBackend],
-            total: document.getElementById('checkout-total').textContent,
-            estado: 'confirmada',
-            direccion: document.getElementById('shipping-address').value
-        };
-        
-        historial.unshift(nuevaCompra);
-        localStorage.setItem('historialCompras', JSON.stringify(historial));
-    }
-
-    // Función para cargar historial de compras local
+    // ✅ Carga historial de compras desde API
     function cargarHistorial() {
         const tbody = document.getElementById('purchase-history-body');
         const emptyState = document.getElementById('no-purchase-history');
         
-        const historial = JSON.parse(localStorage.getItem('historialCompras') || '[]');
-        
-        if (historial.length === 0) {
+        if (!historialCompras || historialCompras.length === 0) {
             tbody.innerHTML = '';
             emptyState.style.display = 'block';
             return;
@@ -1580,20 +1601,20 @@
         emptyState.style.display = 'none';
         tbody.innerHTML = '';
         
-        historial.forEach(compra => {
-            const tr = document.createElement('tr');
-            
-            const productosCount = compra.productos.length;
+        historialCompras.forEach(compra => {
+            const productosCount = compra.items_detalle ? compra.items_detalle.length : 
+                                 (compra.cantidad_total || 1);
             const productosText = productosCount === 1 ? '1 producto' : `${productosCount} productos`;
             
+            const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${compra.ordenId}</td>
-                <td>${compra.fecha}</td>
+                <td>${compra.orden_id}</td>
+                <td>${compra.fecha_compra_str || compra.fecha_compra}</td>
                 <td>${productosText}</td>
-                <td>${compra.total}</td>
+                <td>$${compra.total.toFixed(2)}</td>
                 <td><span class="status status-confirmed">${compra.estado}</span></td>
                 <td>
-                    <button class="btn btn-outline btn-sm" onclick="verDetalleCompra('${compra.ordenId}')">
+                    <button class="btn btn-outline btn-sm" onclick="verDetalleCompraAPI(${compra.id})">
                         <i class="fas fa-eye"></i> Ver Detalle
                     </button>
                 </td>
@@ -1603,35 +1624,82 @@
         });
     }
 
-    // Función para ver detalle de compra
-    function verDetalleCompra(ordenId) {
-        const historial = JSON.parse(localStorage.getItem('historialCompras') || '[]');
-        const compra = historial.find(c => c.ordenId === ordenId);
+    // ✅ Función para ver detalle de compra desde API
+    function verDetalleCompraAPI(compraId) {
+        const compra = historialCompras.find(c => c.id === compraId);
         
-        if (!compra) return;
+        if (!compra) {
+            mostrarNotificacion('Compra no encontrada', 'error');
+            return;
+        }
         
         let detalleHTML = `
-            <h4>Orden #${compra.ordenId}</h4>
-            <p><strong>Fecha:</strong> ${compra.fecha}</p>
+            <h4>Orden #${compra.orden_id}</h4>
+            <p><strong>Fecha:</strong> ${compra.fecha_compra_str || compra.fecha_compra}</p>
             <p><strong>Estado:</strong> ${compra.estado}</p>
-            <p><strong>Dirección:</strong> ${compra.direccion}</p>
+            <p><strong>Dirección:</strong> ${compra.direccion_envio}</p>
+            <p><strong>Método de pago:</strong> ${compra.metodo_pago}</p>
+            <p><strong>Total:</strong> $${compra.total.toFixed(2)}</p>
             
             <h5 style="margin-top: 20px;">Productos:</h5>
             <ul style="list-style: none; padding: 0;">
         `;
         
-        compra.productos.forEach(producto => {
+        if (compra.items_detalle && compra.items_detalle.length > 0) {
+            compra.items_detalle.forEach(producto => {
+                detalleHTML += `
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong>${producto.nombre}</strong><br>
+                        Tipo: ${producto.producto_tipo === 'nutricion' ? 'Nutrición' : 'Implemento'}<br>
+                        Cantidad: ${producto.cantidad} - $${producto.precio_unitario.toFixed(2)} c/u<br>
+                        Subtotal: $${producto.subtotal.toFixed(2)}
+                    </li>
+                `;
+            });
+        } else {
+            // Si no hay items_detalle, mostrar información básica
             detalleHTML += `
                 <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                    <strong>${producto.nombre}</strong><br>
-                    Cantidad: ${producto.cantidad} - $${producto.precio} c/u
+                    <strong>${compra.producto_nombre || 'Producto'}</strong><br>
+                    Cantidad: ${compra.cantidad_total || 1}
                 </li>
             `;
-        });
+        }
         
-        detalleHTML += `</ul><p style="margin-top: 15px;"><strong>Total: ${compra.total}</strong></p>`;
+        detalleHTML += `</ul>`;
         
-        alert(detalleHTML);
+        // Crear modal para mostrar el detalle
+        const modalDetalle = document.createElement('div');
+        modalDetalle.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        `;
+        
+        modalDetalle.innerHTML = `
+            <div style="background: white; padding: 24px; border-radius: 8px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; color: #0A2540;">Detalle de Compra</h3>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748B;">&times;</button>
+                </div>
+                <div>${detalleHTML}</div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #00A3FF; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modalDetalle);
     }
 
     // ✅ Función para aplicar filtros de productos
@@ -1641,36 +1709,36 @@
         const orden = document.getElementById('filter-sort').value;
         
         // Combinar todos los productos
-        let productosFiltrados = [
+        let productosFiltradosTemp = [
             ...productosNutricion.map(p => ({ ...p, tipo: 'nutricion' })),
             ...productosImplementos.map(p => ({ ...p, tipo: 'implementos' }))
         ];
         
         // Aplicar filtro de categoría
         if (categoria !== 'all') {
-            productosFiltrados = productosFiltrados.filter(p => p.tipo === categoria);
+            productosFiltradosTemp = productosFiltradosTemp.filter(p => p.tipo === categoria);
         }
         
         // Aplicar filtro de precio
         if (precioMax !== 'all') {
             const precioMaxNum = parseInt(precioMax);
-            productosFiltrados = productosFiltrados.filter(p => p.precio <= precioMaxNum);
+            productosFiltradosTemp = productosFiltradosTemp.filter(p => p.precio <= precioMaxNum);
         }
         
         // Aplicar ordenamiento
         if (orden === 'name') {
-            productosFiltrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            productosFiltradosTemp.sort((a, b) => a.nombre.localeCompare(b.nombre));
         } else if (orden === 'price-low') {
-            productosFiltrados.sort((a, b) => a.precio - b.precio);
+            productosFiltradosTemp.sort((a, b) => a.precio - b.precio);
         } else if (orden === 'price-high') {
-            productosFiltrados.sort((a, b) => b.precio - a.precio);
+            productosFiltradosTemp.sort((a, b) => b.precio - a.precio);
         }
         
         // Actualizar interfaz
         const container = document.getElementById('products-catalog');
         const emptyState = document.getElementById('no-products');
         
-        if (productosFiltrados.length === 0) {
+        if (productosFiltradosTemp.length === 0) {
             container.innerHTML = '';
             emptyState.style.display = 'block';
             return;
@@ -1679,7 +1747,7 @@
         emptyState.style.display = 'none';
         container.innerHTML = '';
         
-        productosFiltrados.forEach(producto => {
+        productosFiltradosTemp.forEach(producto => {
             const card = document.createElement('div');
             card.className = 'card';
             
@@ -1708,6 +1776,9 @@
             
             container.appendChild(card);
         });
+        
+        // Actualizar variable global
+        productosFiltrados = productosFiltradosTemp;
     }
 
     // Función para mostrar notificaciones

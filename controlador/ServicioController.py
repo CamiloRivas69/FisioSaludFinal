@@ -62,3 +62,48 @@ class ServicioController:
             "servicios": servicios,
             "categoria_activa": categoria
         })
+
+    @staticmethod
+    async def listar_servicios_terapeuticos(request):
+        """
+        Controla la obtención y presentación de todos los servicios
+        """
+        servicios, mensaje_error = ServicioModel.obtener_todos_servicios()
+        terapeutas, _ = ServicioModel.obtener_lista_terapeutas()  # Obtener lista de terapeutas
+        
+        if mensaje_error:
+            return templates.TemplateResponse("serv_terapia.html", {
+                "request": request,
+                "error_message": mensaje_error,
+                "terapeutas": terapeutas or []
+            })
+
+        return templates.TemplateResponse("serv_terapia.html", {
+            "request": request,
+            "servicios": servicios,
+            "terapeutas": terapeutas or []  # Pasar lista de terapeutas al template
+        })
+
+    @staticmethod
+    async def filtrar_servicios_terapeuta(request, terapeuta_busqueda: str):
+        """
+        Controla el filtrado de servicios por terapeuta
+        """
+        servicios, mensaje_error = ServicioModel.obtener_servicios_por_terapeuta(terapeuta_busqueda)
+        terapeutas, _ = ServicioModel.obtener_lista_terapeutas()
+        
+        if mensaje_error:
+            return templates.TemplateResponse("serv_terapia.html", {
+                "request": request,
+                "error_message": mensaje_error,
+                "terapeutas": terapeutas or [],
+                "terapeuta_busqueda": terapeuta_busqueda
+            })
+
+        return templates.TemplateResponse("serv_terapia.html", {
+            "request": request,
+            "servicios": servicios,
+            "terapeutas": terapeutas or [],
+            "terapeuta_busqueda": terapeuta_busqueda,
+            "filtro_terapeuta": True
+        })

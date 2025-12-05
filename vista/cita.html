@@ -53,8 +53,8 @@
         }
 
         .container {
-            width: 90%;
-            max-width: 1400px;
+            width: 95%;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 0 var(--spacing);
         }
@@ -166,7 +166,7 @@
             box-shadow: var(--shadow-lg);
             padding: var(--spacing-xxl);
             position: relative;
-            max-width: 1300px;
+            max-width: 1600px;
             margin: 0 auto;
             min-height: 700px;
         }
@@ -287,21 +287,37 @@
             font-size: 1.1rem;
         }
 
-        /* DISEÑO MEJORADO PARA TARJETAS DE SERVICIOS - COMPACTO */
+        /* DISEÑO MEJORADO PARA TARJETAS DE SERVICIOS - MÁS ANCHO Y MEJOR VISUALIZACIÓN */
         .service-options {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: var(--spacing);
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: var(--spacing-lg);
             margin-top: var(--spacing);
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
             padding-right: var(--spacing);
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-light) var(--background);
+        }
+
+        .service-options::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .service-options::-webkit-scrollbar-track {
+            background: var(--background);
+            border-radius: 10px;
+        }
+
+        .service-options::-webkit-scrollbar-thumb {
+            background-color: var(--gray-light);
+            border-radius: 10px;
         }
 
         .service-option {
             border: 2px solid var(--gray-light);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
             transition: var(--transition);
             cursor: pointer;
             background-color: var(--background);
@@ -319,7 +335,8 @@
 
         .service-option.selected {
             border-color: var(--primary);
-            background-color: rgba(10, 37, 64, 0.02);
+            background: linear-gradient(135deg, rgba(10, 37, 64, 0.02), rgba(10, 37, 64, 0.05));
+            transform: translateY(-2px);
         }
 
         .service-header {
@@ -330,16 +347,17 @@
         }
 
         .service-icon {
-            width: 60px;
-            height: 60px;
-            background-color: var(--gray-ultralight);
-            border-radius: var(--border-radius-sm);
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--border-radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary);
-            font-size: 1.5rem;
+            color: white;
+            font-size: 1.8rem;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .service-content {
@@ -350,7 +368,7 @@
             color: var(--primary);
             margin-bottom: var(--spacing-sm);
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
         }
 
         .service-description {
@@ -360,16 +378,16 @@
             margin-bottom: var(--spacing);
         }
 
-        .service-details {
+        .service-details-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-sm);
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing);
             margin-bottom: var(--spacing);
         }
 
         .service-detail-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: var(--spacing-sm);
             font-size: 14px;
             color: var(--text);
@@ -380,9 +398,14 @@
             width: 16px;
             text-align: center;
             font-size: 1rem;
+            margin-top: 2px;
         }
 
-        /* NUEVOS ESTILOS PARA TERAPEUTAS */
+        .service-detail-item span {
+            line-height: 1.4;
+        }
+
+        /* MEJOR DISEÑO PARA TERAPEUTAS */
         .terapeutas-info {
             display: flex;
             flex-direction: column;
@@ -423,15 +446,18 @@
         .service-benefits {
             background: var(--gray-ultralight);
             padding: var(--spacing);
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--border-radius);
             margin-bottom: var(--spacing);
             font-size: 14px;
             line-height: 1.5;
+            border-left: 4px solid var(--accent);
         }
 
         .service-benefits strong {
             color: var(--primary);
             font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
         }
 
         .service-meta {
@@ -446,24 +472,28 @@
         .service-price {
             font-weight: 700;
             color: var(--primary);
-            font-size: 1.5rem;
+            font-size: 1.8rem;
         }
 
         .btn-select-service {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 28px;
             border-radius: var(--border-radius-sm);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-select-service:hover {
-            background: #083057;
+            background: linear-gradient(135deg, #083057, #0092E0);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
         }
 
         .no-services {
@@ -479,19 +509,24 @@
             margin-bottom: var(--spacing);
         }
 
-        /* SECCIÓN DE TERAPEUTAS - COMPACTA */
+        /* SECCIÓN DE TERAPEUTAS CON HORARIOS - MEJORADA */
         #therapist-selection {
             margin-top: var(--spacing-xl);
             padding-top: var(--spacing-xl);
             border-top: 2px solid var(--gray-light);
+            display: none;
+        }
+
+        .therapist-header {
+            margin-bottom: var(--spacing);
         }
 
         .therapist-options {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: var(--spacing);
             margin-top: var(--spacing);
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             padding-right: var(--spacing);
         }
@@ -499,15 +534,14 @@
         .therapist-option {
             border: 2px solid var(--gray-light);
             border-radius: var(--border-radius);
-            padding: var(--spacing-lg);
+            padding: var(--spacing-xl);
             cursor: pointer;
             transition: var(--transition);
-            text-align: center;
             background-color: var(--background);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            text-align: center;
         }
 
         .therapist-option:hover {
@@ -524,17 +558,17 @@
         }
 
         .therapist-avatar {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 600;
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: var(--spacing);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
@@ -546,8 +580,8 @@
         .therapist-name {
             font-weight: 700;
             color: var(--text);
-            margin-bottom: 5px;
-            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
             text-align: center;
         }
 
@@ -557,15 +591,31 @@
 
         .therapist-specialty {
             color: var(--secondary);
-            font-size: 0.85em;
+            font-size: 0.9em;
             font-weight: 500;
-            text-align: center;
+            margin-bottom: var(--spacing-sm);
             line-height: 1.4;
         }
 
-        .therapist-option.selected .therapist-specialty {
-            color: var(--accent);
+        .therapist-schedule {
+            background: var(--gray-ultralight);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            margin-top: var(--spacing-sm);
+            width: 100%;
+        }
+
+        .schedule-days {
             font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .schedule-hours {
+            color: var(--gray);
+            font-size: 13px;
+            font-weight: 500;
         }
 
         .form-actions {
@@ -573,6 +623,30 @@
             justify-content: space-between;
             margin-top: auto;
             padding-top: var(--spacing-xl);
+        }
+
+        /* MENSAJE DE ERROR DE HORARIO */
+        .schedule-error {
+            text-align: center;
+            margin: var(--spacing) 0;
+            padding: var(--spacing-lg);
+            background-color: #FFF3CD;
+            color: #856404;
+            border: 2px solid #FFEEBA;
+            border-radius: var(--border-radius);
+            animation: fadeIn 0.3s ease;
+            font-size: 16px;
+            display: none;
+        }
+
+        .schedule-error.show {
+            display: block;
+        }
+
+        .schedule-error i {
+            margin-right: var(--spacing-sm);
+            font-size: 1.5rem;
+            color: #FFC107;
         }
 
         /* Estilos para el mensaje de error de selección de servicio */
@@ -586,11 +660,17 @@
             border-radius: var(--border-radius);
             animation: fadeIn 0.3s ease;
             font-size: 16px;
+            display: none;
+        }
+
+        .service-selection-error.show {
+            display: block;
         }
 
         .service-selection-error i {
             margin-right: var(--spacing-sm);
             font-size: 1.5rem;
+            color: #DC2626;
         }
 
         /* Resto de estilos (para los otros pasos) se mantienen igual */
@@ -1026,18 +1106,41 @@
             color: white;
         }
 
+        /* Animación de pulso para errores */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+        @keyframes pulse-warning {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+
         /* Responsive */
+        @media (max-width: 1400px) {
+            .service-options {
+                grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            }
+        }
+
         @media (max-width: 1024px) {
             .appointment-container {
                 padding: var(--spacing-xl);
             }
             
             .service-options {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             }
             
-            .service-details {
+            .service-details-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .therapist-options {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
         }
 
@@ -1069,7 +1172,11 @@
                 font-size: 16px;
             }
             
-            .service-options, .payment-options, .therapist-options {
+            .service-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-options {
                 grid-template-columns: 1fr;
             }
 
@@ -1100,13 +1207,13 @@
             }
             
             .therapist-options {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: 1fr;
             }
             
             .therapist-avatar {
-                width: 60px;
-                height: 60px;
-                font-size: 1.2rem;
+                width: 70px;
+                height: 70px;
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -1153,6 +1260,12 @@
                     <h2>Selecciona un Servicio Terapéutico</h2>
                     <p>Elige el tratamiento que necesitas de nuestra amplia gama de servicios especializados</p>
                     
+                    <!-- Mensaje de error para selección de servicio -->
+                    <div class="service-selection-error" id="service-selection-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>No se puede continuar</strong> - Debes seleccionar un servicio terapéutico y un terapeuta para continuar con el agendamiento.
+                    </div>
+                    
                     <div class="service-options" id="service-options-container">
                         <div class="no-services">
                             <i class="fas fa-spinner fa-spin"></i>
@@ -1161,12 +1274,14 @@
                         </div>
                     </div>
                     
-                    <!-- SECCIÓN PARA SELECCIÓN DE TERAPEUTAS -->
-                    <div id="therapist-selection" style="display: none;">
-                        <h3>Selecciona tu Terapeuta</h3>
-                        <p>Elige el especialista con quien prefieres tu sesión</p>
+                    <!-- SECCIÓN PARA SELECCIÓN DE TERAPEUTAS CON HORARIOS -->
+                    <div id="therapist-selection">
+                        <div class="therapist-header">
+                            <h3>Selecciona tu Terapeuta</h3>
+                            <p>Elige el especialista con quien prefieres tu sesión. Se mostrarán sus horarios disponibles:</p>
+                        </div>
                         <div class="therapist-options" id="therapist-options-container">
-                            <!-- Los terapeutas se cargarán aquí dinámicamente -->
+                            <!-- Los terapeutas se cargarán aquí dinámicamente con sus horarios -->
                         </div>
                     </div>
                     
@@ -1186,6 +1301,12 @@
                 <div class="step-content" id="step-2">
                     <h2>Información Personal y Pago</h2>
                     <p>Completa tus datos y selecciona método de pago</p>
+                    
+                    <!-- Mensaje de error de horario -->
+                    <div class="schedule-error" id="schedule-error">
+                        <i class="fas fa-clock"></i>
+                        <strong>Horario fuera del rango laboral</strong> - La hora seleccionada está fuera de las horas laborales del terapeuta seleccionado. Por favor elige una hora dentro del horario disponible.
+                    </div>
                     
                     <form id="patient-info-form">
                         <h3>Datos del Paciente</h3>
@@ -1229,6 +1350,7 @@
                                 <option value="15:00">3:00 PM</option>
                                 <option value="16:00">4:00 PM</option>
                                 <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
                             </select>
                             <div class="error-message" id="time-error">Por favor selecciona una hora</div>
                         </div>
@@ -1448,6 +1570,9 @@
     </div>
 
     <script>
+    // Variable global para almacenar información de terapeutas
+    let terapeutasInfo = {};
+    
     // Función para formatear terapeutas con etiquetas elegantes
     function formatTerapeutas(terapeutasString) {
         if (!terapeutasString) return '<span class="no-terapeutas">No especificado</span>';
@@ -1472,6 +1597,62 @@
             .join('')
             .substring(0, 2)
             .toUpperCase();
+    }
+
+    // Función para cargar información de terapeutas
+    async function loadTherapistsInfo() {
+        try {
+            const response = await fetch('/api/terapeutas');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.terapeutas) {
+                    data.terapeutas.forEach(terapeuta => {
+                        terapeutasInfo[terapeuta.nombre_completo] = {
+                            dias: terapeuta.franja_horaria_dias,
+                            horas: terapeuta.franja_horaria_horas
+                        };
+                    });
+                    console.log('Información de terapeutas cargada:', terapeutasInfo);
+                }
+            }
+        } catch (error) {
+            console.warn('No se pudieron cargar los horarios de terapeutas:', error);
+        }
+    }
+
+    // Función para validar si una hora está dentro del horario del terapeuta
+    function validateTherapistSchedule(therapistName, selectedTime) {
+        const therapist = terapeutasInfo[therapistName];
+        if (!therapist || !therapist.horas) {
+            console.warn(`No hay información de horario para ${therapistName}`);
+            return true; // Si no hay info, permitir continuar
+        }
+        
+        // Parsear el rango de horas (ejemplo: "8:00 - 17:00")
+        const [startStr, endStr] = therapist.horas.split('-').map(s => s.trim());
+        
+        try {
+            // Convertir a objetos Date para comparación
+            const now = new Date();
+            const selected = new Date(now.toDateString() + ' ' + selectedTime + ':00');
+            const start = new Date(now.toDateString() + ' ' + startStr + ':00');
+            const end = new Date(now.toDateString() + ' ' + endStr + ':00');
+            
+            // Verificar si la hora seleccionada está dentro del rango
+            const isValid = selected >= start && selected <= end;
+            
+            console.log(`Validación horario ${therapistName}:`, {
+                selectedTime,
+                startStr,
+                endStr,
+                isValid
+            });
+            
+            return isValid;
+        } catch (error) {
+            console.error('Error validando horario:', error);
+            return true; // En caso de error, permitir continuar
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1532,6 +1713,8 @@
         const emailInputsContainer = document.getElementById('email-inputs-container');
         const addEmailBtn = document.getElementById('add-email-btn');
         const nextToStep2Btn = document.getElementById('next-to-step-2');
+        const scheduleError = document.getElementById('schedule-error');
+        const appointmentTimeSelect = document.getElementById('appointment-time');
         
         // Elementos del overlay de confirmación
         const confirmationOverlay = document.getElementById('confirmation-overlay');
@@ -1542,6 +1725,9 @@
         const confirmationTime = document.getElementById('confirmation-time');
         const timerCount = document.getElementById('timer-count');
         const skipTimerBtn = document.getElementById('skip-timer');
+        
+        // Cargar información de terapeutas al iniciar
+        loadTherapistsInfo();
         
         // Navegación entre pasos
         function goToStep(stepNumber) {
@@ -1621,7 +1807,7 @@
                         </div>
                     </div>
                     
-                    <div class="service-details">
+                    <div class="service-details-grid">
                         <div class="service-detail-item">
                             <i class="fas fa-user-md"></i>
                             <div class="terapeutas-info">
@@ -1641,7 +1827,7 @@
                         </div>
                         <div class="service-detail-item">
                             <i class="fas fa-calendar-alt"></i>
-                            <span><strong>Horario:</strong> ${service.inicio_jornada} - ${service.final_jornada}</span>
+                            <span><strong>Horario del servicio:</strong> ${service.inicio_jornada} - ${service.final_jornada}</span>
                         </div>
                     </div>
                     
@@ -1653,7 +1839,9 @@
                     <div class="service-meta">
                         <div class="service-price">$${service.precio?.toLocaleString() || 'Consultar'}</div>
                         <div class="service-actions">
-                            <button class="btn-select-service">Seleccionar</button>
+                            <button class="btn-select-service">
+                                <i class="fas fa-check"></i> Seleccionar
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1693,7 +1881,7 @@
             showTherapistSelection(service);
         }
 
-        // Mostrar opciones de terapeutas
+        // Mostrar opciones de terapeutas con horarios
         function showTherapistSelection(service) {
             const therapistSelection = document.getElementById('therapist-selection');
             const therapistOptionsContainer = document.getElementById('therapist-options-container');
@@ -1724,22 +1912,37 @@
                 // Generar iniciales para el avatar
                 const initials = getInitials(therapist);
                 
+                // Obtener información del horario del terapeuta
+                const therapistSchedule = terapeutasInfo[therapist] || {};
+                
                 therapistElement.innerHTML = `
                     <div class="therapist-avatar">
                         ${initials}
                     </div>
                     <div class="therapist-name">${therapist}</div>
                     <div class="therapist-specialty">Especialista en ${service.nombre}</div>
+                    
+                    ${therapistSchedule.dias && therapistSchedule.horas ? `
+                    <div class="therapist-schedule">
+                        <div class="schedule-days">${therapistSchedule.dias}</div>
+                        <div class="schedule-hours">${therapistSchedule.horas}</div>
+                    </div>
+                    ` : `
+                    <div class="therapist-schedule">
+                        <div class="schedule-days">Horario no disponible</div>
+                        <div class="schedule-hours">Consulta disponibilidad</div>
+                    </div>
+                    `}
                 `;
                 
                 therapistElement.addEventListener('click', function() {
-                    selectTherapist(this, therapist);
+                    selectTherapist(this, therapist, therapistSchedule);
                 });
                 
                 therapistElement.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        selectTherapist(this, therapist);
+                        selectTherapist(this, therapist, therapistSchedule);
                     }
                 });
                 
@@ -1750,10 +1953,15 @@
             
             // Deshabilitar botón siguiente hasta que se seleccione terapeuta
             nextToStep2Btn.disabled = true;
+            
+            // Hacer scroll suave a la sección de terapeutas
+            setTimeout(() => {
+                therapistSelection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
         }
 
         // Seleccionar terapeuta
-        function selectTherapist(element, therapist) {
+        function selectTherapist(element, therapist, schedule) {
             document.querySelectorAll('.therapist-option').forEach(opt => {
                 opt.classList.remove('selected');
                 opt.setAttribute('aria-selected', 'false');
@@ -1762,36 +1970,26 @@
             element.classList.add('selected');
             element.setAttribute('aria-selected', 'true');
             
-            // Actualizar servicio seleccionado con el terapeuta elegido
+            // Actualizar servicio seleccionado con el terapeuta elegido y su horario
             selectedService.terapeuta_seleccionado = therapist;
+            selectedService.terapeuta_horario = schedule;
             
             // Ocultar mensaje de error si estaba visible
             hideServiceSelectionError();
             
             // Habilitar botón siguiente
             nextToStep2Btn.disabled = false;
+            
+            console.log('Terapeuta seleccionado:', {
+                nombre: therapist,
+                horario: schedule
+            });
         }
         
         // Función para mostrar error de selección de servicio
         function showServiceSelectionError() {
-            // Crear o mostrar mensaje de error
-            let errorElement = document.getElementById('service-selection-error');
-            
-            if (!errorElement) {
-                errorElement = document.createElement('div');
-                errorElement.id = 'service-selection-error';
-                errorElement.className = 'service-selection-error';
-                
-                // Insertar después del título del paso 1
-                const step1Title = document.querySelector('#step-1 h2');
-                step1Title.parentNode.insertBefore(errorElement, step1Title.nextSibling);
-            }
-            
-            errorElement.innerHTML = `
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>No se puede continuar</strong> - Debes seleccionar un servicio terapéutico y un terapeuta para continuar con el agendamiento.
-            `;
-            errorElement.style.display = 'block';
+            const errorElement = document.getElementById('service-selection-error');
+            errorElement.classList.add('show');
             
             // Hacer scroll suave hacia el mensaje de error
             errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1800,20 +1998,6 @@
             document.querySelectorAll('.service-option, .therapist-option').forEach(option => {
                 option.style.animation = 'pulse 2s infinite';
             });
-            
-            // Agregar estilo CSS para la animación de pulso si no existe
-            if (!document.getElementById('pulse-animation')) {
-                const style = document.createElement('style');
-                style.id = 'pulse-animation';
-                style.textContent = `
-                    @keyframes pulse {
-                        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-                        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-                        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
             
             // Quitar la animación después de 3 segundos
             setTimeout(() => {
@@ -1826,9 +2010,28 @@
         // Función para ocultar el mensaje de error
         function hideServiceSelectionError() {
             const errorElement = document.getElementById('service-selection-error');
-            if (errorElement) {
-                errorElement.style.display = 'none';
-            }
+            errorElement.classList.remove('show');
+        }
+        
+        // Función para mostrar error de horario
+        function showScheduleError() {
+            scheduleError.classList.add('show');
+            
+            // Hacer scroll suave hacia el mensaje de error
+            scheduleError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Resaltar el campo de hora
+            appointmentTimeSelect.style.animation = 'pulse-warning 2s infinite';
+            
+            // Quitar la animación después de 3 segundos
+            setTimeout(() => {
+                appointmentTimeSelect.style.animation = '';
+            }, 3000);
+        }
+        
+        // Función para ocultar error de horario
+        function hideScheduleError() {
+            scheduleError.classList.remove('show');
         }
         
         // Toggle acudiente
@@ -1856,6 +2059,19 @@
                 // Ocultar error de pago si está visible
                 document.getElementById('payment-error').classList.remove('show');
             });
+        });
+        
+        // Validar horario cuando se cambia la hora seleccionada
+        appointmentTimeSelect.addEventListener('change', function() {
+            if (selectedService.terapeuta_seleccionado && this.value) {
+                const isValid = validateTherapistSchedule(selectedService.terapeuta_seleccionado, this.value);
+                
+                if (!isValid) {
+                    showScheduleError();
+                } else {
+                    hideScheduleError();
+                }
+            }
         });
         
         // Agregar campos de email
@@ -1943,6 +2159,8 @@
                 input.classList.remove('error');
             });
             
+            hideScheduleError();
+            
             // Validar campos obligatorios del paciente
             const name = document.getElementById('patient-name').value;
             const phone = document.getElementById('patient-phone').value;
@@ -1973,6 +2191,18 @@
             if (!time) {
                 showError('appointment-time', 'time-error', 'Por favor selecciona una hora');
                 isValid = false;
+            }
+            
+            // Validar horario del terapeuta si hay información disponible
+            if (time && selectedService.terapeuta_seleccionado) {
+                const therapistInfo = terapeutasInfo[selectedService.terapeuta_seleccionado];
+                if (therapistInfo && therapistInfo.horas) {
+                    const isWithinSchedule = validateTherapistSchedule(selectedService.terapeuta_seleccionado, time);
+                    if (!isWithinSchedule) {
+                        showScheduleError();
+                        isValid = false;
+                    }
+                }
             }
             
             // Validar método de pago

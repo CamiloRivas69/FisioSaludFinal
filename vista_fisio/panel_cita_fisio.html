@@ -518,6 +518,100 @@
         tr:hover {
             background-color: var(--gray-lighter);
         }
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 500px; /* Cambié de 600px a 500px para los modales más pequeños */
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--gray-light);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), #0d2e4d);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: var(--spacing-md);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
 
         /* ===== STATUS BADGES ===== */
         .status {
@@ -644,128 +738,6 @@
             gap: var(--spacing-xs);
         }
 
-        /* ===== MODAL ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: var(--spacing-md);
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: var(--background);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease-out;
-            border: 1px solid var(--gray-light);
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            padding: var(--spacing-md);
-            border-bottom: 1px solid var(--gray-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, var(--primary), #0d2e4d);
-            color: white;
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .modal-close:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .modal-body {
-            padding: var(--spacing-md);
-        }
-
-        .modal-footer {
-            padding: var(--spacing-md);
-            border-top: 1px solid var(--gray-light);
-            display: flex;
-            justify-content: flex-end;
-            gap: var(--spacing-sm);
-        }
-
-        /* ===== FORMULARIOS ===== */
-        .form-group {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: var(--spacing-xs);
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text);
-        }
-
-        .form-row {
-            display: flex;
-            gap: var(--spacing-md);
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .form-input.error {
-            border-color: var(--danger);
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-        }
-
         /* ===== NOTIFICACIONES ===== */
         .notification {
             position: fixed;
@@ -819,6 +791,25 @@
             gap: var(--spacing-sm);
             flex: 1;
         }
+        /* Agrega esto al final de tu CSS */
+.btn-group .btn-sm {
+    min-width: 36px;
+    height: 36px;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-group .btn-sm i {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Para los botones con texto */
+.btn-sm:has(i + span) {
+    padding: 6px 10px;
+}
 
         .notification-close {
             background: none;
@@ -926,6 +917,50 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
+        /* Agrega esto a tu sección de CSS */
+.btn-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    min-width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-success {
+    background-color: var(--success);
+    border-color: var(--success);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-info {
+    background-color: var(--info);
+    border-color: var(--info);
+}
+
+/* Asegurar que los botones sean visibles */
+.btn-sm i {
+    font-size: 0.9rem;
+}
+
+/* Mejorar visibilidad del estado en columna acciones */
+.btn-group .status {
+    margin-left: 8px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+}
 
         .service-badge {
             background-color: rgba(0, 212, 170, 0.1);
@@ -1011,11 +1046,6 @@
                 flex-wrap: wrap;
             }
             
-            .modal-content {
-                width: 95%;
-                margin: 10px;
-            }
-            
             .form-row {
                 flex-direction: column;
                 gap: 0;
@@ -1094,7 +1124,7 @@
             <div class="welcome-banner">
                 <div class="banner-content">
                     <div class="banner-text">
-                        <h3>Bienvenido de nuevo, {{ fisioterapeuta.nombre_completo.split(' ')[0] }}</h3>
+                        <h3>Bienvenido de nuevo, <span id="welcome-name">{{ fisioterapeuta.nombre_completo.split(' ')[0] }}</span></h3>
                         <p>Gestiona tus citas, visualiza tu agenda y organiza tu jornada de manera eficiente.</p>
                     </div>
                     <div class="banner-stats">
@@ -1115,9 +1145,7 @@
                         <button class="btn btn-white" onclick="showTodaySchedule()">
                             <i class="fas fa-calendar-day"></i> Ver Hoy
                         </button>
-                        <button class="btn btn-white" onclick="openModal()">
-                            <i class="fas fa-plus"></i> Nueva Cita
-                        </button>
+                        <!-- BOTÓN DE NUEVA CITA ELIMINADO COMO SOLICITASTE -->
                         <button class="btn btn-white" onclick="exportSchedule()">
                             <i class="fas fa-download"></i> Exportar Agenda
                         </button>
@@ -1162,12 +1190,12 @@
                 
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">Completadas</div>
+                        <div class="card-title">Confirmadas</div>
                         <div class="card-icon bg-info">
                             <i class="fas fa-check-circle"></i>
                         </div>
                     </div>
-                    <div class="card-value" id="completed-appointments">0</div>
+                    <div class="card-value" id="confirmed-appointments">0</div>
                     <div class="card-description">Este mes</div>
                 </div>
             </div>
@@ -1175,11 +1203,6 @@
             <!-- TABS -->
             <div class="tabs">
                 <div class="tab active" onclick="changeTab('total-citas')">Total de Citas Actuales</div>
-                <div class="tab" onclick="changeTab('hoy')">Hoy</div>
-                <div class="tab" onclick="changeTab('pendientes')">
-                    Por Confirmar
-                    <span class="badge" id="pending-badge">0</span>
-                </div>
                 <div class="tab" onclick="changeTab('historial')">Historial</div>
             </div>
 
@@ -1222,10 +1245,9 @@
                             <label for="filter-status">Estado</label>
                             <select class="filter-select" id="filter-status">
                                 <option value="">Todos los estados</option>
-                                <option value="pending">Pendiente</option>
-                                <option value="confirmed">Confirmada</option>
-                                <option value="completed">Completada</option>
-                                <option value="canceled">Cancelada</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="confirmada">Confirmada</option>
+                                <option value="cancelada">Cancelada</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -1236,1159 +1258,1247 @@
                     </div>
                     
                     <!-- TABLA DE CITAS -->
-                    <div id="appointments-table">
-                        <div class="empty-state">
-                            <i class="fas fa-spinner loading-spinner"></i>
-                            <h3>Cargando citas...</h3>
+                    <div class="table-responsive">
+                        <table id="citas-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable(0)">ID Cita</th>
+                                    <th onclick="sortTable(1)">Paciente</th>
+                                    <th onclick="sortTable(2)">Servicio</th>
+                                    <th onclick="sortTable(3)">Fecha y Hora</th>
+                                    <th onclick="sortTable(4)">Estado</th>
+                                    <th>Contacto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="citas-table-body">
+                                <!-- Datos cargados dinámicamente -->
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 40px;">
+                                        <div class="loading-spinner"></div>
+                                        <p>Cargando citas...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-footer">
+                        <div class="table-info">
+                            Mostrando <span id="citas-count">0</span> citas
+                        </div>
+                        <div class="table-info">
+                            <button class="btn btn-sm btn-outline" onclick="prevPage()">
+                                <i class="fas fa-chevron-left"></i> Anterior
+                            </button>
+                            <span style="margin: 0 10px;">Página <span id="current-page">1</span></span>
+                            <button class="btn btn-sm btn-outline" onclick="nextPage()">
+                                Siguiente <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- OTRAS PESTAÑAS -->
+            <!-- TAB CONTENT: HOY -->
             <div id="hoy" class="tab-content">
                 <div class="table-container">
-                    <div id="hoy-table">
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-check"></i>
-                            <h3>Citas de Hoy</h3>
-                            <p>Esta sección mostrará las citas programadas para hoy</p>
-                        </div>
+                    <div class="table-header">
+                        <h3>Citas de Hoy</h3>
+                        <button class="btn btn-primary" onclick="loadTodayAppointments()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="hoy-table">
+                            <thead>
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Servicio</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hoy-table-body">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="hoy-empty-state" style="display: none;">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>No hay citas para hoy</h3>
+                        <p>No tienes citas programadas para hoy</p>
                     </div>
                 </div>
             </div>
 
+            <!-- TAB CONTENT: PENDIENTES -->
             <div id="pendientes" class="tab-content">
                 <div class="table-container">
-                    <div id="pendientes-table">
-                        <div class="empty-state">
-                            <i class="fas fa-question-circle"></i>
-                            <h3>Citas por Confirmar</h3>
-                            <p>Esta sección mostrará las citas que requieren confirmación</p>
-                        </div>
+                    <div class="table-header">
+                        <h3>Citas por Confirmar</h3>
+                        <button class="btn btn-primary" onclick="loadPendingAppointments()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="pendientes-table">
+                            <thead>
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendientes-table-body">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="pendientes-empty-state" style="display: none;">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>No hay citas pendientes</h3>
+                        <p>Todas las citas están confirmadas o canceladas</p>
                     </div>
                 </div>
             </div>
 
+            <!-- TAB CONTENT: HISTORIAL -->
             <div id="historial" class="tab-content">
                 <div class="table-container">
-                    <div id="historial-table">
-                        <div class="empty-state">
-                            <i class="fas fa-history"></i>
-                            <h3>Historial de Citas</h3>
-                            <p>Esta sección mostrará el historial completo de citas</p>
+                    <div class="table-header">
+                        <h3>Historial de Citas</h3>
+                        <div>
+                            <input type="month" class="filter-input" id="historial-month" style="width: auto;">
+                            <button class="btn btn-primary" onclick="loadHistoryAppointments()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
                         </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="historial-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Paciente</th>
+                                    <th>Servicio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historial-table-body">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="historial-empty-state" style="display: none;">
+                        <i class="fas fa-history"></i>
+                        <h3>No hay historial de citas</h3>
+                        <p>No se encontraron citas en el período seleccionado</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL NUEVA CITA -->
-    <div id="appointmentModal" class="modal">
+    <!-- NOTIFICACIONES -->
+    <div id="notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <i class="fas fa-info-circle"></i>
+            <span id="notification-message">Mensaje de notificación</span>
+        </div>
+        <button class="notification-close" onclick="hideNotification()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN (NUEVO) -->
+    <div id="confirmModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Nueva Cita</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <h3 class="modal-title" id="confirmModalTitle">Confirmar Acción</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="appointmentForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="nombre_paciente">Nombre del Paciente *</label>
-                            <input type="text" class="filter-input" id="nombre_paciente" required placeholder="Nombre completo del paciente">
-                        </div>
-                        <div class="form-group">
-                            <label for="servicio">Servicio *</label>
-                            <select class="filter-select" id="servicio" required>
-                                <option value="">Seleccionar servicio</option>
-                                <option value="Masaje relajante">Masaje relajante</option>
-                                <option value="Fisioterapia">Fisioterapia</option>
-                                <option value="Rehabilitación">Rehabilitación</option>
-                                <option value="Terapia física">Terapia física</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="terapeuta_designado">Terapeuta Designado</label>
-                            <input type="text" class="filter-input" id="terapeuta_designado" value="{{ fisioterapeuta.nombre_completo }}" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="tipo_pago">Tipo de Pago *</label>
-                            <select class="filter-select" id="tipo_pago" required>
-                                <option value="">Seleccionar tipo de pago</option>
-                                <option value="efectivo">Efectivo</option>
-                                <option value="tarjeta_credito">Tarjeta de Crédito</option>
-                                <option value="tarjeta_debito">Tarjeta de Débito</option>
-                                <option value="transferencia">Transferencia</option>
-                                <option value="seguro">Seguro Médico</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="telefono">Teléfono</label>
-                            <input type="tel" class="filter-input" id="telefono" placeholder="Número de teléfono">
-                        </div>
-                        <div class="form-group">
-                            <label for="correo">Correo Electrónico</label>
-                            <input type="email" class="filter-input" id="correo" placeholder="correo@ejemplo.com">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="fecha_cita">Fecha de Cita *</label>
-                            <input type="date" class="filter-input" id="fecha_cita" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="hora_cita">Hora de Cita *</label>
-                            <input type="time" class="filter-input" id="hora_cita" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="notas_adicionales">Notas Adicionales</label>
-                        <textarea class="filter-input" id="notas_adicionales" rows="3" placeholder="Observaciones, comentarios o notas importantes..."></textarea>
-                    </div>
-                </form>
+                <p id="confirmModalMessage">¿Está seguro de realizar esta acción?</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveAppointment()">Guardar Cita</button>
+                <button class="btn btn-outline" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-primary" id="confirmModalAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DETALLE DE CITA (NUEVO) -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle de Cita</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <h4>Información de la Cita</h4>
+                    <table style="width: 100%; margin-top: 10px;">
+                        <tr>
+                            <td style="width: 30%; font-weight: 600;">ID Cita:</td>
+                            <td id="detail-cita-id">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Paciente:</td>
+                            <td id="detail-paciente">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Servicio:</td>
+                            <td id="detail-servicio">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Fecha y Hora:</td>
+                            <td id="detail-fecha-hora">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Estado:</td>
+                            <td><span id="detail-estado" class="status"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Tipo de Pago:</td>
+                            <td id="detail-tipo-pago">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Notas:</td>
+                            <td id="detail-notas">-</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="form-group" id="acudiente-section" style="display: none;">
+                    <h4>Información del Acudiente</h4>
+                    <table style="width: 100%; margin-top: 10px;">
+                        <tr>
+                            <td style="width: 30%; font-weight: 600;">Nombre:</td>
+                            <td id="detail-acudiente-nombre">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Teléfono:</td>
+                            <td id="detail-acudiente-telefono">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Correo:</td>
+                            <td id="detail-acudiente-correo">-</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeDetailModal()">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
-// =============================================
-// VARIABLES GLOBALES
-// =============================================
+    // ============================================
+    // VARIABLES GLOBALES
+    // ============================================
+    let citasData = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let sortColumn = null;
+    let sortDirection = 'asc';
+    let currentCitaId = null;
 
-let allAppointments = [];
-let currentFilteredAppointments = [];
-let currentTab = 'total-citas';
-let currentSortColumn = 'fecha_cita';
-let currentSortDirection = 'desc';
+    // ============================================
+    // FUNCIÓN MEJORADA PARA DETECTAR ESTADO PENDIENTE
+    // ============================================
+    function esEstadoPendiente(estado) {
+        if (!estado) return false;
+        
+        const estadoStr = estado.toString().toLowerCase().trim();
+        
+        // Lista de posibles variantes de "pendiente" (incluyendo errores de escritura)
+        const variantesPendiente = [
+            'pendiente',
+            'periente',      // Error común: falta la "d"
+            'pendinte',      // Error común: falta la "e"
+            'pendien',       // Error común: falta la "te"
+            'pend',          // Abreviatura
+            'pemdiente',     // Error de teclado
+            'penciente',     // Otro error común
+            'pendente',      // Posible error
+            'PENDIENTE',
+            'Pendiente',
+            'PENDIENTE',
+            'pendiente',
+            'PENDIENTE'
+        ];
+        
+        return variantesPendiente.includes(estadoStr);
+    }
 
-// =============================================
-// FUNCIONES DE DEBUG Y DIAGNÓSTICO
-// =============================================
-
-async function debugSession() {
-    try {
-        console.log('🔍 Iniciando diagnóstico de sesión...');
+    // ============================================
+    // FUNCIONES DE ESTADO MEJORADAS
+    // ============================================
+    function getStatusClass(estado) {
+        if (!estado || estado === 'None' || estado === 'null') return 'status-pending';
         
-        // Ver datos del template
-        console.log('📋 Datos del fisioterapeuta en template:', {
-            nombre: "{{ fisioterapeuta.nombre_completo }}",
-            especializacion: "{{ fisioterapeuta.especializacion }}",
-            codigo: "{{ fisioterapeuta.codigo_trabajador }}",
-            email: "{{ fisioterapeuta.email }}",
-            logged_in: "{{ fisioterapeuta.logged_in }}"
-        });
+        const estadoStr = estado.toString().toLowerCase().trim();
         
-        // Llamar al endpoint para ver qué responde
-        console.log('🔄 Llamando a /api/citas/panel_terapeuta...');
-        
-        const response = await fetch('/api/citas/panel_terapeuta', {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Accept': 'application/json',
-                'Cache-Control': 'no-cache'
-            }
-        });
-        
-        const result = await response.json();
-        
-        console.log('📡 Respuesta del servidor:', {
-            status: response.status,
-            success: result.success,
-            terapeuta_filtrado: result.terapeuta,
-            total_citas: result.total,
-            error: result.error,
-            debug: result.debug
-        });
-        
-        // Mostrar alerta con resultado
-        if (result.success) {
-            alert(`✅ Fisioterapeuta en sesión: ${result.terapeuta}\n📅 Citas encontradas: ${result.total}`);
-        } else {
-            alert(`❌ Error: ${result.error || 'Desconocido'}\n\nRevisa la consola para más detalles.`);
+        // Si es alguna variante de "pendiente"
+        if (esEstadoPendiente(estado)) {
+            return 'status-pending';
         }
         
-        return result;
+        // Mapear otros estados
+        const mapeoEstados = {
+            'confirmada': 'status-confirmed',
+            'confirmado': 'status-confirmed',
+            'confirmada': 'status-confirmed',
+            'confirmado': 'status-confirmed',
+            'cancelada': 'status-canceled',
+            'cancelado': 'status-canceled',
+            'cancelada': 'status-canceled',
+            'cancelado': 'status-canceled',
+            'completada': 'status-completed',
+            'completado': 'status-completed'
+        };
         
-    } catch (error) {
-        console.error('❌ Error en debugSession:', error);
-        alert('Error de conexión: ' + error.message);
+        return mapeoEstados[estadoStr] || 'status-pending';
     }
-}
 
-// =============================================
-// FUNCIONES DE UI Y MODAL
-// =============================================
-
-function openModal() {
-    document.getElementById('appointmentModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Establecer valores por defecto
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha_cita').value = today;
-    
-    const now = new Date();
-    now.setHours(now.getHours() + 1);
-    now.setMinutes(0, 0, 0);
-    const timeString = now.toTimeString().substring(0, 5);
-    document.getElementById('hora_cita').value = timeString;
-    
-    // Establecer terapeuta designado automáticamente (DEL TEMPLATE)
-    const terapeutaNombre = "{{ fisioterapeuta.nombre_completo }}";
-    document.getElementById('terapeuta_designado').value = terapeutaNombre;
-    
-    console.log('📝 Modal abierto para terapeuta:', terapeutaNombre);
-    
-    // Focus en el primer campo
-    setTimeout(() => {
-        document.getElementById('nombre_paciente').focus();
-    }, 100);
-}
-
-function closeModal() {
-    document.getElementById('appointmentModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
-    document.getElementById('appointmentForm').reset();
-    
-    // Restablecer valores por defecto
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha_cita').value = today;
-    document.getElementById('terapeuta_designado').value = "{{ fisioterapeuta.nombre_completo }}";
-}
-
-// Cerrar modal al hacer clic fuera
-document.addEventListener('click', function(event) {
-    const modal = document.getElementById('appointmentModal');
-    if (event.target === modal) {
-        closeModal();
+    function getStatusText(estado) {
+        if (!estado || estado === 'None' || estado === 'null') return 'Pendiente';
+        
+        const estadoStr = estado.toString().toLowerCase().trim();
+        
+        // Si es alguna variante de "pendiente", mostrar como "Pendiente"
+        if (esEstadoPendiente(estado)) {
+            return 'Pendiente';
+        }
+        
+        // Mapear otros estados
+        const mapeoEstados = {
+            'confirmada': 'Confirmada',
+            'confirmado': 'Confirmada',
+            'confirmada': 'Confirmada',
+            'confirmado': 'Confirmada',
+            'cancelada': 'Cancelada',
+            'cancelado': 'Cancelada',
+            'cancelada': 'Cancelada',
+            'cancelado': 'Cancelada',
+            'completada': 'Completada',
+            'completado': 'Completada'
+        };
+        
+        return mapeoEstados[estadoStr] || estado;
     }
-});
 
-// Cerrar modal con Escape
-document.addEventListener('keydown', function(event) {
-    const modal = document.getElementById('appointmentModal');
-    if (event.key === 'Escape' && modal.classList.contains('active')) {
-        closeModal();
-    }
-});
+    // ============================================
+    // FUNCIONES DE INICIALIZACIÓN
+    // ============================================
 
-// =============================================
-// FUNCIONES DE NAVEGACIÓN POR PESTAÑAS
-// =============================================
-
-function changeTab(tabName) {
-    // Actualizar variable global
-    currentTab = tabName;
-    
-    // Ocultar todas las pestañas
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Remover clase active de todas las pestañas
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Activar la pestaña seleccionada
-    document.getElementById(tabName).classList.add('active');
-    document.querySelector(`.tab[onclick="changeTab('${tabName}')"]`).classList.add('active');
-    
-    // Cargar datos según la pestaña
-    if (tabName === 'total-citas') {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Panel de Citas cargado');
         loadAppointments();
-    } else if (tabName === 'hoy') {
-        filterTodayAppointments();
-    } else if (tabName === 'pendientes') {
-        filterPendingAppointments();
-    } else if (tabName === 'historial') {
-        showHistorial();
-    }
-}
-
-// =============================================
-// FUNCIONES DE CARGA DE DATOS - CORREGIDAS
-// =============================================
-
-async function loadAppointments() {
-    try {
-        showLoadingState();
+        loadStatistics();
+        updateWelcomeName();
         
-        console.log('🔄 Cargando citas del fisioterapeuta...');
-        
-        // ¡IMPORTANTE: credentials: 'include' para enviar cookies de sesión!
-        const response = await fetch('/api/citas/panel_terapeuta', {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Accept': 'application/json',
-                'Cache-Control': 'no-cache'
+        // Agregar botón de prueba para depuración
+        const header = document.querySelector('.header');
+        if (header) {
+          
+            testButton.onclick = testCitasData;
+            testButton.title = 'Cargar datos de prueba con estado "PERIENTE"';
+            
+            const headerActions = header.querySelector('div:nth-child(2)');
+            if (headerActions) {
+                headerActions.appendChild(testButton);
             }
-        });
+        }
+    });
+
+    function updateWelcomeName() {
+        const userNameElement = document.getElementById('user-name');
+        if (userNameElement) {
+            const fullName = userNameElement.textContent;
+            const firstName = fullName.split(' ')[0];
+            document.getElementById('welcome-name').textContent = firstName;
+        }
+    }
+
+    // ============================================
+    // FUNCIONES DE CARGAR DATOS
+    // ============================================
+
+    async function loadAppointments() {
+        try {
+            showLoading('citas-table-body');
+            
+            const response = await fetch('/api/citas-fisio');
+            const data = await response.json();
+            
+            console.log('📥 Datos recibidos de API:', {
+                success: data.success,
+                total: data.total,
+                // Análisis de estados
+                estados_unicos: [...new Set(data.data.map(c => c.estado))],
+                conteo_estados: data.data.reduce((acc, c) => {
+                    const estado = c.estado || 'sin_estado';
+                    acc[estado] = (acc[estado] || 0) + 1;
+                    return acc;
+                }, {})
+            });
+            
+            if (data.success) {
+                citasData = data.data;
+                
+                // DIAGNÓSTICO AUTOMÁTICO
+                console.log('🔍 DIAGNÓSTICO AUTOMÁTICO:');
+                const citasConEstados = {};
+                citasData.forEach(cita => {
+                    const estado = cita.estado || 'sin_estado';
+                    const esPendiente = esEstadoPendiente(cita.estado);
+                    citasConEstados[estado] = (citasConEstados[estado] || 0) + 1;
+                    
+                    console.log(`  - Cita ${cita.cita_id}: "${estado}" → ¿Es pendiente? ${esPendiente ? '✅ SÍ' : '❌ NO'}`);
+                });
+                
+                console.log('📊 Resumen estados:', citasConEstados);
+                
+                renderAppointmentsTable();
+                updateBadgeCount();
+                
+                // Mostrar notificación con diagnóstico
+                const citasPendientes = citasData.filter(c => esEstadoPendiente(c.estado)).length;
+                if (citasPendientes > 0) {
+                    showNotification(`✅ Encontradas ${citasPendientes} citas pendientes (con botones de acción)`, 'success');
+                } else {
+                    showNotification('ℹ️ No se encontraron citas con estado pendiente', 'info');
+                }
+            } else {
+                showNotification('Error al cargar citas: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error de conexión con el servidor', 'error');
+        }
+    }
+
+    async function loadStatistics() {
+        try {
+            const response = await fetch('/api/citas-fisio/estadisticas');
+            const data = await response.json();
+            
+            if (data.success) {
+                updateCards(data.data);
+            }
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+        }
+    }
+
+    // ============================================
+    // FUNCIÓN PRINCIPAL DE RENDERIZADO - CORREGIDA
+    // ============================================
+
+    function renderAppointmentsTable() {
+        const tbody = document.getElementById('citas-table-body');
+        if (!tbody) return;
         
-        console.log('📡 Status de respuesta:', response.status, response.statusText);
+        console.log('🔄 Renderizando tabla con', citasData.length, 'citas');
         
-        if (response.status === 401) {
-            // No autorizado - sesión expirada
-            console.warn('⚠️ Sesión expirada o no válida');
-            showNotification('Sesión expirada. Redirigiendo al login...', 'warning');
-            setTimeout(() => {
-                window.location.href = '/login-fisio-page';
-            }, 2000);
+        if (citasData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--gray-light); margin-bottom: 10px;"></i>
+                        <p>No hay citas registradas</p>
+                    </td>
+                </tr>
+            `;
+            updateCounts(0);
             return;
         }
         
-        if (!response.ok) {
-            throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
-        }
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedData = citasData.slice(start, end);
         
-        const result = await response.json();
-        console.log('📊 Datos recibidos:', {
-            success: result.success,
-            total_citas: result.total,
-            terapeuta_filtrado: result.terapeuta,
-            error: result.error
-        });
+        let html = '';
         
-        if (result.success) {
-            allAppointments = result.data || [];
+        paginatedData.forEach(cita => {
+            const fecha = formatDate(cita.fecha_cita);
+            const hora = formatTime(cita.hora_cita);
+            const estadoClass = getStatusClass(cita.estado);
+            const estadoText = getStatusText(cita.estado);
+            const telefono = cita.telefono || 'No disponible';
+            const correo = cita.correo || '';
             
-            console.log(`✅ Cargadas ${allAppointments.length} citas para: ${result.terapeuta || 'Terapeuta no especificado'}`);
+            // DETECCIÓN CORRECTA DE ESTADO PENDIENTE
+            const esPendiente = esEstadoPendiente(cita.estado);
             
-            // Procesar fechas para ordenamiento
-            allAppointments = allAppointments.map(apt => ({
-                ...apt,
-                fecha_original: apt.fecha_cita,
-                fecha_cita: new Date(apt.fecha_cita)
-            }));
+            // DEBUG DETALLADO PARA CADA CITA
+            console.log('📄 Procesando cita:', {
+                id: cita.cita_id,
+                estadoOriginal: cita.estado,
+                estadoNormalizado: cita.estado ? cita.estado.toString().toLowerCase().trim() : 'null',
+                esPendiente: esPendiente,
+                paciente: cita.nombre_paciente,
+                mostrarBotones: esPendiente ? 'SÍ' : 'NO'
+            });
             
-            // Aplicar filtros según la pestaña actual
-            if (currentTab === 'hoy') {
-                filterTodayAppointments();
-            } else if (currentTab === 'pendientes') {
-                filterPendingAppointments();
-            } else {
-                currentFilteredAppointments = [...allAppointments];
-                sortAppointments(currentSortColumn, currentSortDirection);
-                renderAppointmentsTable();
-            }
-            
-            updateStatistics();
-            updateBannerStats();
-            
-        } else {
-            // Error del servidor
-            const errorMsg = result.error || 'Error al cargar las citas';
-            console.error('❌ Error en la respuesta:', result);
-            showErrorState(errorMsg);
-            showNotification(errorMsg, 'error');
-        }
-    } catch (error) {
-        console.error('❌ Error completo al cargar citas:', error);
-        showErrorState('Error de conexión: ' + error.message);
-        showNotification('Error de conexión al servidor', 'error');
-    }
-}
-
-function showLoadingState() {
-    const tableContainer = document.getElementById('appointments-table');
-    tableContainer.innerHTML = `
-        <div class="empty-state">
-            <div style="margin-bottom: 16px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--secondary);"></i>
-            </div>
-            <h3>Cargando citas...</h3>
-            <p>Por favor, espere un momento</p>
-        </div>
-    `;
-}
-
-function showErrorState(message) {
-    const tableContainer = document.getElementById('appointments-table');
-    tableContainer.innerHTML = `
-        <div class="empty-state">
-            <i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 2rem; margin-bottom: 16px;"></i>
-            <h3>Error al cargar las citas</h3>
-            <p>${message}</p>
-            <button class="btn btn-primary" onclick="loadAppointments()">
-                <i class="fas fa-redo"></i> Reintentar
-            </button>
-            <button class="btn btn-outline" onclick="debugSession()" style="margin-top: 10px;">
-                <i class="fas fa-bug"></i> Diagnosticar problema
-            </button>
-        </div>
-    `;
-}
-
-// =============================================
-// FUNCIONES DE FILTRADO
-// =============================================
-
-function filterTodayAppointments() {
-    const today = new Date().toISOString().split('T')[0];
-    
-    currentFilteredAppointments = allAppointments.filter(appointment => {
-        const appointmentDate = new Date(appointment.fecha_original).toISOString().split('T')[0];
-        return appointmentDate === today;
-    });
-    
-    sortAppointments('hora_cita', 'asc');
-    renderAppointmentsTable('hoy-table');
-}
-
-function filterPendingAppointments() {
-    currentFilteredAppointments = allAppointments.filter(appointment => 
-        appointment.estado === 'pending'
-    );
-    
-    sortAppointments('fecha_cita', 'asc');
-    renderAppointmentsTable('pendientes-table');
-}
-
-function filterAppointments() {
-    const dateFilter = document.getElementById('filter-date').value;
-    const patientFilter = document.getElementById('filter-patient').value.toLowerCase();
-    const serviceFilter = document.getElementById('filter-service').value;
-    const statusFilter = document.getElementById('filter-status').value;
-
-    currentFilteredAppointments = allAppointments.filter(appointment => {
-        const appointmentDate = new Date(appointment.fecha_original).toISOString().split('T')[0];
-        const appointmentPatient = appointment.nombre_paciente ? appointment.nombre_paciente.toLowerCase() : '';
-        const appointmentService = appointment.servicio || '';
-        
-        const matchesDate = !dateFilter || appointmentDate === dateFilter;
-        const matchesPatient = !patientFilter || appointmentPatient.includes(patientFilter);
-        const matchesService = !serviceFilter || appointmentService === serviceFilter;
-        const matchesStatus = !statusFilter || appointment.estado === statusFilter;
-
-        return matchesDate && matchesPatient && matchesService && matchesStatus;
-    });
-
-    sortAppointments(currentSortColumn, currentSortDirection);
-    renderAppointmentsTable();
-}
-
-function clearFilters() {
-    document.getElementById('filter-date').value = '';
-    document.getElementById('filter-patient').value = '';
-    document.getElementById('filter-service').value = '';
-    document.getElementById('filter-status').value = '';
-    
-    currentFilteredAppointments = [...allAppointments];
-    sortAppointments(currentSortColumn, currentSortDirection);
-    renderAppointmentsTable();
-}
-
-// =============================================
-// FUNCIONES DE ORDENAMIENTO
-// =============================================
-
-function sortAppointments(column, direction) {
-    currentSortColumn = column;
-    currentSortDirection = direction;
-    
-    currentFilteredAppointments.sort((a, b) => {
-        let valueA, valueB;
-        
-        switch(column) {
-            case 'fecha_cita':
-                valueA = a.fecha_cita;
-                valueB = b.fecha_cita;
-                break;
-            case 'hora_cita':
-                valueA = a.hora_cita || '';
-                valueB = b.hora_cita || '';
-                break;
-            case 'nombre_paciente':
-                valueA = (a.nombre_paciente || '').toLowerCase();
-                valueB = (b.nombre_paciente || '').toLowerCase();
-                break;
-            case 'servicio':
-                valueA = (a.servicio || '').toLowerCase();
-                valueB = (b.servicio || '').toLowerCase();
-                break;
-            case 'estado':
-                valueA = a.estado || '';
-                valueB = b.estado || '';
-                break;
-            default:
-                valueA = a[column] || '';
-                valueB = b[column] || '';
-        }
-        
-        if (direction === 'asc') {
-            return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
-        } else {
-            return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
-        }
-    });
-}
-
-function sortTable(column) {
-    // Cambiar dirección si es la misma columna
-    if (currentSortColumn === column) {
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSortColumn = column;
-        currentSortDirection = 'asc';
-    }
-    
-    sortAppointments(column, currentSortDirection);
-    renderAppointmentsTable();
-    updateSortIndicators();
-}
-
-function updateSortIndicators() {
-    // Remover indicadores anteriores
-    document.querySelectorAll('th').forEach(th => {
-        th.classList.remove('sort-asc', 'sort-desc');
-    });
-    
-    // Agregar nuevo indicador
-    const headerCell = document.querySelector(`th[onclick="sortTable('${currentSortColumn}')"]`);
-    if (headerCell) {
-        headerCell.classList.add(`sort-${currentSortDirection}`);
-    }
-}
-
-// =============================================
-// FUNCIONES DE RENDERIZADO
-// =============================================
-
-function renderAppointmentsTable(containerId = 'appointments-table') {
-    const tableContainer = document.getElementById(containerId);
-    
-    if (currentFilteredAppointments.length === 0) {
-        tableContainer.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <h3>No hay citas</h3>
-                <p>No se encontraron citas con los filtros aplicados</p>
-                ${containerId === 'appointments-table' ? `
-                <button class="btn btn-outline" onclick="openModal()">
-                    <i class="fas fa-plus"></i> Crear Nueva Cita
-                </button>` : ''}
-            </div>
-        `;
-        return;
-    }
-
-    let tableHTML = `
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th onclick="sortTable('cita_id')">ID Cita</th>
-                        <th onclick="sortTable('nombre_paciente')">Paciente</th>
-                        <th onclick="sortTable('servicio')">Servicio</th>
-                        <th onclick="sortTable('fecha_cita')">Fecha</th>
-                        <th onclick="sortTable('hora_cita')">Hora</th>
-                        <th>Teléfono</th>
-                        <th onclick="sortTable('estado')">Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-
-    currentFilteredAppointments.forEach(appointment => {
-        const fecha = appointment.fecha_cita ? 
-            new Date(appointment.fecha_original).toLocaleDateString('es-ES', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            }) : 'No especificada';
-            
-        const hora = appointment.hora_cita ? 
-            appointment.hora_cita.substring(0, 5) : '--:--';
-        
-        const estado = appointment.estado || 'pending';
-        
-        // Clase CSS para el estado
-        const estadoClass = getStatusClass(estado);
-        const estadoTexto = getStatusText(estado);
-        const estadoIcon = getStatusIcon(estado);
-        
-        tableHTML += `
-            <tr data-cita-id="${appointment.cita_id}">
-                <td><span class="badge-id">${escapeHtml(appointment.cita_id)}</span></td>
+            html += `
+            <tr>
+                <!-- COLUMNA 0: ID CITA -->
+                <td><span class="badge-id">${escapeHtml(cita.cita_id)}</span></td>
+                
+                <!-- COLUMNA 1: PACIENTE -->
                 <td>
                     <div class="patient-info">
-                        <div class="patient-name">${escapeHtml(appointment.nombre_paciente || 'No especificado')}</div>
-                        ${appointment.correo ? `<div class="patient-email">${escapeHtml(appointment.correo)}</div>` : ''}
+                        <div class="patient-name">${escapeHtml(cita.nombre_paciente)}</div>
+                        ${correo ? `<div class="patient-email">${escapeHtml(correo)}</div>` : ''}
                     </div>
                 </td>
+                
+                <!-- COLUMNA 2: SERVICIO -->
+                <td><span class="service-badge">${escapeHtml(cita.servicio)}</span></td>
+                
+                <!-- COLUMNA 3: FECHA Y HORA -->
                 <td>
-                    <span class="service-badge">${escapeHtml(appointment.servicio || 'No especificado')}</span>
-                </td>
-                <td>
-                    <div class="date-cell">
-                        <div class="date-display">${fecha}</div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="date-cell">
+                            <i class="far fa-calendar"></i>
+                            ${fecha}
+                        </div>
+                        <div class="time-cell">
+                            <i class="far fa-clock"></i>
+                            ${hora}
+                        </div>
                     </div>
                 </td>
+                
+                <!-- COLUMNA 4: ESTADO -->
                 <td>
-                    <div class="time-cell">
-                        <i class="far fa-clock"></i>
-                        <span>${hora}</span>
+                    <span class="status ${estadoClass}">${estadoText}</span>
+                </td>
+                
+                <!-- COLUMNA 5: CONTACTO -->
+                <td>
+                    <div class="patient-info">
+                        <div><i class="fas fa-phone"></i> ${escapeHtml(telefono)}</div>
                     </div>
                 </td>
-                <td>${escapeHtml(appointment.telefono || 'N/A')}</td>
-                <td>
-                    <span class="status ${estadoClass}">
-                        <i class="${estadoIcon}"></i>
-                        ${estadoTexto}
-                    </span>
-                </td>
+                
+            
                 <td>
                     <div class="btn-group">
-                        <button class="btn btn-sm btn-info" onclick="viewAppointmentDetails('${appointment.cita_id}')" title="Ver detalles">
+                        <!-- Botón VER DETALLES -->
+                        <button class="btn btn-sm btn-info" onclick="showDetail('${cita.cita_id}')" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-success" onclick="changeAppointmentStatus('${appointment.cita_id}', 'confirmed')" 
-                            title="Confirmar" ${estado === 'confirmed' || estado === 'completed' || estado === 'canceled' ? 'disabled' : ''}>
-                            <i class="fas fa-check"></i>
+                        
+                        <!-- Botón CONFIRMAR -->
+                        <button class="btn btn-sm btn-success" onclick="confirmAppointment('${cita.cita_id}')" title="Confirmar cita">
+                            <i class="fas fa-check"></i> Confirmar
                         </button>
-                        <button class="btn btn-sm btn-primary" onclick="changeAppointmentStatus('${appointment.cita_id}', 'completed')" 
-                            title="Completar" ${estado === 'completed' || estado === 'canceled' ? 'disabled' : ''}>
-                            <i class="fas fa-flag-checkered"></i>
+                        
+                        <!-- Botón CANCELAR -->
+                        <button class="btn btn-sm btn-danger" onclick="cancelAppointment('${cita.cita_id}')" title="Cancelar cita">
+                            <i class="fas fa-times"></i> Cancelar
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="changeAppointmentStatus('${appointment.cita_id}', 'canceled')" 
-                            title="Cancelar" ${estado === 'canceled' ? 'disabled' : ''}>
-                            <i class="fas fa-times"></i>
-                        </button>
+                        
+                        <!-- Estado actual (solo visual) -->
+                        <span class="status ${estadoClass}" style="margin-left: 8px;">${estadoText}</span>
                     </div>
                 </td>
-            </tr>
-        `;
-    });
-
-    tableHTML += `
-                </tbody>
-            </table>
-        </div>
-        <div class="table-footer">
-            <div class="table-info">
-                Mostrando ${currentFilteredAppointments.length} de ${allAppointments.length} citas
-            </div>
-            <div class="table-actions">
-                <button class="btn btn-outline btn-sm" onclick="exportToCSV()">
-                    <i class="fas fa-download"></i> Exportar CSV
-                </button>
-            </div>
-        </div>
-    `;
-
-    tableContainer.innerHTML = tableHTML;
-    updateSortIndicators();
-}
-
-function showHistorial() {
-    // Filtrar citas completadas y canceladas para historial
-    currentFilteredAppointments = allAppointments.filter(appointment => 
-        appointment.estado === 'completed' || appointment.estado === 'canceled'
-    );
-    
-    sortAppointments('fecha_cita', 'desc');
-    renderAppointmentsTable('historial-table');
-}
-
-// =============================================
-// FUNCIONES DE ESTADO
-// =============================================
-
-function getStatusClass(status) {
-    const statusClasses = {
-        'pending': 'status-pending',
-        'confirmed': 'status-confirmed',
-        'completed': 'status-completed',
-        'canceled': 'status-canceled'
-    };
-    return statusClasses[status] || 'status-pending';
-}
-
-function getStatusText(status) {
-    const statusTexts = {
-        'pending': 'Pendiente',
-        'confirmed': 'Confirmada',
-        'completed': 'Completada',
-        'canceled': 'Cancelada'
-    };
-    return statusTexts[status] || status;
-}
-
-function getStatusIcon(status) {
-    const statusIcons = {
-        'pending': 'far fa-clock',
-        'confirmed': 'fas fa-check-circle',
-        'completed': 'fas fa-flag-checkered',
-        'canceled': 'fas fa-times-circle'
-    };
-    return statusIcons[status] || 'far fa-clock';
-}
-
-// =============================================
-// FUNCIONES DE ACTUALIZACIÓN DE ESTADO - CORREGIDAS
-// =============================================
-
-async function changeAppointmentStatus(citaId, newStatus) {
-    try {
-        const statusTexts = {
-            'confirmed': 'Confirmar',
-            'completed': 'Completar',
-            'canceled': 'Cancelar'
-        };
-        
-        if (!confirm(`¿Está seguro de que desea ${statusTexts[newStatus] || 'cambiar el estado de'} esta cita?`)) {
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('cita_id', citaId);
-        formData.append('nuevo_estado', newStatus);
-
-        // ¡IMPORTANTE: credentials: 'include' para enviar cookies!
-        const response = await fetch('/api/citas/actualizar-estado', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
+            </tr>`;
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(result.message || 'Estado actualizado correctamente', 'success');
-            loadAppointments(); // Recargar la tabla
-        } else {
-            showNotification('Error: ' + (result.error || 'No se pudo actualizar el estado'), 'error');
-        }
-    } catch (error) {
-        console.error('Error al cambiar estado:', error);
-        showNotification('Error de conexión al cambiar el estado', 'error');
-    }
-}
-
-// =============================================
-// FUNCIONES DE ESTADÍSTICAS
-// =============================================
-
-function updateStatistics() {
-    const today = new Date().toISOString().split('T')[0];
-    const now = new Date();
-    
-    // Citas de hoy
-    const todayAppointments = allAppointments.filter(apt => {
-        const aptDate = new Date(apt.fecha_original).toISOString().split('T')[0];
-        return aptDate === today;
-    });
-    const todayPending = todayAppointments.filter(apt => apt.estado === 'pending').length;
-    document.getElementById('today-appointments').textContent = todayAppointments.length;
-    document.getElementById('today-pending').textContent = `${todayPending} pendientes`;
-    
-    // Citas de la semana (próximos 7 días)
-    const weekStart = new Date();
-    const weekEnd = new Date();
-    weekEnd.setDate(weekEnd.getDate() + 7);
-    
-    const weekAppointments = allAppointments.filter(apt => {
-        const aptDate = new Date(apt.fecha_original);
-        return aptDate >= weekStart && aptDate <= weekEnd;
-    });
-    const weekPending = weekAppointments.filter(apt => apt.estado === 'pending').length;
-    document.getElementById('week-appointments').textContent = weekAppointments.length;
-    document.getElementById('week-pending').textContent = `${weekPending} esta semana`;
-    
-    // Citas pendientes
-    const pendingAppointments = allAppointments.filter(apt => apt.estado === 'pending');
-    document.getElementById('pending-appointments').textContent = pendingAppointments.length;
-    document.getElementById('pending-badge').textContent = pendingAppointments.length;
-    
-    // Citas completadas este mes
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const completedAppointments = allAppointments.filter(apt => {
-        if (apt.estado !== 'completed') return false;
-        const aptDate = new Date(apt.fecha_original);
-        return aptDate.getMonth() === currentMonth && aptDate.getFullYear() === currentYear;
-    });
-    document.getElementById('completed-appointments').textContent = completedAppointments.length;
-}
-
-function updateBannerStats() {
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Citas de hoy
-    const todayAppointments = allAppointments.filter(apt => {
-        const aptDate = new Date(apt.fecha_original).toISOString().split('T')[0];
-        return aptDate === today;
-    });
-    document.getElementById('today-appointments-banner').textContent = todayAppointments.length;
-    
-    // Citas pendientes
-    const pendingAppointments = allAppointments.filter(apt => apt.estado === 'pending');
-    document.getElementById('pending-appointments-banner').textContent = pendingAppointments.length;
-    
-    // Citas de la semana (próximos 7 días)
-    const weekStart = new Date();
-    const weekEnd = new Date();
-    weekEnd.setDate(weekEnd.getDate() + 7);
-    
-    const weekAppointments = allAppointments.filter(apt => {
-        const aptDate = new Date(apt.fecha_original);
-        return aptDate >= weekStart && aptDate <= weekEnd;
-    });
-    document.getElementById('weekly-appointments-banner').textContent = weekAppointments.length;
-}
-
-// =============================================
-// FUNCIONES DE FORMULARIO Y GUARDADO - CORREGIDAS
-// =============================================
-
-async function saveAppointment() {
-    const appointmentData = {
-        servicio: document.getElementById('servicio').value,
-        terapeuta_designado: document.getElementById('terapeuta_designado').value,
-        nombre_paciente: document.getElementById('nombre_paciente').value,
-        telefono: document.getElementById('telefono').value,
-        correo: document.getElementById('correo').value,
-        fecha_cita: document.getElementById('fecha_cita').value,
-        hora_cita: document.getElementById('hora_cita').value,
-        notas_adicionales: document.getElementById('notas_adicionales').value,
-        tipo_pago: document.getElementById('tipo_pago').value
-    };
-
-    // Validación básica
-    if (!appointmentData.nombre_paciente || !appointmentData.fecha_cita || !appointmentData.hora_cita || !appointmentData.servicio || !appointmentData.tipo_pago) {
-        showNotification('Por favor, complete todos los campos obligatorios (*).', 'error');
-        return;
+        
+        tbody.innerHTML = html;
+        updateCounts(citasData.length);
+        updatePagination();
+        console.log('✅ Tabla renderizada con', paginatedData.length, 'filas');
     }
 
-    // Validar formato de email si se proporciona
-    if (appointmentData.correo && !isValidEmail(appointmentData.correo)) {
-        showNotification('Por favor, ingrese un correo electrónico válido.', 'error');
-        return;
+    function updateCards(stats) {
+        // Actualizar banner
+        document.getElementById('today-appointments-banner').textContent = stats.hoy || 0;
+        document.getElementById('pending-appointments-banner').textContent = stats.pendientes || 0;
+        document.getElementById('weekly-appointments-banner').textContent = stats.semana || 0;
+        
+        // Actualizar cards
+        document.getElementById('today-appointments').textContent = stats.hoy || 0;
+        document.getElementById('today-pending').textContent = `${stats.pendientes || 0} pendientes`;
+        
+        document.getElementById('week-appointments').textContent = stats.semana || 0;
+        document.getElementById('week-pending').textContent = `${stats.pendientes || 0} esta semana`;
+        
+        document.getElementById('pending-appointments').textContent = stats.pendientes || 0;
+        document.getElementById('confirmed-appointments').textContent = stats.confirmadas_mes || 0;
     }
 
-    // Validar fecha futura
-    const appointmentDateTime = new Date(`${appointmentData.fecha_cita}T${appointmentData.hora_cita}`);
-    if (appointmentDateTime < new Date()) {
-        if (!confirm('La fecha y hora de la cita están en el pasado. ¿Desea continuar de todos modos?')) {
-            return;
-        }
-    }
+    // ============================================
+    // FUNCIONES DE FILTRADO
+    // ============================================
 
-    try {
-        const formData = new FormData();
-        for (const key in appointmentData) {
-            if (appointmentData[key]) {
-                formData.append(key, appointmentData[key]);
+    async function filterAppointments() {
+        try {
+            const filters = {
+                fecha: document.getElementById('filter-date').value,
+                paciente: document.getElementById('filter-patient').value,
+                servicio: document.getElementById('filter-service').value,
+                estado: document.getElementById('filter-status').value
+            };
+            
+            showLoading('citas-table-body');
+            
+            const response = await fetch('/api/citas-fisio/filtrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                citasData = data.data;
+                currentPage = 1;
+                renderAppointmentsTable();
+                showNotification(`Filtro aplicado: ${data.total} citas encontradas`, 'success');
+            } else {
+                showNotification('Error al filtrar: ' + data.error, 'error');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
         }
+    }
 
-        console.log('💾 Enviando datos de cita:', appointmentData);
+    function clearFilters() {
+        document.getElementById('filter-date').value = '';
+        document.getElementById('filter-patient').value = '';
+        document.getElementById('filter-service').value = '';
+        document.getElementById('filter-status').value = '';
         
-        // ¡IMPORTANTE: credentials: 'include' para enviar cookies!
-        const response = await fetch('/api/citas/crear', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-        });
-
-        const result = await response.json();
-        console.log('📨 Respuesta del servidor:', result);
-
-        if (result.success) {
-            showNotification('Cita guardada exitosamente', 'success');
-            closeModal();
-            loadAppointments();
-        } else {
-            showNotification('Error al guardar la cita: ' + result.error, 'error');
-        }
-    } catch (error) {
-        console.error('Error completo:', error);
-        showNotification('Error de conexión al guardar la cita: ' + error.message, 'error');
-    }
-}
-
-// =============================================
-// FUNCIONES AUXILIARES
-// =============================================
-
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-        .toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function isValidEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
-function showNotification(message, type = 'info') {
-    // Crear notificación
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-        </div>
-        <button class="notification-close" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    // Agregar al cuerpo
-    document.body.appendChild(notification);
-    
-    // Auto-eliminar después de 5 segundos
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 5000);
-}
-
-function viewAppointmentDetails(citaId) {
-    const appointment = allAppointments.find(apt => apt.cita_id == citaId);
-    if (!appointment) return;
-    
-    // Crear modal de detalles
-    const modalHTML = `
-        <div class="modal active" id="detailsModal">
-            <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header">
-                    <h3>Detalles de la Cita #${appointment.cita_id}</h3>
-                    <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Paciente:</label>
-                            <span>${escapeHtml(appointment.nombre_paciente)}</span>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Servicio:</label>
-                            <span>${escapeHtml(appointment.servicio)}</span>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Fecha:</label>
-                            <span>${new Date(appointment.fecha_original).toLocaleDateString('es-ES', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                            })}</span>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Hora:</label>
-                            <span>${appointment.hora_cita || 'No especificada'}</span>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Teléfono:</label>
-                            <span>${escapeHtml(appointment.telefono || 'N/A')}</span>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Correo:</label>
-                            <span>${escapeHtml(appointment.correo || 'N/A')}</span>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Estado:</label>
-                            <span class="status ${getStatusClass(appointment.estado)}">${getStatusText(appointment.estado)}</span>
-                        </div>
-                        ${appointment.notas_adicionales ? `
-                        <div style="grid-column: 1 / -1;">
-                            <label style="display: block; font-weight: 600; color: var(--gray); margin-bottom: 4px;">Notas adicionales:</label>
-                            <div style="background: var(--gray-lighter); padding: 12px; border-radius: var(--border-radius-sm);">${escapeHtml(appointment.notas_adicionales)}</div>
-                        </div>` : ''}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    document.getElementById('detailsModal').style.display = 'flex';
-}
-
-function closeDetailsModal() {
-    const modal = document.getElementById('detailsModal');
-    if (modal) {
-        modal.remove();
-    }
-}
-
-function exportToCSV() {
-    if (currentFilteredAppointments.length === 0) {
-        showNotification('No hay datos para exportar', 'warning');
-        return;
-    }
-    
-    const headers = ['ID', 'Paciente', 'Servicio', 'Fecha', 'Hora', 'Teléfono', 'Correo', 'Estado', 'Notas'];
-    const csvData = currentFilteredAppointments.map(apt => [
-        apt.cita_id,
-        apt.nombre_paciente || '',
-        apt.servicio || '',
-        new Date(apt.fecha_original).toLocaleDateString('es-ES'),
-        apt.hora_cita || '',
-        apt.telefono || '',
-        apt.correo || '',
-        getStatusText(apt.estado),
-        apt.notas_adicionales || ''
-    ]);
-    
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += headers.join(",") + "\n";
-    csvContent += csvData.map(row => 
-        row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(",")
-    ).join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `citas_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('CSV exportado exitosamente', 'success');
-}
-
-// =============================================
-// FUNCIONES DEL BANNER
-// =============================================
-
-function showTodaySchedule() {
-    changeTab('hoy');
-}
-
-function createNewAppointment() {
-    openModal();
-}
-
-function exportSchedule() {
-    exportToCSV();
-}
-
-// =============================================
-// INICIALIZACIÓN MEJORADA
-// =============================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🏥 Panel de Citas Fisioterapeuta - Inicializando...');
-    
-    // Mostrar info del fisioterapeuta en consola
-    console.log('👤 Fisioterapeuta logueado:', {
-        nombre: "{{ fisioterapeuta.nombre_completo }}",
-        especializacion: "{{ fisioterapeuta.especializacion }}",
-        codigo: "{{ fisioterapeuta.codigo_trabajador }}",
-        email: "{{ fisioterapeuta.email }}"
-    });
-    
-    // Configurar fechas por defecto
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('filter-date').value = today;
-    document.getElementById('fecha_cita').min = today;
-    
-    // Establecer hora por defecto
-    const now = new Date();
-    now.setHours(now.getHours() + 1);
-    now.setMinutes(0, 0, 0);
-    const timeString = now.toTimeString().substring(0, 5);
-    document.getElementById('hora_cita').value = timeString;
-    
-    // Establecer terapeuta designado (DEL TEMPLATE)
-    const terapeutaNombre = "{{ fisioterapeuta.nombre_completo }}";
-    const terapeutaInput = document.getElementById('terapeuta_designado');
-    if (terapeutaInput) {
-        terapeutaInput.value = terapeutaNombre;
-        console.log('📝 Terapeuta designado en formulario:', terapeutaNombre);
-    }
-    
-    // Setup para debug
-    const logo = document.querySelector('.logo');
-    if (logo) {
-        logo.addEventListener('dblclick', function() {
-            debugSession();
-        });
-    }
-    
-    // Atajo de teclado: Ctrl+Shift+D para debug
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-            e.preventDefault();
-            debugSession();
-        }
-    });
-    
-    // Cargar citas al iniciar (con delay para asegurar que todo esté listo)
-    setTimeout(() => {
         loadAppointments();
-    }, 300);
-    
-    // Configurar listeners
-    setupEventListeners();
-    
-    // Auto-debug si hay parámetro en URL
-    if (window.location.search.includes('debug=true')) {
-        setTimeout(debugSession, 1000);
+        showNotification('Filtros limpiados', 'info');
     }
-});
 
-function setupEventListeners() {
-    // Filtros en tiempo real
-    document.getElementById('filter-patient').addEventListener('input', debounce(filterAppointments, 300));
-    document.getElementById('filter-service').addEventListener('change', filterAppointments);
-    document.getElementById('filter-status').addEventListener('change', filterAppointments);
-    document.getElementById('filter-date').addEventListener('change', filterAppointments);
-    
-    // Validación en tiempo real del formulario
-    const requiredFields = ['nombre_paciente', 'servicio', 'fecha_cita', 'hora_cita', 'tipo_pago'];
-    requiredFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.addEventListener('blur', function() {
-                if (!this.value.trim()) {
-                    this.classList.add('error');
+    // ============================================
+    // FUNCIONES DE ACCIONES SOBRE CITAS - BOTONES
+    // ============================================
+
+    function confirmAppointment(citaId) {
+        console.log(`✅ Solicitando confirmación de cita: ${citaId}`);
+        currentCitaId = citaId;
+        showConfirmModal(
+            'Confirmar Cita',
+            '¿Está seguro de confirmar esta cita? La cita será registrada en el sistema de pacientes.',
+            'confirmarCita'
+        );
+    }
+
+    function cancelAppointment(citaId) {
+        console.log(`❌ Solicitando cancelación de cita: ${citaId}`);
+        currentCitaId = citaId;
+        showConfirmModal(
+            'Cancelar Cita',
+            '¿Está seguro de cancelar esta cita? Esta acción eliminará permanentemente la cita.',
+            'cancelarCita'
+        );
+    }
+
+    async function confirmarCita() {
+        if (!currentCitaId) {
+            showNotification('Error: ID de cita no válido', 'error');
+            return;
+        }
+        
+        console.log(`🔄 Confirmando cita: ${currentCitaId}`);
+        
+        try {
+            const response = await fetch(`/api/citas-fisio/${currentCitaId}/estado`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ estado: 'confirmada' })
+            });
+            
+            const data = await response.json();
+            console.log('📡 Respuesta de confirmación:', data);
+            
+            if (data.success) {
+                showNotification(data.message || 'Cita confirmada exitosamente', 'success');
+                
+                // Recargar datos después de 1 segundo
+                setTimeout(() => {
+                    loadAppointments();
+                    loadStatistics();
+                }, 1000);
+            } else {
+                showNotification('Error: ' + (data.error || 'Error desconocido'), 'error');
+            }
+        } catch (error) {
+            console.error('Error al confirmar cita:', error);
+            showNotification('Error de conexión con el servidor', 'error');
+        } finally {
+            closeConfirmModal();
+        }
+    }
+
+    async function cancelarCita() {
+        if (!currentCitaId) {
+            showNotification('Error: ID de cita no válido', 'error');
+            return;
+        }
+        
+        console.log(`🔄 Cancelando cita: ${currentCitaId}`);
+        
+        try {
+            const response = await fetch(`/api/citas-fisio/${currentCitaId}/estado`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ estado: 'cancelada' })
+            });
+            
+            const data = await response.json();
+            console.log('📡 Respuesta de cancelación:', data);
+            
+            if (data.success) {
+                showNotification(data.message || 'Cita cancelada exitosamente', 'success');
+                
+                // Recargar datos después de 1 segundo
+                setTimeout(() => {
+                    loadAppointments();
+                    loadStatistics();
+                }, 1000);
+            } else {
+                showNotification('Error: ' + (data.error || 'Error desconocido'), 'error');
+            }
+        } catch (error) {
+            console.error('Error al cancelar cita:', error);
+            showNotification('Error de conexión con el servidor', 'error');
+        } finally {
+            closeConfirmModal();
+        }
+    }
+
+    async function showDetail(citaId) {
+        try {
+            const response = await fetch(`/api/citas-fisio/${citaId}/detalle`);
+            const data = await response.json();
+            
+            if (data.success) {
+                const cita = data.data;
+                showDetailModal(cita);
+            } else {
+                showNotification('Error al cargar detalle: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+        }
+    }
+
+    // ============================================
+    // FUNCIONES DE LAS TABS
+    // ============================================
+
+    function changeTab(tabId) {
+        // Ocultar todas las tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Mostrar la tab seleccionada
+        document.getElementById(tabId).classList.add('active');
+        
+        // Activar el tab correspondiente
+        document.querySelectorAll('.tab').forEach(tab => {
+            if (tab.textContent.includes(tabId.replace('-', ' '))) {
+                tab.classList.add('active');
+            }
+        });
+        
+        // Cargar datos específicos de cada tab
+        switch(tabId) {
+            case 'hoy':
+                loadTodayAppointments();
+                break;
+            case 'pendientes':
+                loadPendingAppointments();
+                break;
+            case 'historial':
+                loadHistoryAppointments();
+                break;
+        }
+    }
+
+    async function loadTodayAppointments() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const filters = { fecha: today };
+            
+            const response = await fetch('/api/citas-fisio/filtrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            });
+            
+            const data = await response.json();
+            renderTabTable('hoy', data.data, ['nombre_paciente', 'servicio', 'hora_cita', 'estado']);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    async function loadPendingAppointments() {
+        try {
+            const filters = { estado: 'pendiente' };
+            
+            const response = await fetch('/api/citas-fisio/filtrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            });
+            
+            const data = await response.json();
+            renderTabTable('pendientes', data.data, ['nombre_paciente', 'servicio', 'fecha_cita', 'hora_cita']);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    async function loadHistoryAppointments() {
+        try {
+            const month = document.getElementById('historial-month').value;
+            const filters = month ? { fecha: month + '-%' } : {};
+            
+            const response = await fetch('/api/citas-fisio/filtrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            });
+            
+            const data = await response.json();
+            renderTabTable('historial', data.data, ['fecha_cita', 'nombre_paciente', 'servicio', 'estado']);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // ============================================
+    // FUNCIONES DE UTILIDAD
+    // ============================================
+
+    function formatDate(dateString) {
+        if (!dateString || dateString === 'None' || dateString === 'null') return '-';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch (e) {
+            console.error('Error formateando fecha:', dateString, e);
+            return '-';
+        }
+    }
+
+    function formatTime(timeString) {
+        if (!timeString || timeString === 'None' || timeString === 'null') return '-';
+        try {
+            // Si es un objeto time de Python, puede venir como "14:30:00"
+            if (typeof timeString === 'string') {
+                return timeString.substring(0, 5); // Tomar solo HH:MM
+            }
+            return '-';
+        } catch (e) {
+            console.error('Error formateando hora:', timeString, e);
+            return '-';
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showLoading(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px;">
+                        <div class="loading-spinner"></div>
+                        <p>Cargando...</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function updateCounts(count) {
+        document.getElementById('citas-count').textContent = count;
+        document.getElementById('total-citas-title').textContent = `Total de Citas Actuales (${count})`;
+    }
+
+    function updateBadgeCount() {
+        const pendientes = citasData.filter(c => esEstadoPendiente(c.estado)).length;
+        document.getElementById('pending-badge').textContent = pendientes;
+    }
+
+    function updatePagination() {
+        document.getElementById('current-page').textContent = currentPage;
+        const totalPages = Math.ceil(citasData.length / itemsPerPage);
+        
+        document.querySelector('button[onclick="prevPage()"]').disabled = currentPage === 1;
+        document.querySelector('button[onclick="nextPage()"]').disabled = currentPage === totalPages;
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(citasData.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderAppointmentsTable();
+        }
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderAppointmentsTable();
+        }
+    }
+
+    function sortTable(columnIndex) {
+        // Implementación básica de ordenación
+        // Puedes expandir esta función según necesites
+    }
+
+    // ============================================
+    // FUNCIONES DE MODALES Y NOTIFICACIONES
+    // ============================================
+
+    function showNotification(message, type = 'info') {
+        const notification = document.getElementById('notification');
+        const messageElement = document.getElementById('notification-message');
+        const icon = notification.querySelector('.notification-content i');
+        
+        // Configurar tipo
+        notification.className = 'notification';
+        notification.classList.add(`notification-${type}`);
+        
+        // Configurar ícono
+        switch(type) {
+            case 'success':
+                icon.className = 'fas fa-check-circle';
+                break;
+            case 'error':
+                icon.className = 'fas fa-exclamation-circle';
+                break;
+            case 'warning':
+                icon.className = 'fas fa-exclamation-triangle';
+                break;
+            default:
+                icon.className = 'fas fa-info-circle';
+        }
+        
+        messageElement.textContent = message;
+        notification.style.display = 'flex';
+        
+        // Auto-ocultar después de 5 segundos
+        setTimeout(hideNotification, 5000);
+    }
+
+    function hideNotification() {
+        document.getElementById('notification').style.display = 'none';
+    }
+
+    function showConfirmModal(title, message, actionFunction) {
+        document.getElementById('confirmModalTitle').textContent = title;
+        document.getElementById('confirmModalMessage').textContent = message;
+        
+        const actionButton = document.getElementById('confirmModalAction');
+        actionButton.onclick = window[actionFunction];
+        
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+        currentCitaId = null;
+    }
+
+    function showDetailModal(cita) {
+        // Información básica
+        document.getElementById('detail-cita-id').textContent = cita.cita_id;
+        document.getElementById('detail-paciente').textContent = cita.nombre_paciente;
+        document.getElementById('detail-servicio').textContent = cita.servicio;
+        document.getElementById('detail-fecha-hora').textContent = 
+            `${formatDate(cita.fecha_cita)} ${formatTime(cita.hora_cita)}`;
+        document.getElementById('detail-tipo-pago').textContent = cita.tipo_pago;
+        document.getElementById('detail-notas').textContent = cita.notas_adicionales || 'Sin notas';
+        
+        // Estado
+        const estadoElement = document.getElementById('detail-estado');
+        estadoElement.textContent = getStatusText(cita.estado);
+        estadoElement.className = 'status ' + getStatusClass(cita.estado);
+        
+        // Acudiente
+        const acudienteSection = document.getElementById('acudiente-section');
+        if (cita.acudiente) {
+            document.getElementById('detail-acudiente-nombre').textContent = cita.acudiente.nombre_completo;
+            document.getElementById('detail-acudiente-telefono').textContent = cita.acudiente.telefono;
+            document.getElementById('detail-acudiente-correo').textContent = cita.acudiente.correo;
+            acudienteSection.style.display = 'block';
+        } else {
+            acudienteSection.style.display = 'none';
+        }
+        
+        document.getElementById('detailModal').classList.add('active');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // ============================================
+    // FUNCIONES AUXILIARES (placeholder)
+    // ============================================
+
+    function showTodaySchedule() {
+        changeTab('hoy');
+        showNotification('Mostrando citas de hoy', 'info');
+    }
+
+    function exportSchedule() {
+        showNotification('Función de exportación en desarrollo', 'info');
+    }
+
+    // Función para renderizar tablas en las tabs específicas
+    function renderTabTable(tabId, data, columns) {
+        const tbody = document.getElementById(`${tabId}-table-body`);
+        const emptyState = document.getElementById(`${tabId}-empty-state`);
+        
+        if (!tbody || !emptyState) return;
+        
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        emptyState.style.display = 'none';
+        
+        let html = '';
+        data.forEach(cita => {
+            html += '<tr>';
+            
+            columns.forEach(col => {
+                if (col === 'estado') {
+                    html += `<td><span class="status ${getStatusClass(cita.estado)}">${getStatusText(cita.estado)}</span></td>`;
+                } else if (col === 'fecha_cita') {
+                    html += `<td>${formatDate(cita[col])}</td>`;
+                } else if (col === 'hora_cita') {
+                    html += `<td>${formatTime(cita[col])}</td>`;
                 } else {
-                    this.classList.remove('error');
+                    html += `<td>${escapeHtml(cita[col] || '-')}</td>`;
                 }
             });
-        }
-    });
-}
+            
+            // Columna de acciones
+            const esPendiente = esEstadoPendiente(cita.estado);
+            
+            html += `<td>
+                <div class="btn-group" style="display: flex; align-items: center; gap: 6px;">
+                    <button class="btn btn-sm btn-info" onclick="showDetail('${cita.cita_id}')" title="Ver detalles" style="min-width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-eye"></i>
+                    </button>`;
+            
+            if (esPendiente) {
+                html += `
+                    <button class="btn btn-sm btn-success" onclick="confirmAppointment('${cita.cita_id}')" title="Confirmar" style="min-width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="cancelAppointment('${cita.cita_id}')" title="Cancelar" style="min-width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-times"></i>
+                    </button>`;
+            } else {
+                html += `<span class="status ${getStatusClass(cita.estado)}" style="padding: 4px 8px; font-size: 0.7rem;">
+                    <i class="fas fa-info-circle"></i> ${getStatusText(cita.estado)}
+                </span>`;
+            }
+            
+            html += `</div></td></tr>`;
+        });
+        
+        tbody.innerHTML = html;
+    }
 
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+    // ============================================
+    // FUNCIÓN DE PRUEBA PARA DATOS DE DEMOSTRACIÓN
+    // ============================================
+
+    function testCitasData() {
+        console.log('🧪 Cargando datos de prueba...');
+        
+        // Datos de prueba SIMILARES a los que muestras en la imagen
+        citasData = [
+            {
+                cita_id: 'FS-1112305080',
+                nombre_paciente: 'Miguel Gutierrez',
+                servicio: 'Masaje Relajante',
+                fecha_cita: '2025-12-17',
+                hora_cita: '13:00:00',
+                estado: 'CONFIRMADA',
+                telefono: '3202194521',
+                correo: 'miguel.gutierrez.lopez@correosrivatic.edu.co',
+                tipo_pago: 'Efectivo',
+                notas_adicionales: 'Paciente regular'
+            },
+            {
+                cita_id: 'FS-0004',
+                nombre_paciente: 'Miguel Gutierrez',
+                servicio: 'Masaje Relajante',
+                fecha_cita: '2025-12-11',
+                hora_cita: '15:00:00',
+                estado: 'PERIENTE',  // ¡Estado mal escrito!
+                telefono: '3202194521',
+                correo: 'MarkMguff@gmail.com',
+                tipo_pago: 'Efectivo',
+                notas_adicionales: 'Primera sesión'
+            },
+            {
+                cita_id: 'FS-0005',
+                nombre_paciente: 'Ana López',
+                servicio: 'Fisioterapia',
+                fecha_cita: '2025-12-12',
+                hora_cita: '10:00:00',
+                estado: 'pendiente',  // Estado correcto
+                telefono: '3101234567',
+                correo: 'ana@example.com',
+                tipo_pago: 'Tarjeta',
+                notas_adicionales: 'Rehabilitación post-operatoria'
+            },
+            {
+                cita_id: 'FS-0006',
+                nombre_paciente: 'Carlos Ramírez',
+                servicio: 'Rehabilitación',
+                fecha_cita: '2025-12-13',
+                hora_cita: '11:30:00',
+                estado: 'PENDIENTE',  // En mayúsculas
+                telefono: '3119876543',
+                correo: 'carlos@example.com',
+                tipo_pago: 'Transferencia',
+                notas_adicionales: 'Lesión deportiva'
+            },
+            {
+                cita_id: 'FS-0007',
+                nombre_paciente: 'Laura Fernández',
+                servicio: 'Terapia física',
+                fecha_cita: '2025-12-14',
+                hora_cita: '09:00:00',
+                estado: 'cancelada',  // Estado cancelado
+                telefono: '3124567890',
+                correo: 'laura@example.com',
+                tipo_pago: 'Efectivo',
+                notas_adicionales: 'Cancelado por el paciente'
+            }
+        ];
+        
+        renderAppointmentsTable();
+        showNotification('✅ Datos de prueba cargados. Revisa la consola (F12) para ver diagnóstico.', 'success');
+        
+        // Mostrar diagnóstico en pantalla
+        showDiagnosticOverlay();
+    }
+
+    function showDiagnosticOverlay() {
+        const diagnosticDiv = document.createElement('div');
+        diagnosticDiv.id = 'diagnostic-overlay';
+        diagnosticDiv.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            z-index: 9999;
+            max-width: 450px;
+            border-left: 5px solid var(--primary);
+            font-family: 'Inter', sans-serif;
+        `;
+        
+        const citasPendientes = citasData.filter(c => esEstadoPendiente(c.estado)).length;
+        
+        diagnosticDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; color: var(--primary); font-weight: 600;">
+                    <i class="fas fa-stethoscope"></i> DIAGNÓSTICO DE CITAS
+                </h4>
+                <button onclick="document.getElementById('diagnostic-overlay').remove()" style="background: none; border: none; color: var(--gray); cursor: pointer; font-size: 1.2rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <p style="margin: 5px 0;"><strong>Total citas:</strong> ${citasData.length}</p>
+                <p style="margin: 5px 0;"><strong>Citas pendientes detectadas:</strong> ${citasPendientes}</p>
+                <p style="margin: 5px 0; color: ${citasPendientes > 0 ? 'var(--success)' : 'var(--warning)'};">
+                    <strong>Estado:</strong> ${citasPendientes > 0 ? '✅ BOTONES DEBERÍAN APARECER' : '⚠️ NO HAY CITAS PENDIENTES'}
+                </p>
+            </div>
+            
+            <div style="background: var(--gray-lighter); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                <h5 style="margin: 0 0 8px 0; font-size: 0.9rem; color: var(--text);">📋 DETALLE DE ESTADOS:</h5>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem;">
+                    ${citasData.map(cita => `
+                        <li style="margin-bottom: 3px;">
+                            <strong>${cita.cita_id}:</strong> "${cita.estado}" → 
+                            ${esEstadoPendiente(cita.estado) ? 
+                                '<span style="color: var(--success);">✅ Pendiente (botones visibles)</span>' : 
+                                '<span style="color: var(--gray);">❌ No pendiente</span>'
+                            }
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div style="font-size: 0.8rem; color: var(--gray);">
+                <p><i class="fas fa-lightbulb"></i> <strong>Nota:</strong> Los botones aparecen SOLO para citas con estado "pendiente" (o variantes como "PERIENTE")</p>
+            </div>
+        `;
+        
+        document.body.appendChild(diagnosticDiv);
+        
+        // Auto-remover después de 15 segundos
+        setTimeout(() => {
+            if (document.getElementById('diagnostic-overlay')) {
+                document.getElementById('diagnostic-overlay').remove();
+            }
+        }, 15000);
+    }
 </script>
 </body>
 </html>

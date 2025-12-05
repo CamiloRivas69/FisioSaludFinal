@@ -81,9 +81,12 @@
             color: var(--primary);
         }
 
+        /* CAMBIOS AQUÍ: Botones a la derecha con mejor espaciado */
         .nav-actions {
             display: flex;
             gap: 16px;
+            margin-left: auto; /* Esto los empuja a la derecha */
+            align-items: center;
         }
 
         .btn {
@@ -135,6 +138,8 @@
             min-width: auto;
         }
 
+        /* Resto de los estilos se mantienen igual... */
+        
         /* Equipment Detail Card */
         .equipment-detail {
             background: var(--light);
@@ -442,6 +447,13 @@
                 text-align: center;
             }
             
+            .nav-actions {
+                margin-left: 0; /* En móvil quitamos el margin-left */
+                justify-content: center;
+                flex-direction: column;
+                width: 100%;
+            }
+            
             .equipment-header {
                 padding: 24px;
             }
@@ -509,19 +521,26 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <div class="nav-actions">
-            <a href="/implementos" class="btn btn-outline">
-                <i class="fas fa-arrow-left"></i> Volver a Implementos
-            </a>
-            <button class="btn comprar-btn-detalle" 
-                    data-producto-id="{{ servicio_implementos.codigo }}"
-                    data-producto-nombre="{{ servicio_implementos.nombre }}"
-                    data-producto-precio="{{ servicio_implementos.precio }}"
-                    data-producto-tipo="implemento">
-                <i class="fas fa-shopping-cart"></i> Comprar Ahora
-            </button>
-        </div>
+        <!-- Header con botones a la derecha -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">FS</div>
+                <div class="logo-text">FisioSalud</div>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/implementos" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Volver a Implementos
+                </a>
+                <button class="btn btn-secondary comprar-btn-detalle" 
+                        data-producto-id="{{ servicio_implementos.codigo }}"
+                        data-producto-nombre="{{ servicio_implementos.nombre }}"
+                        data-producto-precio="{{ servicio_implementos.precio }}"
+                        data-producto-tipo="implemento">
+                    <i class="fas fa-shopping-cart"></i> Comprar Ahora
+                </button>
+            </div>
+        </header>
 
         <!-- Equipment Detail Card -->
         <div class="equipment-detail">

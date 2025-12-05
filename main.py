@@ -1,14 +1,16 @@
 from datetime import datetime
 from http.client import HTTPException
-from fastapi import FastAPI, Request, Form, UploadFile, File
+from fastapi import APIRouter, FastAPI, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from bd.conexion_bd import close_db_connection, get_db_connection
-from controlador import CarritoController, CitaPacienteController, ReporteFisioController
+from controlador import  AdminServicioController, CarritoController, CitaPacienteController, ReporteFisioController
+from controlador.AdminAnaliticasController import AdminAnaliticasController
+from controlador.AdminFisioController import AdminFisioController
 from controlador.AuthFisioController import AuthFisioController
 from controlador.AuthController import AuthController
 from starlette.middleware.sessions import SessionMiddleware
-from typing import Optional
+from typing import Dict, Optional
 from controlador.EjercicioPacienteController import EjercicioPacienteController
 from controlador.ReporteFisioController import ReporteFisioController
 from controlador.CitaController import CitaController
@@ -19,6 +21,14 @@ from controlador.PacienteFisioController import PacienteFisioController
 from controlador.ServicioImplementosController import ServicioImplementosController
 from controlador.CitaFisioController import CitaFisioController
 from starlette.middleware.sessions import SessionMiddleware
+from controlador.FisioBotController import router as chatbot_router
+from controlador.AdminUsuariosController import AdminUsuariosController
+from controlador.AuthAdminController import AuthAdminController
+from modelo import CitaModel
+from modelo.AdministradorModel import AdministradorModel
+from controlador.AdminServicioController import AdminServicioController
+from controlador.AdminCitaController import AdminCitaController
+
 
 from fastapi import Form, status
 from fastapi.responses import RedirectResponse
@@ -37,6 +47,8 @@ app.add_middleware(
     same_site="lax",
     https_only=False
 )
+
+app.include_router(chatbot_router)
 
 templates = Jinja2Templates(directory="./vista")
 templates_panel = Jinja2Templates(directory="./vista_panel")
@@ -100,6 +112,46 @@ def pagina_servicios_terapeuticos(request: Request):
 def pagina_servicios_terapeuticos(request: Request):
     return templates_fisio.TemplateResponse("panel_login_fisio.html", {"request": request})
 
+@app.get("/fisioapp", response_class=HTMLResponse)
+def pagina_servicios_terapeuticos(request: Request):
+    return templates.TemplateResponse("fisiobot.html", {"request": request})
+
+
+@app.get("/Fisiobot", response_class=HTMLResponse)
+async def fisiobot_page(request: Request):
+    """Página del chatbot"""
+    return templates.TemplateResponse("Chatbot.html", {
+        "request": request,
+        "title": "FisioBot - Asistente Virtual"
+    })
+
+# 4. (OPCIONAL) Agrega esta ruta de prueba
+@app.get("/test-chatbot")
+async def test_chatbot():
+    """Ruta de prueba para el chatbot"""
+    try:
+        from modelo.FisioBotModel import fisiobot_model
+        test_questions = ["hola", "horarios", "teléfono"]
+        results = []
+        
+        for question in test_questions:
+            resp = fisiobot_model.find_best_answer(question)
+            results.append({
+                "pregunta": question,
+                "respuesta": resp["answer"][:50] + "...",
+                "score": resp["score"]
+            })
+        
+        return {
+            "status": "ok",
+            "chatbot": "FisioBot",
+            "total_preguntas": len(fisiobot_model.questions),
+            "pruebas": results
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
 # ─────────────────────────────────────────────────────────────
 # LANDING PAGE
 # ─────────────────────────────────────────────────────────────
@@ -142,6 +194,30 @@ async def pagina_servicios(request: Request, servicio: Optional[str] = None):
 @app.get("/servicios_terapeuticos", response_class=HTMLResponse)
 def pagina_servicios_terapeuticos(request: Request):
     return templates.TemplateResponse("serv_terapia.html", {"request": request})
+
+from fastapi import FastAPI, Request, Form
+from controlador.ServicioController import ServicioController
+
+
+@app.get("/servicios")
+async def servicios(request: Request):
+    return await ServicioController.listar_servicios_terapeuticos(request)
+
+@app.get("/servicios/categoria/{categoria}")
+async def servicios_categoria(request: Request, categoria: str):
+    return await ServicioController.filtrar_servicios(request, categoria)
+
+@app.get("/servicios/terapeuta/{terapeuta_busqueda}")
+async def servicios_terapeuta(request: Request, terapeuta_busqueda: str):
+    return await ServicioController.filtrar_servicios_terapeuta(request, terapeuta_busqueda)
+
+@app.post("/servicios/buscar-terapeuta")
+async def buscar_servicios_terapeuta(request: Request, terapeuta: str = Form(...)):
+    return await ServicioController.filtrar_servicios_terapeuta(request, terapeuta)
+
+@app.get("/servicio/{codigo}")
+async def detalle_servicio(request: Request, codigo: str):
+    return await ServicioController.detalle_servicio(request, codigo)
 
 @app.get("/servicios_alimenticios", response_class=HTMLResponse)
 def pagina_servicios_terapeuticos(request: Request):
@@ -240,14 +316,12 @@ async def pagina_servicios_implementos(request: Request):
 # RESTFULL API PARA CITAS
 # ─ ────────────────────────────────────────────────────────────
 
-@app.get("/agendar-cita", response_class=HTMLResponse)
-async def mostrar_formulario_cita(request: Request):
-    return await CitaController.mostrar_formulario_cita(request)
-
+# API para obtener servicios
 @app.get("/api/servicios-terapia")
 async def obtener_servicios_terapia_api(request: Request):
     return await CitaController.obtener_servicios_api(request)
 
+# API para agendar cita - USUARIO (pool FS-0001 a FS-0500)
 @app.post("/api/agendar-cita")
 async def agendar_cita_api(
     request: Request,
@@ -284,6 +358,51 @@ async def agendar_cita_api(
         emails_adicionales=emails_adicionales
     )
 
+# API para verificar estado del pool de códigos
+@app.get("/api/estado-pool-citas")
+async def verificar_pool_codigos_api(request: Request):
+    """Verifica el estado del pool de códigos FS-0001 a FS-0500"""
+    try:
+        estado = CitaModel.verificar_estado_pool_usuario()
+        return JSONResponse(content=estado)
+    except Exception as e:
+        print(f"Error al verificar pool: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error al verificar pool de códigos"}
+        )
+
+# API para obtener terapeutas
+@app.get("/api/terapeutas")
+async def obtener_terapeutas_api(request: Request):
+    """API endpoint para obtener información de terapeutas"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error de conexión a la base de datos"}
+            )
+        
+        with conn.cursor() as cursor:
+            sql = """
+            SELECT nombre_completo, franja_horaria_dias, franja_horaria_horas
+            FROM terapeuta
+            WHERE estado = 'Activo' OR estado IS NULL
+            """
+            cursor.execute(sql)
+            terapeutas = cursor.fetchall()
+            
+        close_db_connection(conn)
+        
+        return JSONResponse(content={"terapeutas": terapeutas})
+        
+    except Exception as e:
+        print(f"Error en API de terapeutas: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error al obtener información de terapeutas"}
+        )
 
 # ─────────────────────────────────────────────────────────────
 # PANELES DE USUARIO
@@ -580,7 +699,17 @@ async def api_carrito_mio(request: Request):
         "items_count": items_count,
         "error": error
     })
+@app.post("/api/carrito/confirmar-compra")
+async def api_confirmar_compra(request: Request):
+    print("✅ RUTA /api/carrito/confirmar-compra LLAMADA")
+    from controlador.CarritoController import CarritoController
+    return await CarritoController.confirmar_compra(request)
 
+@app.get("/api/carrito/historial")
+async def api_historial_compras(request: Request):
+    print("✅ RUTA /api/carrito/historial LLAMADA")
+    from controlador.CarritoController import CarritoController
+    return await CarritoController.obtener_historial_compras(request)
 # ─────────────────────────────────────────────────────────────
 # PANELES DE FISIOTERAPEUTA - CITA
 # ─────────────────────────────────────────────────────────────
@@ -700,26 +829,162 @@ async def logout_fisioterapeuta(request: Request):
         
         return RedirectResponse(url="/inicio", status_code=status.HTTP_302_FOUND)
 
-# =============================================
-# PANELES PROTEGIDOS (MANTENER EXISTENTES)
-# =============================================
+# En tu archivo principal de FastAPI (app.py o main.py)
+# Agrega estos endpoints junto a los que ya tienes
+
+from controlador.CitaFisioController import CitaFisioController
+from controlador.AuthFisioController import AuthFisioController  # Si ya existe
+
+# ============================================
+# ENDPOINTS DE CITAS PARA FISIOTERAPEUTAS
+# ============================================
 
 @app.get("/panel_citas_fisio")
 async def panel_citas_fisio(request: Request):
-    print("=" * 50)
-    print("🔍 VERIFICANDO SESIÓN EN /panel_citas_fisio")
-    print(f"📋 Todas las keys en sesión: {list(request.session.keys())}")
-    print(f"👤 Datos de fisioterapeuta: {request.session.get('fisioterapeuta')}")
-    print("=" * 50)
+    """
+    Endpoint principal para mostrar el panel de citas del fisioterapeuta
+    """
+    try:
+        # Verificar sesión del fisioterapeuta
+        fisioterapeuta = verificar_sesion_fisio(request)
+        
+        if not fisioterapeuta:
+            print("❌ No hay sesión activa, redirigiendo a login")
+            request.session['error'] = 'Por favor, inicie sesión primero'
+            return RedirectResponse(url="/login-fisio-page", status_code=303)
+        
+        print(f"✅ Acceso autorizado a panel_citas_fisio para: {fisioterapeuta.get('nombre_completo')}")
+        
+        # Renderizar template con datos del fisioterapeuta
+        return templates_fisio.TemplateResponse("panel_cita_fisio.html", {
+            "request": request,
+            "fisioterapeuta": fisioterapeuta
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en endpoint panel_citas_fisio: {e}")
+        import traceback
+        traceback.print_exc()
+        request.session['error'] = 'Error al cargar el panel de citas'
+        return RedirectResponse(url="/login-fisio-page", status_code=303)
+
+# ============================================
+# API ENDPOINTS (JSON)
+# ============================================
+
+@app.get("/api/citas-fisio")
+async def api_obtener_citas(request: Request):
+    """
+    API para obtener todas las citas del fisioterapeuta logueado
+    Método: GET
+    Retorno: JSON con listado de citas
+    """
+    return await CitaFisioController.obtener_citas(request)
+
+@app.put("/api/citas-fisio/{cita_id}/estado")
+async def api_cambiar_estado_cita(request: Request, cita_id: str):
+    """
+    API para cambiar el estado de una cita
+    Método: PUT
+    Body JSON: {"estado": "confirmada"} (o "pendiente", "cancelada")
+    Retorno: JSON con resultado
+    """
+    return await CitaFisioController.cambiar_estado_cita(request, cita_id)
+
+@app.get("/api/citas-fisio/estadisticas")
+async def api_obtener_estadisticas(request: Request):
+    """
+    API para obtener estadísticas de citas
+    Método: GET
+    Retorno: JSON con conteos para cards
+    """
+    return await CitaFisioController.obtener_estadisticas(request)
+
+@app.post("/api/citas-fisio/filtrar")
+async def api_filtrar_citas(request: Request):
+    """
+    API para filtrar citas
+    Método: POST
+    Body JSON: {"fecha": "2024-01-15", "paciente": "Juan", "servicio": "Fisioterapia", "estado": "pendiente"}
+    Retorno: JSON con citas filtradas
+    """
+    return await CitaFisioController.filtrar_citas(request)
+
+@app.get("/api/citas-fisio/{cita_id}/detalle")
+async def api_obtener_detalle_cita(request: Request, cita_id: str):
+    """
+    API para obtener detalle de una cita específica
+    Método: GET
+    Retorno: JSON con detalle completo
+    """
+    return await CitaFisioController.obtener_cita_detalle(request, cita_id)
+
+# ============================================
+# ENDPOINT DE PRUEBA/STATUS
+# ============================================
+
+@app.get("/api/citas-fisio/status")
+async def api_status_citas(request: Request):
+    """
+    Endpoint de estado/health check para citas
+    """
+    try:
+        # Verificar sesión
+        fisioterapeuta = request.session.get('fisioterapeuta')
+        
+        if not fisioterapeuta or not fisioterapeuta.get('logged_in'):
+            return JSONResponse(
+                status_code=401,
+                content={
+                    "status": "error",
+                    "message": "No autenticado"
+                }
+            )
+        
+        terapeuta_actual = fisioterapeuta.get('nombre_completo')
+        
+        # Obtener estadísticas rápidas
+        from modelo.CitaFisioModel import CitaFisioModel
+        stats = CitaFisioModel.obtener_estadisticas_citas(terapeuta_actual)
+        
+        return JSONResponse(content={
+            "status": "ok",
+            "message": "API de citas funcionando correctamente",
+            "terapeuta": terapeuta_actual,
+            "estadisticas": stats,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": f"Error: {str(e)}"
+            }
+        )
+
+# ============================================
+# MIDDLEWARE O FUNCIONES AUXILIARES (si no existen)
+# ============================================
+
+def verificar_sesion_fisio(request: Request) -> Optional[Dict]:
+    """
+    Verifica la sesión del fisioterapeuta
+    (Esta función ya la tienes, pero la pongo por referencia)
+    """
+    fisioterapeuta = request.session.get('fisioterapeuta')
     
-    fisioterapeuta = verificar_sesion_fisio(request)
     if not fisioterapeuta:
-        return RedirectResponse(url="/login-fisio-page", status_code=status.HTTP_302_FOUND)
+        print("❌ No existe 'fisioterapeuta' en la sesión")
+        return None
     
-    return templates_fisio.TemplateResponse("panel_cita_fisio.html", {
-        "request": request,
-        "fisioterapeuta": fisioterapeuta
-    })
+    if not fisioterapeuta.get('logged_in'):
+        print(f"❌ logged_in es: {fisioterapeuta.get('logged_in')}")
+        return None
+    
+    print(f"✅ Sesión válida para: {fisioterapeuta.get('nombre_completo')}")
+    return fisioterapeuta
 
 @app.get("/panel_pacientes_fisio")
 async def panel_pacientes_fisio(request: Request):
@@ -745,122 +1010,6 @@ async def panel_progreso_fisio(request: Request):
 
 
 
-# Ruta existente - Mantener igual
-app.add_api_route("/api/citas/panel_terapeuta", CitaFisioController.obtener_citas_terapeuta, methods=["GET"])
-
-# Ruta existente - Usar la versión compatible
-app.add_api_route("/api/citas/actualizar-estado", CitaFisioController.actualizar_estado_cita, methods=["POST"])
-
-# Ruta existente - Mantener igual
-@app.get("/citas", response_class=HTMLResponse)
-async def mostrar_panel_citas(request: Request):
-    return await CitaFisioController.mostrar_panel_citas(request)
-
-# Ruta existente - Usar la versión compatible
-@app.post("/api/citas/crear")
-async def crear_cita(
-    request: Request,
-    servicio: str = Form(...),
-    terapeuta_designado: str = Form(...),
-    nombre_paciente: str = Form(...),
-    telefono: str = Form(...),
-    correo: str = Form(...),
-    id_acudiente: str = Form(None),
-    nombre_acudiente: str = Form(None),
-    fecha_cita: str = Form(...),
-    hora_cita: str = Form(...),
-    notas_adicionales: str = Form(None),
-    tipo_pago: str = Form(...)
-):
-    return await CitaFisioController.crear_cita( 
-        request, servicio, terapeuta_designado, nombre_paciente,
-        telefono, correo, id_acudiente, nombre_acudiente,
-        fecha_cita, hora_cita, notas_adicionales, tipo_pago
-    )
-
-# Ruta existente - Usar la versión compatible
-@app.post("/api/citas/agendar-completo")
-async def agendar_cita_completa(
-    request: Request,
-    servicio: str = Form(...),
-    terapeuta_designado: str = Form(...),
-    nombre_paciente: str = Form(...),
-    telefono: str = Form(...),
-    correo: str = Form(...),
-    fecha_cita: str = Form(...),
-    hora_cita: str = Form(...),
-    notas_adicionales: str = Form(None),
-    tipo_pago: str = Form(...),
-    acudiente_nombre: str = Form(None),
-    acudiente_id: str = Form(None),
-    acudiente_telefono: str = Form(None),
-    acudiente_correo: str = Form(None),
-    acudiente_direccion: str = Form(None),
-    emails_adicionales: str = Form(None)
-):
-    return await CitaFisioController.agendar_cita(
-        request, servicio, terapeuta_designado, nombre_paciente,
-        telefono, correo, fecha_cita, hora_cita, notas_adicionales, 
-        tipo_pago, acudiente_nombre, acudiente_id, acudiente_telefono,
-        acudiente_correo, acudiente_direccion, emails_adicionales
-    )
-
-# =============================================
-# RUTAS API ADICIONALES (NUEVAS O EXISTENTES)
-# =============================================
-
-# Ruta existente - Mantener igual
-@app.get("/api/metricas")
-async def obtener_metricas_api(request: Request):
-    return await CitaFisioController.obtener_metricas_api(request)
-
-# Ruta existente - Mantener igual (usa la versión compatible)
-@app.post("/api/citas/confirmar-todas")
-async def confirmar_todas_pendientes(request: Request):
-    return await CitaFisioController.confirmar_todas_pendientes(request)
-
-# Ruta existente - Mantener igual (usa la versión compatible)
-@app.post("/api/citas/filtrar")
-async def filtrar_citas(
-    request: Request,
-    estado: str = Form(None),
-    paciente: str = Form(None),
-    fecha: str = Form(None)
-):
-    return await CitaFisioController.filtrar_citas(request, estado, paciente, fecha)
-
-# Ruta existente - Mantener igual
-@app.get("/api/calendario")
-async def obtener_calendario_semanal(request: Request):
-    return await CitaFisioController.obtener_calendario_semanal(request)
-
-# =============================================
-# RUTAS NUEVAS OPCIONALES (AGREGAR SI LAS NECESITAS)
-# =============================================
-
-@app.get("/api/citas/estadisticas")
-async def obtener_estadisticas_citas(request: Request):
-    """Alias para /api/metricas"""
-    return await CitaFisioController.obtener_metricas_api(request)
-
-@app.get("/api/citas/detalles/{cita_id}")
-async def obtener_detalles_cita(request: Request, cita_id: str):
-    """Obtener detalles específicos de una cita"""
-    return await CitaFisioController.obtener_detalles_cita(request, cita_id)
-
-@app.post("/api/citas/actualizar-cita")
-async def actualizar_cita_completa(
-    request: Request,
-    cita_id: str = Form(...),
-    servicio: str = Form(None),
-    fecha_cita: str = Form(None),
-    hora_cita: str = Form(None),
-    notas_adicionales: str = Form(None)
-):
-    """Actualizar información completa de una cita"""
-    # Este método necesitaría ser implementado en el controlador
-    pass
-
 # ─────────────────────────────────────────────────────────────
 # PANELES DE FISIOTERAPEUTA - PACIENTE
 # ─────────────────────────────────────────────────────────────
@@ -877,9 +1026,397 @@ app.add_api_route("/api/pacientes/{codigo_cita}", PacienteFisioController.elimin
 # PANELES DE FISIOTERAPEUTA - PROGRESO
 # ─────────────────────────────────────────────────────────────
 
+@app.post("/api/debug/pdf")
+async def debug_pdf(request: Request, file: UploadFile = File(...)):
+    """Endpoint para debuguear el PDF recibido"""
+    content = await file.read()
+    
+    return JSONResponse({
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "size_bytes": len(content),
+        "first_20_bytes": str(content[:20]),
+        "is_pdf": content.startswith(b'%PDF'),
+        "hex_first_10": content[:10].hex()
+    })
+
+# Endpoints principales del módulo de progreso (NO TOCAR)
 app.add_api_route("/api/progreso/pacientes-filtros", ReporteFisioController.obtener_pacientes_para_filtros, methods=["GET"])
 app.add_api_route("/api/progreso/estadisticas", ReporteFisioController.obtener_estadisticas_progreso, methods=["GET"])
 app.add_api_route("/api/reportes", ReporteFisioController.guardar_reporte, methods=["POST"])
 app.add_api_route("/api/reportes", ReporteFisioController.obtener_reportes, methods=["GET"])
 app.add_api_route("/api/reportes/{codigo_cita}/descargar", ReporteFisioController.descargar_reporte, methods=["GET"])
 
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR 
+# ─────────────────────────────────────────────────────────────
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page(request: Request):
+    """
+    Página de login para administradores
+    """
+    error = request.session.pop('error', None)
+    return templates_admin.TemplateResponse("panel_login_admin.html", {
+        "request": request,
+        "error": error
+    })
+
+@app.post("/admin/login")
+async def login_admin(request: Request, correo: str = Form(...), password: str = Form(...)):
+    """
+    Procesa el login del administrador
+    """
+    return await AuthAdminController.login_admin(request, correo, password)
+
+@app.get("/admin/logout")
+async def logout_admin(request: Request):
+    """
+    Endpoint para logout de administradores
+    """
+    return await AuthAdminController.logout_admin(request)
+
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR - USUARIOS
+# ─────────────────────────────────────────────────────────────
+
+# Estadísticas
+app.add_api_route("/api/admin/estadisticas", 
+                  AdminUsuariosController.obtener_estadisticas_admin, 
+                  methods=["GET"])
+
+# Usuarios - CRUD completo
+app.add_api_route("/api/admin/usuarios", 
+                  AdminUsuariosController.listar_usuarios, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/codigos/estado", 
+                  AdminUsuariosController.verificar_estado_codigos_admin, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/usuarios", 
+                  AdminUsuariosController.crear_usuario, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/usuarios/{usuario_id}", 
+                  AdminUsuariosController.eliminar_usuario, 
+                  methods=["DELETE"])  # NUEVO ENDPOINT
+
+app.add_api_route("/api/admin/usuarios/{usuario_id}/convertir-paciente", 
+                  AdminUsuariosController.convertir_a_paciente, 
+                  methods=["POST"])  # NUEVO ENDPOINT
+
+# Pacientes
+app.add_api_route("/api/admin/pacientes", 
+                  AdminUsuariosController.listar_pacientes, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/pacientes", 
+                  AdminUsuariosController.crear_paciente, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/pacientes/{codigo_cita}", 
+                  AdminUsuariosController.eliminar_paciente,  # Si creas esta función
+                  methods=["DELETE"])  # OPCIONAL
+
+# Historial médico
+app.add_api_route("/api/admin/historial/{usuario_id}", 
+                  AdminUsuariosController.obtener_historial_completo, 
+                  methods=["GET"])
+
+# Exportación
+app.add_api_route("/api/admin/exportar", 
+                  AdminUsuariosController.exportar_csv, 
+                  methods=["GET"])
+
+# Debug
+app.add_api_route("/api/admin/debug", 
+                  AdminUsuariosController.debug_archivo, 
+                  methods=["POST"])
+
+# RUTAS PARA ESTADOS
+app.add_api_route("/api/admin/usuarios/{usuario_id}/estado", 
+                  AdminUsuariosController.cambiar_estado_usuario, 
+                  methods=["PUT"])
+
+app.add_api_route("/api/admin/citas/{codigo_cita}/estado", 
+                  AdminUsuariosController.cambiar_estado_cita, 
+                  methods=["PUT"])
+
+@app.get("/admin/panel-usuarios", response_class=HTMLResponse)
+async def panel_usuarios(request: Request):
+    """
+    Panel principal de administración de usuarios
+    """
+    admin = AuthAdminController.verificar_sesion_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    return templates_admin.TemplateResponse("panel_usuarios_admin.html", {
+        "request": request,
+        "admin": admin
+    })
+
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR - SERVICIOS
+# ─────────────────────────────────────────────────────────────
+
+@app.get("/admin/panel-servicios", response_class=HTMLResponse)
+async def panel_usuarios(request: Request):
+    """
+    Panel principal de administración de usuarios
+    """
+    admin = AuthAdminController.verificar_sesion_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    return templates_admin.TemplateResponse("panel_servicios_admin.html", {
+        "request": request,
+        "admin": admin
+    })
+
+
+
+
+# ===== TERAPIAS =====
+#esto dio error
+# CORREGIR ESTA LÍNEA (probablemente línea 1069):
+app.add_api_route("/api/admin/servicios/estadisticas", 
+                  AdminServicioController.obtener_estadisticas_generales,  # CON "s" al final
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/terapias", 
+                  AdminServicioController.listar_terapias, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/terapias/{codigo}", 
+                  AdminServicioController.obtener_terapia, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/terapias", 
+                  AdminServicioController.crear_terapia, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/servicios/terapias/{codigo}", 
+                  AdminServicioController.actualizar_terapia, 
+                  methods=["PUT"])
+
+# ===== NUTRICIÓN =====
+app.add_api_route("/api/admin/servicios/nutricion", 
+                  AdminServicioController.listar_nutricion, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/nutricion/{codigo}", 
+                  AdminServicioController.obtener_nutricion, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/nutricion", 
+                  AdminServicioController.crear_nutricion, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/servicios/nutricion/{codigo}", 
+                  AdminServicioController.actualizar_nutricion, 
+                  methods=["PUT"])
+
+# ===== IMPLEMENTOS =====
+app.add_api_route("/api/admin/servicios/implementos", 
+                  AdminServicioController.listar_implementos, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/implementos/{codigo}", 
+                  AdminServicioController.obtener_implemento, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/servicios/implementos", 
+                  AdminServicioController.crear_implemento, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/servicios/implementos/{codigo}", 
+                  AdminServicioController.actualizar_implemento, 
+                  methods=["PUT"])
+
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR - AGENDA
+# ────────────────────────────────────────────────────────────────
+
+@app.get("/admin/panel-agenda", response_class=HTMLResponse)
+async def panel_usuarios(request: Request):
+    """
+    Panel principal de administración de usuarios
+    """
+    admin = AuthAdminController.verificar_sesion_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    return templates_admin.TemplateResponse("panel_cita_admin.html", {
+        "request": request,
+        "admin": admin
+    })
+
+app.add_api_route("/api/admin/citas/estadisticas", 
+                  AdminCitaController.obtener_estadisticas, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/citas", 
+                  AdminCitaController.listar_citas, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/citas/{cita_id}", 
+                  AdminCitaController.obtener_cita, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/citas", 
+                  AdminCitaController.crear_cita, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/citas/{cita_id}", 
+                  AdminCitaController.actualizar_cita, 
+                  methods=["PUT"])
+
+app.add_api_route("/api/admin/citas/{cita_id}/estado", 
+                  AdminCitaController.cambiar_estado_cita, 
+                  methods=["PATCH"])
+
+app.add_api_route("/api/admin/citas/{cita_id}", 
+                  AdminCitaController.eliminar_cita, 
+                  methods=["DELETE"])
+
+app.add_api_route("/api/admin/citas/semana", 
+                  AdminCitaController.obtener_citas_semana, 
+                  methods=["GET"])
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR - ANALITICAS
+# ────────────────────────────────────────────────────────────────
+
+
+
+
+
+@app.get("/admin/panel-analiticas", response_class=HTMLResponse)
+async def panel_analiticas(request: Request):
+    """
+    Panel principal de analíticas
+    """
+    admin = AuthAdminController.verificar_sesion_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    return templates_admin.TemplateResponse("panel_analiticas_admin.html", {
+        "request": request,
+        "admin": admin
+    })
+
+# En main.py - Asegúrate de tener TODAS estas rutas:
+
+# Rutas de analíticas
+app.add_api_route("/api/admin/analiticas/estadisticas", 
+                  AdminAnaliticasController.obtener_estadisticas, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/graficos", 
+                  AdminAnaliticasController.obtener_datos_graficos, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/analiticas/servicios-populares", 
+                  AdminAnaliticasController.obtener_servicios_populares, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/rendimiento-terapeutas", 
+                  AdminAnaliticasController.obtener_rendimiento_terapeutas, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/top-terapeutas", 
+                  AdminAnaliticasController.obtener_top_terapeutas, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/datos-financieros", 
+                  AdminAnaliticasController.obtener_datos_financieros, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/tendencias", 
+                  AdminAnaliticasController.obtener_tendencias, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/generar-reporte", 
+                  AdminAnaliticasController.generar_reporte, 
+                  methods=["POST"])
+
+# Rutas adicionales para gráficos específicos
+app.add_api_route("/api/admin/analiticas/usuarios-pacientes", 
+                  AdminAnaliticasController.obtener_datos_usuario_paciente, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/analiticas/productos-servicios-populares", 
+                  AdminAnaliticasController.obtener_productos_servicios_populares, 
+                  methods=["GET"])
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR - CORREOS
+# ─────────────────────────────────────────────────────────────
+
+
+@app.get("/admin/panel-correos", response_class=HTMLResponse)
+async def panel_usuarios(request: Request):
+    """
+    Panel principal de administración de usuarios
+    """
+    admin = AuthAdminController.verificar_sesion_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    return templates_admin.TemplateResponse("panel_correos_admin.html", {
+        "request": request,
+        "admin": admin
+    })
+
+# ─────────────────────────────────────────────────────────────
+# PANELES DE ADMINISTRADOR - FISIOTERAPEUTAS
+# ─────────────────────────────────────────────────────────────
+
+
+@app.get("/admin/panel-fisio", response_class=HTMLResponse)
+async def panel_usuarios(request: Request):
+    """
+    Panel principal de administración de usuarios
+    """
+    admin = AuthAdminController.verificar_sesion_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    return templates_admin.TemplateResponse("panel_fisio_admin.html", {
+        "request": request,
+        "admin": admin
+    })
+
+app.add_api_route("/api/admin/fisio/estadisticas", 
+                  AdminFisioController.obtener_estadisticas_fisio, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/fisio/terapeutas", 
+                  AdminFisioController.listar_terapeutas, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/fisio/terapeutas/{codigo}", 
+                  AdminFisioController.obtener_terapeuta, 
+                  methods=["GET"])
+
+app.add_api_route("/api/admin/fisio/terapeutas", 
+                  AdminFisioController.crear_terapeuta, 
+                  methods=["POST"])
+
+app.add_api_route("/api/admin/fisio/terapeutas/{codigo}", 
+                  AdminFisioController.actualizar_terapeuta, 
+                  methods=["PUT"])
+
+app.add_api_route("/api/admin/fisio/terapeutas/{codigo}/estado", 
+                  AdminFisioController.cambiar_estado_terapeuta, 
+                  methods=["PATCH"])
+
+app.add_api_route("/api/admin/fisio/especializaciones", 
+                  AdminFisioController.obtener_especializaciones, 
+                  methods=["GET"])

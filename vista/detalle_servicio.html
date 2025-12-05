@@ -563,7 +563,14 @@
                             {% if servicio.duracion %}
                             <div class="meta-item">
                                 <i class="fas fa-clock"></i>
-                                <span>{{ servicio.duracion }}</span>
+                                <span>{{ servicio.duracion }} minutos</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if servicio.inicio_jornada_str and servicio.final_jornada_str %}
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ servicio.inicio_jornada_str }} - {{ servicio.final_jornada_str }}</span>
                             </div>
                             {% endif %}
                             
@@ -577,7 +584,7 @@
                             {% if servicio.promedio_sesiones %}
                             <div class="meta-item">
                                 <i class="fas fa-chart-line"></i>
-                                <span>{{ servicio.promedio_sesiones }}</span>
+                                <span>{{ servicio.promedio_sesiones }} sesiones</span>
                             </div>
                             {% endif %}
                         </div>
@@ -591,30 +598,57 @@
                     <!-- Left Column -->
                     <div>
                         <!-- Therapist Section -->
-                        {% if servicio.terapeuta_disponible %}
+                        {% if servicio.terapeutas %}
                         <div class="info-section">
                             <div class="section-header">
                                 <div class="section-icon">
                                     <i class="fas fa-user-md"></i>
                                 </div>
-                                <h3 class="section-title">Terapeuta Disponible</h3>
+                                <h3 class="section-title">Terapeutas Disponibles</h3>
                             </div>
-                            <div class="therapist-card">
-                                <div class="therapist-avatar">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div class="therapist-name">{{ servicio.terapeuta_disponible }}</div>
-                                {% if servicio.inicio_jornada and servicio.final_jornada %}
-                                <div class="therapist-schedule">
-                                    <i class="fas fa-clock"></i> 
-                                    {% if servicio.inicio_jornada is string %}
-                                        {{ servicio.inicio_jornada }} - {{ servicio.final_jornada }}
-                                    {% else %}
-                                        {{ servicio.inicio_jornada }} - {{ servicio.final_jornada }}
+                            
+                            <div class="therapists-container">
+                                {% for terapeuta in servicio.terapeutas %}
+                                <div class="therapist-card" style="margin-bottom: 16px;">
+                                    <div class="therapist-avatar">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div class="therapist-name">{{ terapeuta.nombre_completo }}</div>
+                                    
+                                    {% if terapeuta.especializacion %}
+                                    <div class="therapist-specialty">
+                                        <i class="fas fa-certificate"></i> {{ terapeuta.especializacion }}
+                                    </div>
                                     {% endif %}
+                                    
+                                    {% if terapeuta.horario_completo %}
+                                    <div class="therapist-schedule">
+                                        <i class="fas fa-calendar-alt"></i> 
+                                        <span>{{ terapeuta.horario_completo }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div style="margin-top: 12px; font-size: 0.9rem; color: var(--gray);">
+                                        <div><i class="fas fa-phone"></i> {{ terapeuta.telefono }}</div>
+                                        <div><i class="fas fa-envelope"></i> {{ terapeuta.fisio_correo }}</div>
+                                    </div>
                                 </div>
-                                {% endif %}
+                                {% endfor %}
                             </div>
+                            
+                            {% if servicio.horarios_disponibles %}
+                            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+                                <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 8px;">
+                                    <i class="fas fa-clock"></i> Horarios Disponibles
+                                </h4>
+                                {% for horario in servicio.horarios_disponibles %}
+                                <div style="padding: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-check-circle" style="color: var(--accent); font-size: 0.9rem;"></i>
+                                    <span>{{ horario }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                         {% endif %}
 
@@ -633,7 +667,27 @@
                                         <i class="fas fa-clock"></i>
                                         <span>Duración</span>
                                     </div>
-                                    <div class="info-value">{{ servicio.duracion }}</div>
+                                    <div class="info-value">{{ servicio.duracion }} minutos</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if servicio.precio %}
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        <span>Precio</span>
+                                    </div>
+                                    <div class="info-value">${{ "{:,}".format(servicio.precio) }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if servicio.inicio_jornada_str and servicio.final_jornada_str %}
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Horario</span>
+                                    </div>
+                                    <div class="info-value">{{ servicio.inicio_jornada_str }} - {{ servicio.final_jornada_str }}</div>
                                 </div>
                                 {% endif %}
                                 
@@ -666,6 +720,16 @@
                                     <div class="info-value">{{ servicio.promedio_sesiones }}</div>
                                 </div>
                                 {% endif %}
+                                
+                                {% if servicio.terapeutas %}
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-users"></i>
+                                        <span>Terapeutas</span>
+                                    </div>
+                                    <div class="info-value">{{ servicio.terapeutas|length }} disponibles</div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -684,6 +748,17 @@
                             <div class="modality-tag">
                                 <i class="fas fa-clinic-medical"></i> {{ servicio.modalidad }}
                             </div>
+                            
+                            {% if servicio.inicio_jornada_str and servicio.final_jornada_str %}
+                            <div style="margin-top: 16px;">
+                                <div style="font-weight: 500; color: var(--dark); margin-bottom: 4px;">
+                                    <i class="fas fa-clock"></i> Horario de Atención del Servicio
+                                </div>
+                                <div style="color: var(--gray);">
+                                    {{ servicio.inicio_jornada_str }} - {{ servicio.final_jornada_str }}
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                         {% endif %}
 
@@ -770,6 +845,35 @@
                 </div>
                 {% endif %}
 
+                <!-- Recommendations Section -->
+                {% if servicio.recomendacion_precita %}
+                <div class="full-width-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h3 class="section-title">Recomendaciones Pre-cita</h3>
+                    </div>
+                    <div class="requirements-list">
+                        {% if servicio.recomendacion_precita is string %}
+                            {% for recomendacion in servicio.recomendacion_precita.split('.') %}
+                                {% if recomendacion.strip() %}
+                                <div class="list-item">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    <span>{{ recomendacion.strip() }}</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-item">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span>{{ servicio.recomendacion_precita }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Considerations Section -->
                 {% if servicio.consideraciones %}
                 <div class="full-width-section">
@@ -806,7 +910,7 @@
                     {% endif %}
                     {% if servicio.duracion %}
                     <div class="duration">
-                        <i class="fas fa-clock"></i> {{ servicio.duracion }}
+                        <i class="fas fa-clock"></i> {{ servicio.duracion }} minutos
                     </div>
                     {% endif %}
                 </div>

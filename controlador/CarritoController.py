@@ -317,3 +317,94 @@ class CarritoController:
                 "success": False, 
                 "message": "Error interno del servidor"
             }, status_code=500)
+    @staticmethod
+    async def confirmar_compra(request: Request):
+        """
+        Endpoint para confirmar compra y guardar en compras_confirmadas
+        """
+        print("💳 Confirmando compra...")
+        usuario = AuthController.verificar_sesion_usuario(request)
+        
+        if not usuario:
+            return JSONResponse({
+                "success": False, 
+                "message": "No autorizado - sesión inválida"
+            }, status_code=401)
+
+        try:
+            data = await request.json()
+            direccion_envio = data.get('direccion_envio')
+            ciudad = data.get('ciudad')
+            codigo_postal = data.get('codigo_postal')
+            metodo_pago = data.get('metodo_pago')
+            
+            print(f"📦 Datos de compra: usuario_id={usuario['id']}")
+            
+            if not all([direccion_envio, ciudad, codigo_postal, metodo_pago]):
+                return JSONResponse({
+                    "success": False, 
+                    "message": "Todos los campos son requeridos"
+                })
+            
+            # Confirmar la compra
+            success, message, datos_compra = CarritoModel.confirmar_compra(
+                usuario['id'], direccion_envio, ciudad, codigo_postal, metodo_pago
+            )
+            
+            if success:
+                print(f"✅ Compra confirmada: {datos_compra['orden_id']}")
+                
+                return JSONResponse({
+                    "success": True, 
+                    "message": message,
+                    "compra": datos_compra
+                })
+            else:
+                return JSONResponse({
+                    "success": False, 
+                    "message": message
+                })
+            
+        except Exception as e:
+            print(f"🔥 Error en controlador confirmar_compra: {e}")
+            print(traceback.format_exc())
+            return JSONResponse({
+                "success": False, 
+                "message": "Error interno del servidor"
+            }, status_code=500)
+        
+    @staticmethod
+    async def obtener_historial_compras(request: Request):
+        """
+        Endpoint para obtener historial de compras del usuario
+        """
+        print("📜 Obteniendo historial de compras...")
+        usuario = AuthController.verificar_sesion_usuario(request)
+        
+        if not usuario:
+            return JSONResponse({
+                "success": False, 
+                "message": "No autorizado - sesión inválida"
+            }, status_code=401)
+
+        try:
+            compras, error = CarritoModel.obtener_historial_compras(usuario['id'])
+            
+            if error:
+                return JSONResponse({
+                    "success": False, 
+                    "message": error
+                })
+            
+            return JSONResponse({
+                "success": True, 
+                "compras": compras or []
+            })
+            
+        except Exception as e:
+            print(f"🔥 Error en controlador obtener_historial_compras: {e}")
+            print(traceback.format_exc())
+            return JSONResponse({
+                "success": False, 
+                "message": "Error interno del servidor"
+            }, status_code=500)

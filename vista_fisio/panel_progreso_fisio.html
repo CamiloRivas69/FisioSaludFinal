@@ -1670,7 +1670,6 @@
         const element = document.querySelector(`#evaluation-form ${selector}`);
         if (element) {
             const value = element.value || element.textContent || '';
-            console.log(`✅ Campo ${selector}: "${value}"`);
             return value;
         } else {
             console.warn(`⚠️ Campo no encontrado: ${selector}`);
@@ -1681,55 +1680,39 @@
     // 11. Función para recopilar datos del formulario
     function collectFormData() {
         const form = document.getElementById('evaluation-form');
-        const inputs = form.querySelectorAll('input, select, textarea');
         
-        console.log('📋 Campos encontrados en el formulario:');
-        inputs.forEach((input, index) => {
-            console.log(`${index + 1}. ${input.tagName} - ${input.name || input.placeholder || 'sin identificador'}`);
-        });
-
+        // Obtener todos los campos del formulario de manera más robusta
         const formData = {
             // Datos básicos del paciente
-            patientName: getFormValue('input[placeholder="Ingrese el nombre del paciente"]') || 
-                        getFormValue('input[type="text"]:first-of-type'),
-            age: getFormValue('input[placeholder="Edad del paciente"]') || 
-                 getFormValue('input[type="number"]:first-of-type'),
-            gender: getFormValue('select:first-of-type'),
-            occupation: getFormValue('input[placeholder="Ejemplo: oficinista, deportista, ama de casa..."]'),
-            medicalHistory: getFormValue('textarea[placeholder="Describa los antecedentes médicos del paciente..."]'),
-            currentCondition: getFormValue('textarea[placeholder="Describa la condición actual del paciente y el motivo de consulta..."]'),
+            patientName: form.querySelector('input[placeholder="Ingrese el nombre del paciente"]')?.value || '',
+            age: form.querySelector('input[placeholder="Edad del paciente"]')?.value || '',
+            gender: form.querySelector('select:first-of-type')?.value || '',
+            occupation: form.querySelector('input[placeholder="Ejemplo: oficinista, deportista, ama de casa..."]')?.value || '',
+            medicalHistory: form.querySelector('textarea[placeholder="Describa los antecedentes médicos del paciente..."]')?.value || '',
+            currentCondition: form.querySelector('textarea[placeholder="Describa la condición actual del paciente y el motivo de consulta..."]')?.value || '',
             
             // Evaluación funcional
-            flexion: getFormValue('input[type="number"]:nth-of-type(1)'),
-            extension: getFormValue('input[type="number"]:nth-of-type(2)'),
-            rotation: getFormValue('input[type="number"]:nth-of-type(3)'),
-            strength: getFormValue('select:nth-of-type(2)'),
-            painLevel: getFormValue('input[type="range"]'),
-            painDescription: getFormValue('textarea[placeholder="Describa localización, tipo, factores que lo agravan/alivian..."]'),
-            posture: getFormValue('textarea[placeholder="Describa observaciones sobre postura, marcha, compensaciones, etc."]'),
+            flexion: form.querySelector('input[placeholder="Ej: 120"]')?.value || '',
+            extension: form.querySelector('input[placeholder="Ej: 30"]')?.value || '',
+            rotation: form.querySelector('input[placeholder="Ej: 45"]')?.value || '',
+            painLevel: form.querySelector('input[type="range"]')?.value || '0',
+            painDescription: form.querySelector('textarea[placeholder="Describa localización, tipo, factores..."]')?.value || '',
             
             // Análisis
-            findings: getFormValue('textarea[placeholder="Describa los principales hallazgos encontrados..."]'),
-            diagnosis: getFormValue('textarea[placeholder="Ingrese el diagnóstico fisioterapéutico..."]'),
+            findings: form.querySelector('textarea[placeholder="Describa los principales hallazgos encontrados..."]')?.value || '',
+            diagnosis: form.querySelector('textarea[placeholder="Ingrese el diagnóstico fisioterapéutico..."]')?.value || '',
             
             // Plan de tratamiento
-            goals: getFormValue('textarea[placeholder="Ejemplo: Reducir dolor a 3/10 en 2 semanas, recuperar 90% de movilidad en 4 semanas..."]'),
-            frequency: getFormValue('input[placeholder="Ejemplo: 3 sesiones por semana durante 6 semanas"]'),
-            modalities: getFormValue('textarea[placeholder="Ejemplo: ejercicios terapéuticos, TENS, terapia manual, crioterapia..."]'),
-            homeRecommendations: getFormValue('textarea[placeholder="Ejercicios domiciliarios o pautas posturales..."]'),
-            
-            // Seguimiento
-            nextAppointment: getFormValue('input[type="date"]:nth-of-type(2)'),
-            observations: getFormValue('textarea[placeholder="Notas sobre evolución o cambios observados..."]'),
-            signature: getFormValue('input[placeholder="{{ fisioterapeuta.nombre_completo }}"]'),
-            evaluationDate: getFormValue('#evaluation-date')
+            goals: form.querySelector('textarea[placeholder="Ejemplo: Reducir dolor a 3/10 en 2 semanas..."]')?.value || '',
+            signature: form.querySelector('input[value="{{ fisioterapeuta.nombre_completo }}"]')?.value || '',
+            evaluationDate: document.getElementById('evaluation-date')?.value || new Date().toISOString().split('T')[0]
         };
 
         console.log('📊 Datos recopilados del formulario:', formData);
         return formData;
     }
 
-    // 12. Función para generar PDF
+    // 12. Función para generar PDF - VERSIÓN CORREGIDA
     function generatePDF(formData) {
         return new Promise((resolve, reject) => {
             console.log('🔄 Iniciando generación de PDF...');
@@ -1751,55 +1734,117 @@
                 return;
             }
             
-            // Configuración de html2pdf
-            const options = {
-                margin: 10,
-                filename: `evaluacion_${formData.patientName}_${new Date().toISOString().split('T')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2,
-                    logging: true,
-                    useCORS: true
-                },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait' 
+            // DEBUG: Ver el HTML generado
+            console.log('📄 HTML generado (primeros 300 chars):', reportHTML.substring(0, 300));
+            
+            // Crear un elemento temporal para renderizar
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '0';
+            tempDiv.style.width = '800px';
+            tempDiv.style.backgroundColor = '#ffffff';
+            tempDiv.style.padding = '20px';
+            tempDiv.innerHTML = reportHTML;
+            document.body.appendChild(tempDiv);
+            
+            try {
+                // Configuración de html2pdf
+                const options = {
+                    margin: [15, 15, 15, 15],
+                    filename: `evaluacion_${formData.patientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image: { 
+                        type: 'jpeg', 
+                        quality: 0.95 
+                    },
+                    html2canvas: { 
+                        scale: 2,
+                        logging: true,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        width: 800
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        compress: true
+                    }
+                };
+                
+                console.log('🎯 Generando PDF con html2pdf...');
+                
+                // Generar PDF usando el elemento temporal
+                html2pdf()
+                    .from(tempDiv)
+                    .set(options)
+                    .outputPdf('blob')
+                    .then((blob) => {
+                        console.log(`✅ PDF generado exitosamente - Tamaño: ${blob.size} bytes`);
+                        
+                        // Limpiar elemento temporal
+                        document.body.removeChild(tempDiv);
+                        
+                        // Verificar que el blob no esté vacío
+                        if (blob.size < 1000) {
+                            console.warn('⚠️ PDF muy pequeño, puede estar vacío');
+                            reject(new Error('PDF generado está vacío o casi vacío'));
+                            return;
+                        }
+                        
+                        // Verificar tipo MIME
+                        if (blob.type !== 'application/pdf') {
+                            console.warn(`⚠️ Tipo MIME inesperado: ${blob.type}`);
+                        }
+                        
+                        resolve(blob);
+                    })
+                    .catch((error) => {
+                        console.error('❌ Error en html2pdf:', error);
+                        // Limpiar elemento temporal
+                        if (document.body.contains(tempDiv)) {
+                            document.body.removeChild(tempDiv);
+                        }
+                        reject(error);
+                    });
+                    
+            } catch (error) {
+                // Limpiar elemento temporal
+                if (document.body.contains(tempDiv)) {
+                    document.body.removeChild(tempDiv);
                 }
-            };
-            
-            console.log('🎯 Generando PDF con html2pdf...');
-            
-            // Generar PDF
-            html2pdf()
-                .from(reportHTML)
-                .set(options)
-                .outputPdf('blob')
-                .then((blob) => {
-                    console.log(`✅ PDF generado exitosamente - Tamaño: ${blob.size} bytes`);
-                    resolve(blob);
-                })
-                .catch((error) => {
-                    console.error('❌ Error en html2pdf:', error);
-                    reject(error);
-                });
+                console.error('❌ Error en try-catch de generatePDF:', error);
+                reject(error);
+            }
         });
     }
 
-    // 13. Función para crear HTML del reporte
+    // 13. Función para crear HTML del reporte - VERSIÓN MEJORADA
     function createReportHTML(formData) {
         console.log('🎨 Creando HTML del reporte con datos:', formData);
         
-        // Validar datos críticos
-        if (!formData.patientName || formData.patientName.trim() === '') {
-            formData.patientName = 'Nombre no proporcionado';
-        }
+        // Validar y limpiar datos
+        const cleanData = {
+            patientName: formData.patientName?.trim() || 'Nombre no proporcionado',
+            age: formData.age?.trim() || 'No especificado',
+            gender: formData.gender?.trim() || 'No especificado',
+            occupation: formData.occupation?.trim() || 'No especificado',
+            medicalHistory: formData.medicalHistory?.trim() || 'No especificado',
+            currentCondition: formData.currentCondition?.trim() || 'No especificado',
+            flexion: formData.flexion?.trim() || 'No especificado',
+            extension: formData.extension?.trim() || 'No especificado',
+            rotation: formData.rotation?.trim() || 'No especificado',
+            painLevel: formData.painLevel?.trim() || '0',
+            painDescription: formData.painDescription?.trim() || 'No especificado',
+            findings: formData.findings?.trim() || 'No especificado',
+            diagnosis: formData.diagnosis?.trim() || 'No especificado',
+            goals: formData.goals?.trim() || 'No especificado',
+            signature: formData.signature?.trim() || 'Fisioterapeuta no especificado',
+            evaluationDate: formData.evaluationDate || new Date().toISOString().split('T')[0]
+        };
         
-        if (!formData.evaluationDate) {
-            formData.evaluationDate = new Date().toISOString().split('T')[0];
-        }
-        
-        // Función helper para escapar HTML y manejar valores vacíos
+        // Función helper para escapar HTML
         const escapeHTML = (str) => {
             if (!str) return 'No especificado';
             return String(str)
@@ -1807,7 +1852,8 @@
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+                .replace(/'/g, "&#039;")
+                .replace(/\n/g, "<br>");
         };
 
         const html = `
@@ -1819,11 +1865,12 @@
             <title>Informe de Evaluación Fisioterapéutica</title>
             <style>
                 body {
-                    font-family: "Inter", Arial, sans-serif;
-                    margin: 20px;
-                    color: #0F172A;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    color: #333;
                     background-color: #ffffff;
-                    line-height: 1.4;
+                    line-height: 1.6;
                 }
 
                 .report-container {
@@ -1831,27 +1878,27 @@
                     margin: 0 auto;
                     background: white;
                     padding: 30px;
-                    border: 1px solid #E2E8F0;
+                    border: 1px solid #ddd;
                 }
 
                 header {
                     text-align: center;
-                    border-bottom: 3px solid #0A2540;
+                    border-bottom: 3px solid #2c3e50;
                     padding-bottom: 15px;
                     margin-bottom: 25px;
                 }
 
                 header h1 {
                     margin: 0;
-                    color: #0A2540;
+                    color: #2c3e50;
                     font-size: 24px;
-                    font-weight: 600;
+                    font-weight: bold;
                 }
 
                 header p {
                     margin: 5px 0 0;
                     font-style: italic;
-                    color: #64748B;
+                    color: #7f8c8d;
                     font-size: 14px;
                 }
 
@@ -1861,11 +1908,11 @@
                 }
 
                 h2 {
-                    color: #0A2540;
-                    border-bottom: 2px solid #00A3FF;
+                    color: #2c3e50;
+                    border-bottom: 2px solid #3498db;
                     padding-bottom: 5px;
                     font-size: 18px;
-                    font-weight: 600;
+                    font-weight: bold;
                     margin-bottom: 15px;
                 }
 
@@ -1877,44 +1924,49 @@
                 }
 
                 .info-item {
-                    margin-bottom: 8px;
+                    margin-bottom: 10px;
                 }
 
                 .label {
-                    font-weight: 500;
-                    color: #0A2540;
+                    font-weight: bold;
+                    color: #2c3e50;
                     display: block;
                     font-size: 14px;
+                    margin-bottom: 3px;
                 }
 
                 .value {
-                    color: #64748B;
+                    color: #34495e;
                     font-size: 14px;
+                    padding-left: 10px;
                 }
 
                 .textarea {
-                    background: #F8FAFC;
-                    border-left: 4px solid #00A3FF;
-                    padding: 8px 12px;
+                    background: #f8f9fa;
+                    border-left: 4px solid #3498db;
+                    padding: 10px 12px;
                     border-radius: 4px;
                     margin-top: 5px;
-                    color: #0F172A;
+                    color: #2c3e50;
                     font-size: 13px;
                     min-height: 40px;
+                    line-height: 1.5;
                 }
 
                 footer {
                     text-align: center;
                     font-size: 11px;
-                    color: #64748B;
+                    color: #7f8c8d;
                     margin-top: 30px;
-                    border-top: 1px solid #E2E8F0;
+                    border-top: 1px solid #ddd;
                     padding-top: 10px;
                 }
 
                 .signature {
                     margin-top: 25px;
                     text-align: right;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
                 }
 
                 .signature p {
@@ -1922,13 +1974,16 @@
                 }
 
                 .signature .name {
-                    font-weight: 600;
-                    color: #0A2540;
+                    font-weight: bold;
+                    color: #2c3e50;
                     font-size: 14px;
                 }
 
                 @media print {
-                    body { margin: 0; }
+                    body { 
+                        margin: 0; 
+                        padding: 10px;
+                    }
                     .report-container { 
                         max-width: none; 
                         border: none;
@@ -1940,106 +1995,104 @@
         <body>
             <div class="report-container">
                 <header>
-                    <h1>Informe de Evaluación Fisioterapéutica</h1>
-                    <p>Sistema FisioSalud — Registro de Atención Profesional</p>
+                    <h1>INFORME DE EVALUACIÓN FISIOTERAPÉUTICA</h1>
+                    <p>Sistema FisioSalud — Registro Clínico Profesional</p>
                 </header>
 
                 <!-- DATOS DEL PACIENTE -->
                 <section>
-                    <h2>Datos del Paciente</h2>
+                    <h2>DATOS DEL PACIENTE</h2>
                     <div class="info-grid">
-                        <div class="info-item"><span class="label">Nombre:</span> <span class="value">${escapeHTML(formData.patientName)}</span></div>
-                        <div class="info-item"><span class="label">Edad:</span> <span class="value">${escapeHTML(formData.age)} años</span></div>
-                        <div class="info-item"><span class="label">Género:</span> <span class="value">${escapeHTML(formData.gender)}</span></div>
-                        <div class="info-item"><span class="label">Fecha de Evaluación:</span> <span class="value">${escapeHTML(formData.evaluationDate)}</span></div>
-                        <div class="info-item"><span class="label">Ocupación:</span> <span class="value">${escapeHTML(formData.occupation)}</span></div>
+                        <div class="info-item">
+                            <span class="label">Nombre:</span>
+                            <span class="value">${escapeHTML(cleanData.patientName)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Edad:</span>
+                            <span class="value">${escapeHTML(cleanData.age)} años</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Género:</span>
+                            <span class="value">${escapeHTML(cleanData.gender)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Ocupación:</span>
+                            <span class="value">${escapeHTML(cleanData.occupation)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Fecha de Evaluación:</span>
+                            <span class="value">${escapeHTML(cleanData.evaluationDate)}</span>
+                        </div>
                     </div>
 
                     <div class="info-item">
                         <span class="label">Antecedentes Médicos:</span>
-                        <div class="textarea">${escapeHTML(formData.medicalHistory)}</div>
+                        <div class="textarea">${escapeHTML(cleanData.medicalHistory)}</div>
                     </div>
                     <div class="info-item">
-                        <span class="label">Condición Actual:</span>
-                        <div class="textarea">${escapeHTML(formData.currentCondition)}</div>
+                        <span class="label">Condición Actual y Motivo de Consulta:</span>
+                        <div class="textarea">${escapeHTML(cleanData.currentCondition)}</div>
                     </div>
                 </section>
 
                 <!-- EVALUACIÓN FUNCIONAL -->
                 <section>
-                    <h2>Evaluación Funcional</h2>
+                    <h2>EVALUACIÓN FUNCIONAL</h2>
                     <div class="info-grid">
-                        <div class="info-item"><span class="label">Flexión:</span> <span class="value">${escapeHTML(formData.flexion)}°</span></div>
-                        <div class="info-item"><span class="label">Extensión:</span> <span class="value">${escapeHTML(formData.extension)}°</span></div>
-                        <div class="info-item"><span class="label">Rotación:</span> <span class="value">${escapeHTML(formData.rotation)}°</span></div>
-                        <div class="info-item"><span class="label">Fuerza Muscular:</span> <span class="value">${escapeHTML(formData.strength)}</span></div>
-                        <div class="info-item"><span class="label">Nivel de Dolor:</span> <span class="value">${escapeHTML(formData.painLevel)} / 10</span></div>
+                        <div class="info-item">
+                            <span class="label">Flexión:</span>
+                            <span class="value">${escapeHTML(cleanData.flexion)}°</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Extensión:</span>
+                            <span class="value">${escapeHTML(cleanData.extension)}°</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Rotación:</span>
+                            <span class="value">${escapeHTML(cleanData.rotation)}°</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Nivel de Dolor (0-10):</span>
+                            <span class="value">${escapeHTML(cleanData.painLevel)} / 10</span>
+                        </div>
                     </div>
 
                     <div class="info-item">
                         <span class="label">Descripción del Dolor:</span>
-                        <div class="textarea">${escapeHTML(formData.painDescription)}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <span class="label">Evaluación Postural:</span>
-                        <div class="textarea">${escapeHTML(formData.posture)}</div>
+                        <div class="textarea">${escapeHTML(cleanData.painDescription)}</div>
                     </div>
                 </section>
 
                 <!-- ANÁLISIS -->
                 <section>
-                    <h2>Análisis del Especialista</h2>
+                    <h2>ANÁLISIS DEL ESPECIALISTA</h2>
                     <div class="info-item">
                         <span class="label">Hallazgos Principales:</span>
-                        <div class="textarea">${escapeHTML(formData.findings)}</div>
+                        <div class="textarea">${escapeHTML(cleanData.findings)}</div>
                     </div>
                     <div class="info-item">
                         <span class="label">Diagnóstico Fisioterapéutico:</span>
-                        <div class="textarea">${escapeHTML(formData.diagnosis)}</div>
+                        <div class="textarea">${escapeHTML(cleanData.diagnosis)}</div>
                     </div>
                 </section>
 
                 <!-- PLAN DE TRATAMIENTO -->
                 <section>
-                    <h2>Plan de Tratamiento y Recomendaciones</h2>
+                    <h2>PLAN DE TRATAMIENTO</h2>
                     <div class="info-item">
                         <span class="label">Objetivos Terapéuticos:</span>
-                        <div class="textarea">${escapeHTML(formData.goals)}</div>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Frecuencia del Tratamiento:</span>
-                        <div class="textarea">${escapeHTML(formData.frequency)}</div>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Modalidades Terapéuticas:</span>
-                        <div class="textarea">${escapeHTML(formData.modalities)}</div>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Recomendaciones para el Hogar:</span>
-                        <div class="textarea">${escapeHTML(formData.homeRecommendations)}</div>
+                        <div class="textarea">${escapeHTML(cleanData.goals)}</div>
                     </div>
                 </section>
 
-                <!-- SEGUIMIENTO -->
-                <section>
-                    <h2>Seguimiento</h2>
-                    <div class="info-grid">
-                        <div class="info-item"><span class="label">Próxima Cita:</span> <span class="value">${escapeHTML(formData.nextAppointment)}</span></div>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Observaciones:</span>
-                        <div class="textarea">${escapeHTML(formData.observations)}</div>
-                    </div>
-                </section>
-
+                <!-- FIRMA -->
                 <div class="signature">
-                    <p class="name">${escapeHTML(formData.signature)}</p>
+                    <p class="name">${escapeHTML(cleanData.signature)}</p>
                     <p>Fisioterapeuta Responsable</p>
                 </div>
 
                 <footer>
-                    FisioSalud © ${new Date().getFullYear()} — Informe terapéutico emitido para uso del paciente
+                    FisioSalud © ${new Date().getFullYear()} — Documento emitido electrónicamente
                 </footer>
             </div>
         </body>
@@ -2076,7 +2129,7 @@
         document.getElementById('patient-code').value = '';
     }
 
-    // 16. Función principal para generar y guardar PDF
+    // 16. Función principal para generar y guardar PDF - VERSIÓN MEJORADA
     async function generateAndSavePDF() {
         const patientCode = document.getElementById('patient-code').value;
         
@@ -2085,100 +2138,105 @@
             return;
         }
 
-        // Recopilar datos del formulario
-        const formData = collectFormData();
-        
         try {
-            // Mostrar indicador de carga
+            // 1. Recopilar datos del formulario
+            const formData = collectFormData();
+            
+            console.log('🔍 Datos recopilados para PDF:', formData);
+            
+            // Validar datos críticos
+            if (!formData.patientName || formData.patientName.trim() === '') {
+                alert('El nombre del paciente es requerido.');
+                return;
+            }
+            
+            // 2. Mostrar indicador de carga
             const saveButton = document.querySelector('#patient-code-modal .btn-primary');
             const originalText = saveButton.innerHTML;
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
             saveButton.disabled = true;
             
-            // Generar PDF
+            // 3. Generar PDF
+            console.log('📄 Generando PDF...');
             const pdfBlob = await generatePDF(formData);
             
-            // Guardar en base de datos
-            await saveReportToDatabase(patientCode, pdfBlob, formData.patientName);
+            console.log(`📦 PDF generado: ${pdfBlob.size} bytes, tipo: ${pdfBlob.type}`);
             
-            // Cerrar modal y limpiar formulario
-            closePatientCodeModal();
-            document.getElementById('evaluation-form').reset();
+            // 4. Validar que el PDF no esté vacío
+            if (pdfBlob.size < 1000) {
+                throw new Error(`PDF generado está muy pequeño (${pdfBlob.size} bytes). Verifica los datos del formulario.`);
+            }
             
-            // Recargar reportes para mostrar el nuevo
-            loadReports();
-            loadProgressStatistics();
+            // 5. Crear FormData para enviar
+            const uploadFormData = new FormData();
+            uploadFormData.append('ID', patientCode);
+            uploadFormData.append('reporte', pdfBlob, `evaluacion_${patientCode}.pdf`);
             
-            alert('✅ Evaluación guardada exitosamente en la base de datos.');
+            console.log('📤 Enviando FormData...');
             
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error al guardar la evaluación: ' + error.message);
-        } finally {
-            // Restaurar botón
-            const saveButton = document.querySelector('#patient-code-modal .btn-primary');
-            saveButton.innerHTML = '<i class="fas fa-save"></i> Generar PDF y Guardar';
-            saveButton.disabled = false;
-        }
-    }
-
-    // 17. Función para guardar en base de datos
-    async function saveReportToDatabase(patientId, pdfBlob, patientName) {
-        try {
-            console.log('📤 Enviando a /api/reportes...');
-            console.log(`📋 Paciente: ${patientId}`);
-            console.log(`📊 Tamaño PDF: ${pdfBlob.size} bytes`);
-            
-            // Crear FormData - USAR "reporte" EN LUGAR DE "reportes"
-            const formData = new FormData();
-            formData.append('ID', patientId);
-            
-            // Crear File object con el nombre correcto del campo
-            const pdfFile = new File([pdfBlob], `evaluacion_${patientId}.pdf`, {
-                type: 'application/pdf'
-            });
-            
-            formData.append('reporte', pdfFile); // ← CAMBIAR A "reporte" (singular)
-            
-            console.log('📦 FormData creado, campos:', Array.from(formData.keys()));
+            // 6. Enviar al backend
+            console.log('🚀 Enviando PDF al servidor...');
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
             
             const response = await fetch('/api/reportes', {
                 method: 'POST',
-                body: formData
+                body: uploadFormData
             });
             
-            console.log('📨 Response status:', response.status);
-            
-            if (!response.ok) {
-                let errorText;
-                try {
-                    const errorData = await response.json();
-                    errorText = JSON.stringify(errorData);
-                } catch {
-                    errorText = await response.text();
-                }
-                console.error('❌ Error response:', errorText);
-                throw new Error(`Error ${response.status}: ${errorText}`);
-            }
+            console.log('📨 Respuesta del servidor:', response.status, response.statusText);
             
             const result = await response.json();
-            console.log('✅ Reporte guardado:', result);
-            return result;
+            console.log('📊 Resultado del servidor:', result);
+            
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || `Error ${response.status}: ${response.statusText}`);
+            }
+            
+            // 7. Éxito
+            alert(`✅ Evaluación guardada exitosamente\n\n• Paciente: ${patientCode}\n• Tamaño PDF: ${(pdfBlob.size / 1024).toFixed(2)} KB`);
+            
+            // 8. Cerrar modal y limpiar
+            closePatientCodeModal();
+            document.getElementById('evaluation-form').reset();
+            
+            // 9. Recargar datos
+            loadReports();
+            loadProgressStatistics();
             
         } catch (error) {
-            console.error('❌ Error saving report:', error);
-            throw error;
+            console.error('❌ Error en generateAndSavePDF:', error);
+            
+            let errorMessage = 'Error al guardar la evaluación: ';
+            
+            if (error.message.includes('PDF generado está vacío')) {
+                errorMessage = 'El PDF generado está vacío. Por favor, verifica que todos los campos del formulario estén completos.';
+            } else if (error.message.includes('fetch')) {
+                errorMessage = 'Error de conexión con el servidor. Verifica tu conexión a internet.';
+            } else if (error.message.includes('html2pdf')) {
+                errorMessage = 'Error al generar el PDF. Intenta recargar la página.';
+            } else {
+                errorMessage += error.message;
+            }
+            
+            alert(`❌ ${errorMessage}`);
+            
+        } finally {
+            // Restaurar botón
+            const saveButton = document.querySelector('#patient-code-modal .btn-primary');
+            if (saveButton) {
+                saveButton.innerHTML = '<i class="fas fa-save"></i> Generar PDF y Guardar';
+                saveButton.disabled = false;
+            }
         }
     }
 
-    // 18. Función para agregar hito
+    // 17. Función para agregar hito
     async function addMilestone(event) {
         event.preventDefault();
         
         const title = document.getElementById('milestone-title').value;
         const date = document.getElementById('milestone-date').value;
         const description = document.getElementById('milestone-description').value;
-        const icon = document.getElementById('milestone-icon').value;
         const patientCode = document.getElementById('filter-patient').value;
         
         if (!title || !date || !description) {
@@ -2201,8 +2259,7 @@
                     codigo_cita: patientCode,
                     titulo_hito: title,
                     fecha_hito: date,
-                    descripcion_hito: description,
-                    tipo_hito: icon
+                    descripcion_hito: description
                 })
             });
             
@@ -2222,7 +2279,7 @@
         }
     }
 
-    // 19. Función para editar hito
+    // 18. Función para editar hito
     async function editMilestone(hitoId) {
         const newTitle = prompt('Ingrese el nuevo título del hito:');
         if (newTitle) {
@@ -2250,7 +2307,7 @@
         }
     }
 
-    // 20. Función para eliminar hito
+    // 19. Función para eliminar hito
     async function deleteMilestone(hitoId) {
         if (confirm('¿Está seguro de que desea eliminar este hito?')) {
             try {
@@ -2277,7 +2334,7 @@
     // FUNCIONES DE INTERFAZ
     // =============================================
 
-    // 21. Tab navigation
+    // 20. Tab navigation
     function changeTab(tabName) {
         // Ocultar todos los contenidos de pestañas
         const tabContents = document.querySelectorAll('.tab-content');
@@ -2306,7 +2363,7 @@
         }
     }
 
-    // 22. Inicialización al cargar la página
+    // 21. Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar datos iniciales
         loadPatientsForFilters();
@@ -2323,17 +2380,13 @@
         document.getElementById('milestone-date').value = today;
         
         // Manejar envío del formulario de hitos
-        document.getElementById('milestone-form').addEventListener('submit', addMilestone);
-
-        // Mostrar información del fisioterapeuta en consola para debug
-        console.log('Fisioterapeuta logueado en panel progreso:', {
-            nombre: "{{ fisioterapeuta.nombre_completo }}",
-            especializacion: "{{ fisioterapeuta.especializacion }}",
-            codigo: "{{ fisioterapeuta.codigo_trabajador }}"
-        });
+        const milestoneForm = document.getElementById('milestone-form');
+        if (milestoneForm) {
+            milestoneForm.addEventListener('submit', addMilestone);
+        }
     });
 
-    // 23. Funciones auxiliares para modales
+    // 22. Funciones auxiliares para modales
     function openAddMilestoneModal() {
         document.getElementById('add-milestone-modal').style.display = 'flex';
     }
@@ -2342,7 +2395,7 @@
         document.getElementById('add-milestone-modal').style.display = 'none';
     }
 
-    // 24. Aplicar filtros
+    // 23. Aplicar filtros
     async function applyFilters() {
         const patientCode = document.getElementById('filter-patient').value;
         const dateFrom = document.getElementById('filter-date-from').value;
@@ -2362,15 +2415,11 @@
             await loadEvaluationComparisons();
             await loadMilestones();
             
-            // Mostrar mensaje de éxito
-            const message = patientCode ? 
-                `Filtros aplicados para paciente seleccionado` : 
-                `Filtros aplicados para todos los pacientes`;
-            
-            console.log('✅ ' + message);
+            console.log('✅ Filtros aplicados');
             
         } catch (error) {
             console.error('Error al aplicar filtros:', error);
+            alert('Error al aplicar filtros');
         } finally {
             // Restaurar botón
             filterButton.innerHTML = '<i class="fas fa-filter"></i> Aplicar Filtros';
@@ -2378,7 +2427,7 @@
         }
     }
 
-    // 25. Cambiar rango de gráficos
+    // 24. Cambiar rango de gráficos
     function changeChartRange(chartType, range) {
         console.log(`Cambiando rango de ${chartType} a ${range}`);
         
@@ -2397,87 +2446,19 @@
         chartPlaceholder.innerHTML = `
             <i class="fas fa-chart-line"></i>
             <span>Gráfico de ${chartType} - Rango: ${range}</span>
-            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 10px;">
-                Datos simulados para demostración
-            </div>
         `;
     }
 
-    // 26. Exportar reportes
+    // 25. Exportar reportes
     function exportReports(format) {
         console.log(`Exportando reportes en formato ${format}`);
-        
-        // Simular exportación
-        alert(`Exportando reportes en formato ${format.toUpperCase()}...\n\nEsta función exportaría todos los reportes visibles en la tabla.`);
+        alert(`Exportando reportes en formato ${format.toUpperCase()}...`);
     }
 
-    // 27. Configurar alertas
+    // 26. Configurar alertas
     function configureAlerts() {
         console.log('Configurando alertas...');
-        
-        const daysThreshold = prompt('Ingrese el umbral de días para alertas de estancamiento:', '14');
-        const severity = prompt('Seleccione severidad predeterminada (baja/media/alta):', 'media');
-        
-        if (daysThreshold && severity) {
-            alert(`✅ Alertas configuradas:\n\n• Umbral: ${daysThreshold} días\n• Severidad: ${severity}\n\nLa configuración se aplicará a futuras evaluaciones.`);
-        }
-    }
-
-    // 28. Función para simular datos de gráficos
-    function simulateChartData() {
-        // Simular datos para gráficos de dolor
-        const painChart = document.getElementById('pain-chart');
-        if (painChart) {
-            painChart.innerHTML = `
-                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div style="width: 80%; height: 200px; background: linear-gradient(to top, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.05)); border-radius: var(--border-radius); position: relative;">
-                        <div style="position: absolute; bottom: 0; left: 10%; width: 80%; height: 70%; background: linear-gradient(to top, var(--secondary-color), rgba(0, 163, 255, 0.3)); border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
-                    </div>
-                    <div style="margin-top: 20px; color: var(--text-secondary); font-size: 0.875rem;">
-                        Evolución del dolor en los últimos 6 meses
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Simular datos para gráficos de movilidad
-        const mobilityChart = document.getElementById('mobility-chart');
-        if (mobilityChart) {
-            mobilityChart.innerHTML = `
-                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div style="width: 80%; height: 200px; display: flex; align-items: flex-end; justify-content: space-around; gap: 20px;">
-                        <div style="width: 40px; height: 60%; background: var(--success-color); border-radius: var(--border-radius-sm);"></div>
-                        <div style="width: 40px; height: 80%; background: var(--success-color); border-radius: var(--border-radius-sm);"></div>
-                        <div style="width: 40px; height: 95%; background: var(--success-color); border-radius: var(--border-radius-sm);"></div>
-                        <div style="width: 40px; height: 100%; background: var(--accent-color); border-radius: var(--border-radius-sm);"></div>
-                        <div style="width: 40px; height: 85%; background: var(--accent-color); border-radius: var(--border-radius-sm);"></div>
-                    </div>
-                    <div style="margin-top: 20px; color: var(--text-secondary); font-size: 0.875rem;">
-                        Mejora en rango de movimiento (grados)
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    // 29. Función para actualizar gráficos con datos reales
-    async function updateChartsWithRealData() {
-        try {
-            const response = await fetch('/api/progreso/graficos');
-            const result = await response.json();
-            
-            if (result.success) {
-                // Actualizar gráficos con datos reales
-                console.log('Datos de gráficos cargados:', result.data);
-                
-                // Simular actualización de gráficos
-                simulateChartData();
-            }
-        } catch (error) {
-            console.error('Error al cargar datos de gráficos:', error);
-            // Mostrar gráficos simulados si hay error
-            simulateChartData();
-        }
+        alert('Función de configuración de alertas');
     }
 </script>
 </body>
