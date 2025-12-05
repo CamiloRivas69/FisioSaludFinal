@@ -1745,13 +1745,19 @@
         }
         
         // Cargar servicios desde la API
+        // En cita.html, actualiza la función loadServices para manejar el nuevo formato:
         async function loadServices() {
             try {
                 const response = await fetch('/api/servicios-terapia');
                 const data = await response.json();
                 
                 if (data.servicios && data.servicios.length > 0) {
-                    renderServices(data.servicios);
+                    // Asegurarse que los precios sean números
+                    const servicios = data.servicios.map(servicio => ({
+                        ...servicio,
+                        precio: parseFloat(servicio.precio) || 0
+                    }));
+                    renderServices(servicios);
                 } else {
                     serviceOptionsContainer.innerHTML = `
                         <div class="no-services">

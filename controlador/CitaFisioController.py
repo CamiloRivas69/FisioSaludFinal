@@ -323,4 +323,100 @@ class CitaFisioController:
                 }
             )
     
-
+    @staticmethod
+    async def cancelar_cita_con_motivo(request: Request, cita_id: str):
+        """
+        API endpoint para cancelar una cita con motivo específico
+        """
+        try:
+            # VERIFICAR SESIÓN
+            fisioterapeuta = request.session.get('fisioterapeuta')
+            
+            if not fisioterapeuta or not fisioterapeuta.get('logged_in'):
+                return JSONResponse(
+                    status_code=401,
+                    content={
+                        "success": False,
+                        "error": "No autorizado - Inicie sesión primero"
+                    }
+                )
+            
+            # Obtener datos del body
+            try:
+                body = await request.json()
+                motivo = body.get('motivo')  # 'solapamiento', 'razon_peso', 'finalizacion_terapia'
+                detalles = body.get('detalles', '')
+            except:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "success": False,
+                        "error": "Formato JSON inválido"
+                    }
+                )
+            
+            # Validar motivo
+            motivos_validos = ['solapamiento', 'razon_peso', 'finalizacion_terapia']
+            if motivo not in motivos_validos:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "success": False,
+                        "error": f"Motivo no válido. Use: {', '.join(motivos_validos)}"
+                    }
+                )
+            
+            # Obtener nombre del terapeuta
+            terapeuta_actual = fisioterapeuta.get('nombre_completo')
+            
+            print(f"🔄 Cancelando cita {cita_id} - Motivo: {motivo}")
+            print(f"📝 Detalles: {detalles}")
+            print(f"👨‍⚕️ Terapeuta: {terapeuta_actual}")
+            
+            # Llamar al modelo para cancelar con motivo
+            resultado = CitaFisioModel.cancelar_cita_con_motivo(
+                cita_id=cita_id,
+                terapeuta_nombre=terapeuta_actual,
+                motivo_cancelacion=motivo,
+                detalles_adicionales=detalles
+            )
+            
+            if resultado.get('success'):
+                mensaje_respuesta = resultado.get('message', 'Cita cancelada')
+                
+                # Añadir info específica según motivo
+                if motivo == 'finalizacion_terapia':
+                    mensaje_respuesta += " Se ha enviado el correo de felicitación."
+                elif motivo == 'solapamiento':
+                    mensaje_respuesta += " Se ha ofrecido descuento para reprogramación."
+                
+                return JSONResponse(
+                    content={
+                        "success": True,
+                        "message": mensaje_respuesta,
+                        "accion": resultado.get('accion'),
+                        "motivo": motivo,
+                        "correo_enviado": resultado.get('correo_enviado'),
+                        "data": resultado.get('datos_cita')
+                    }
+                )
+            else:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "success": False,
+                        "error": resultado.get('error', 'Error desconocido')
+                    }
+                )
+            
+        except Exception as e:
+            print(f"❌ Error en API de cancelación con motivo: {e}")
+            import traceback
+            traceback.print_exc()
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": f"Error interno del servidor: {str(e)}"
+                }
+            )

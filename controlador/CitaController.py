@@ -1,5 +1,7 @@
 from fastapi import Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
+from modelo import EmailModel
+from modelo.EmailModel import EmailModel
 from modelo.CitaModel import CitaModel
 from typing import Optional
 import json
@@ -38,16 +40,40 @@ class CitaController:
 
     @staticmethod
     async def obtener_servicios_api(request: Request):
-        """API endpoint para obtener servicios de terapia"""
+        """API endpoint para obtener servicios de terapia (serializable a JSON)"""
         try:
             servicios = CitaModel.obtener_servicios_terapia()
-            return JSONResponse(content={"servicios": servicios})
+            
+            # Formatear para JSON serializable
+            servicios_formateados = []
+            for servicio in servicios:
+                servicio_formateado = {
+                    'codigo': servicio.get('codigo', ''),
+                    'nombre': servicio.get('nombre', ''),
+                    'descripcion': servicio.get('descripcion', ''),
+                    'terapeuta_disponible': servicio.get('terapeuta_disponible', ''),
+                    'inicio_jornada': servicio.get('inicio_jornada', ''),
+                    'final_jornada': servicio.get('final_jornada', ''),
+                    'duracion': servicio.get('duracion', ''),
+                    'modalidad': servicio.get('modalidad', ''),
+                    'precio': float(servicio.get('precio', 0)),  # Asegurar float
+                    'beneficios': servicio.get('beneficios', ''),
+                    'recomendacion_precita': servicio.get('recomendacion_precita', ''),
+                    'condiciones_tratar': servicio.get('condiciones_tratar', ''),
+                    'requisitos': servicio.get('requisitos', ''),
+                    'consideraciones': servicio.get('consideraciones', '')
+                }
+                servicios_formateados.append(servicio_formateado)
+            
+            return JSONResponse(content={"servicios": servicios_formateados})
             
         except Exception as e:
             print(f"Error en API de servicios: {e}")
+            import traceback
+            traceback.print_exc()
             return JSONResponse(
                 status_code=500,
-                content={"error": "Error al obtener servicios"}
+                content={"error": "Error al obtener servicios", "detalle": str(e)}
             )
 
     @staticmethod
@@ -104,7 +130,17 @@ class CitaController:
                     content={"success": False, "error": "El horario seleccionado no está disponible para este terapeuta"}
                 )
             
-            # 2. CREAR LA CITA
+            # 2. OBTENER INFORMACIÓN COMPLETA DEL SERVICIO
+            servicios = CitaModel.obtener_servicios_terapia()
+            servicio_info = next((s for s in servicios if s['nombre'] == servicio), None)
+            
+            if not servicio_info:
+                return JSONResponse(
+                    status_code=400,
+                    content={"success": False, "error": "Servicio no encontrado"}
+                )
+            
+            # 3. CREAR LA CITA
             datos_cita = {
                 'servicio': servicio,
                 'terapeuta_designado': terapeuta_designado,
@@ -126,7 +162,7 @@ class CitaController:
                     content={"success": False, "error": "Error al crear la cita en el sistema"}
                 )
             
-            # 3. CREAR ACUDIENTE SI EXISTE
+            # 4. CREAR ACUDIENTE SI EXISTE
             acudiente_creado = False
             if acudiente_nombre and acudiente_id:
                 datos_acudiente = {
@@ -140,19 +176,58 @@ class CitaController:
                 if not acudiente_creado:
                     print(f"Advertencia: No se pudo crear el acudiente para la cita {codigo_cita}")
             
-            # 4. PROCESAR EMAILS ADICIONALES
-            emails_list = []
+            # 5. PROCESAR EMAILS ADICIONALES PARA ENVÍO
+            emails_list = [correo]  # Siempre enviar al email principal
+            
             if emails_adicionales:
                 try:
                     emails_data = json.loads(emails_adicionales)
                     if isinstance(emails_data, list):
-                        emails_list = [email for email in emails_data if email.strip()]
+                        emails_list.extend([email for email in emails_data if email.strip()])
                 except json.JSONDecodeError:
                     # Si no es JSON válido, tratar como string simple
                     if emails_adicionales.strip():
-                        emails_list = [emails_adicionales.strip()]
+                        emails_list.append(emails_adicionales.strip())
             
-            # 5. RESPUESTA EXITOSA
+            # Agregar email del acudiente si existe
+            if acudiente_correo and acudiente_correo.strip():
+                emails_list.append(acudiente_correo.strip())
+            
+            # Eliminar duplicados
+            emails_list = list(set([e for e in emails_list if e]))
+            
+            # 6. ENVIAR CORREOS DE CONFIRMACIÓN
+            resultados_envio = []
+            if emails_list and len(emails_list) > 0:
+                print(f"Preparando envío de correos a: {emails_list}")
+                
+                # Preparar datos para el correo
+                datos_correo = {
+                    'codigo_cita': codigo_cita,
+                    'nombre_paciente': nombre_paciente,
+                    'servicio': servicio,
+                    'terapeuta_designado': terapeuta_designado,
+                    'fecha_cita': fecha_cita,
+                    'hora_cita': hora_cita,
+                    'precio': servicio_info.get('precio', 'Consultar'),
+                    'modalidad': servicio_info.get('modalidad', 'Presencial'),
+                    'notas_adicionales': notas_adicionales or 'Ninguna',
+                    'tipo_pago': tipo_pago,
+                    'recomendaciones_precita': servicio_info.get('recomendacion_precita', '')
+                }
+                
+                # Enviar correos usando EmailModel
+                try:
+                    resultado = EmailModel.enviar_correo_confirmacion_cita(datos_correo, emails_list)
+                    resultados_envio = resultado.get('detalles', [])
+                    print(f"Resultado envío correos: {resultado}")
+                except Exception as email_error:
+                    print(f"Error enviando correos: {email_error}")
+                    resultados_envio = [{"email": email, "estado": "error", "error": str(email_error)} for email in emails_list]
+            else:
+                print("No hay emails para enviar")
+            
+            # 7. RESPUESTA EXITOSA
             response_data = {
                 "success": True,
                 "message": "Cita agendada exitosamente",
@@ -163,18 +238,29 @@ class CitaController:
                     "terapeuta_designado": terapeuta_designado,
                     "fecha_cita": fecha_cita,
                     "hora_cita": hora_cita,
-                    "nombre_paciente": nombre_paciente
+                    "nombre_paciente": nombre_paciente,
+                    "precio": servicio_info.get('precio', 'Consultar'),
+                    "modalidad": servicio_info.get('modalidad', 'Presencial')
                 },
                 "acudiente_creado": acudiente_creado,
-                "emails_adicionales": emails_list
+                "correos_enviados": {
+                    "total": len([r for r in resultados_envio if isinstance(r, dict) and r.get("estado") == "enviado"]),
+                    "detalles": resultados_envio
+                }
             }
             
             print(f"Cita agendada exitosamente por usuario: {codigo_cita}")
+            print(f"Correos a enviar: {emails_list}")
+            
             return JSONResponse(content=response_data)
             
         except Exception as e:
             print(f"Error al agendar cita: {e}")
+            import traceback
+            traceback.print_exc()
             return JSONResponse(
                 status_code=500,
                 content={"success": False, "error": "Error interno del servidor al procesar la cita"}
             )
+    
+    

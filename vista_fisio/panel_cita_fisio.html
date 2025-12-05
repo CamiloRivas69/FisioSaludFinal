@@ -1901,15 +1901,143 @@
         );
     }
 
-    function cancelAppointment(citaId) {
-        console.log(`❌ Solicitando cancelación de cita: ${citaId}`);
-        currentCitaId = citaId;
-        showConfirmModal(
-            'Cancelar Cita',
-            '¿Está seguro de cancelar esta cita? Esta acción eliminará permanentemente la cita.',
-            'cancelarCita'
-        );
+    async function cancelAppointment(citaId) {
+    // Mostrar modal para seleccionar motivo
+    const modalHTML = `
+        <div class="modal active" id="motivoCancelacionModal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">Cancelar Cita</h3>
+                    <button class="modal-close" onclick="closeMotivoModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Seleccione el motivo de cancelación:</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin: 20px 0;">
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; cursor: pointer;">
+                            <input type="radio" name="motivo" value="solapamiento" style="margin: 0;">
+                            <div>
+                                <strong>Solapamiento de citas</strong>
+                                <div style="font-size: 0.85rem; color: var(--gray); margin-top: 4px;">
+                                    Cuando dos citas coinciden en fecha y hora
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; cursor: pointer;">
+                            <input type="radio" name="motivo" value="razon_peso" style="margin: 0;">
+                            <div>
+                                <strong>Razón de mayor peso</strong>
+                                <div style="font-size: 0.85rem; color: var(--gray); margin-top: 4px;">
+                                    Emergencia médica, imposibilidad del terapeuta, etc.
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; cursor: pointer;">
+                            <input type="radio" name="motivo" value="finalizacion_terapia" style="margin: 0;">
+                            <div>
+                                <strong>Finalización de terapia</strong>
+                                <div style="font-size: 0.85rem; color: var(--gray); margin-top: 4px;">
+                                    El paciente ha completado su tratamiento exitosamente
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div id="detallesSection" style="display: none;">
+                        <label for="detallesInput">Detalles adicionales (opcional):</label>
+                        <textarea id="detallesInput" class="filter-input" rows="3" 
+                                  placeholder="Explique brevemente el motivo..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="closeMotivoModal()">Cancelar</button>
+                    <button class="btn btn-danger" onclick="confirmarCancelacionConMotivo('${citaId}')">
+                        <i class="fas fa-ban"></i> Cancelar Cita
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Insertar modal en el DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Agregar listener para mostrar/ocultar detalles
+    document.querySelectorAll('input[name="motivo"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const detallesSection = document.getElementById('detallesSection');
+            detallesSection.style.display = this.value === 'razon_peso' ? 'block' : 'none';
+        });
+    });
+}
+
+    
+
+    async function confirmarCancelacionConMotivo(citaId) {
+    const motivoSeleccionado = document.querySelector('input[name="motivo"]:checked');
+    const detallesInput = document.getElementById('detallesInput');
+    
+    if (!motivoSeleccionado) {
+        showNotification('Por favor seleccione un motivo de cancelación', 'warning');
+        return;
     }
+    
+    const motivo = motivoSeleccionado.value;
+    const detalles = detallesInput ? detallesInput.value : '';
+    
+    // Mostrar confirmación final
+    const titulo = motivo === 'finalizacion_terapia' ? 'Finalizar Terapia' : 'Cancelar Cita';
+    const mensaje = motivo === 'finalizacion_terapia' 
+        ? '¿Está seguro de marcar esta terapia como completada? Se enviará un correo de felicitación al paciente.'
+        : '¿Está seguro de cancelar esta cita? ' + 
+          (motivo === 'solapamiento' ? 'Se ofrecerá descuento para reprogramación.' : '');
+    
+    currentCitaId = citaId;
+    showConfirmModal(titulo, mensaje, 'procesarCancelacionConMotivo');
+    
+    // Guardar datos para usar en la confirmación
+    window.cancelacionData = { citaId, motivo, detalles };
+    }
+    async function procesarCancelacionConMotivo() {
+    const { citaId, motivo, detalles } = window.cancelacionData;
+    
+    try {
+        const response = await fetch(`/api/citas-fisio/${citaId}/cancelar-con-motivo`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                motivo: motivo, 
+                detalles: detalles 
+            })
+        });
+        
+        const data = await response.json();
+        console.log('📡 Respuesta cancelación:', data);
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            // Cerrar modales
+            closeConfirmModal();
+            closeMotivoModal();
+            
+            // Recargar datos
+            setTimeout(() => {
+                loadAppointments();
+                loadStatistics();
+            }, 1000);
+        } else {
+            showNotification('Error: ' + data.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error de conexión con el servidor', 'error');
+    }
+}
 
     async function confirmarCita() {
         if (!currentCitaId) {
@@ -2247,6 +2375,10 @@
     function closeConfirmModal() {
         document.getElementById('confirmModal').classList.remove('active');
         currentCitaId = null;
+    }
+    function closeMotivoModal() {
+    const modal = document.getElementById('motivoCancelacionModal');
+    if (modal) modal.remove();
     }
 
     function showDetailModal(cita) {

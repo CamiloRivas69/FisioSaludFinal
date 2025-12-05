@@ -506,3 +506,209 @@ class CitaFisioModel:
         finally:
             if connection:
                 connection.close()
+    
+
+    @staticmethod
+    def cancelar_cita_con_motivo(cita_id: str, terapeuta_nombre: str, 
+                                motivo_cancelacion: str, detalles_adicionales: str = "") -> Dict[str, Any]:
+        """
+        Cancela una cita con motivo específico y envía correo si corresponde
+        VERSIÓN CORREGIDA para tu estructura actual
+        """
+        connection = CitaFisioModel.get_db_connection()
+        if not connection:
+            return {'success': False, 'error': 'Error de conexión a BD'}
+        
+        try:
+            with connection.cursor() as cursor:
+                # 1. Verificar que la cita existe y pertenece al terapeuta
+                sql_verificar = """
+                SELECT c.*, u.correo as email_paciente
+                FROM cita c
+                LEFT JOIN usuario u ON c.correo = u.correo
+                WHERE c.cita_id = %s AND c.terapeuta_designado = %s
+                """
+                cursor.execute(sql_verificar, (cita_id, terapeuta_nombre))
+                cita_existente = cursor.fetchone()
+                
+                if not cita_existente:
+                    return {
+                        'success': False, 
+                        'error': 'Cita no encontrada o no tienes permiso para modificarla'
+                    }
+                
+                # 2. Verificar si existe paciente relacionado
+                sql_verificar_paciente = """
+                SELECT codigo_cita, ID_usuario 
+                FROM paciente 
+                WHERE codigo_cita = %s
+                """
+                cursor.execute(sql_verificar_paciente, (cita_id,))
+                paciente_existente = cursor.fetchone()
+                
+                # 3. Obtener datos para el correo
+                email_paciente = cita_existente.get('email_paciente')
+                nombre_paciente = cita_existente.get('nombre_paciente')
+                servicio = cita_existente.get('servicio')
+                fecha_cita = cita_existente.get('fecha_cita')
+                hora_cita = cita_existente.get('hora_cita')
+                usuario_id = paciente_existente.get('ID_usuario') if paciente_existente else None
+                
+                print(f"📋 Datos obtenidos:")
+                print(f"  - Cita: {cita_id}, Paciente: {nombre_paciente}")
+                print(f"  - Paciente en BD: {'SÍ' if paciente_existente else 'NO'}")
+                print(f"  - Usuario ID: {usuario_id}")
+                print(f"  - Email: {email_paciente}")
+                
+                # 4. Registrar en tabla de cancelaciones
+                try:
+                    sql_registrar_cancelacion = """
+                    INSERT INTO cancelaciones_citas (
+                        cita_id, terapeuta, paciente, servicio, fecha_programada,
+                        hora_programada, motivo_cancelacion, detalles_adicionales,
+                        fecha_cancelacion
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                    """
+                    cursor.execute(sql_registrar_cancelacion, (
+                        cita_id, terapeuta_nombre, nombre_paciente, servicio,
+                        fecha_cita, hora_cita, motivo_cancelacion, detalles_adicionales
+                    ))
+                    print("✅ Registro de cancelación creado")
+                except Exception as e:
+                    print(f"⚠️ Error registrando cancelación (tal vez la tabla no existe): {e}")
+                    # Si la tabla no existe, solo continuar
+                    pass
+                
+                # 5. ELIMINAR EN ORDEN CORRECTO
+                
+                # 5.1. PRIMERO: Eliminar acudiente si existe
+                try:
+                    # Primero obtener ID_acudiente si existe
+                    sql_obtener_acudiente = """
+                    SELECT ID_acudiente FROM paciente WHERE codigo_cita = %s
+                    """
+                    cursor.execute(sql_obtener_acudiente, (cita_id,))
+                    paciente_data = cursor.fetchone()
+                    
+                    if paciente_data and paciente_data.get('ID_acudiente'):
+                        # Eliminar acudiente
+                        sql_eliminar_acudiente = "DELETE FROM acudiente WHERE ID_acudiente = %s"
+                        cursor.execute(sql_eliminar_acudiente, (paciente_data['ID_acudiente'],))
+                        print(f"✅ Eliminado acudiente ID: {paciente_data['ID_acudiente']}")
+                    
+                    # También intentar eliminar por ID_cita por si acaso
+                    sql_eliminar_acudiente_directo = "DELETE FROM acudiente WHERE ID_cita = %s"
+                    cursor.execute(sql_eliminar_acudiente_directo, (cita_id,))
+                    
+                except Exception as e:
+                    print(f"⚠️ Error eliminando acudiente: {e}")
+                
+                # 5.2. SEGUNDO: Anular relación acudiente en paciente (si existe)
+                try:
+                    if paciente_existente:
+                        sql_anular_acudiente = """
+                        UPDATE paciente 
+                        SET ID_acudiente = NULL 
+                        WHERE codigo_cita = %s
+                        """
+                        cursor.execute(sql_anular_acudiente, (cita_id,))
+                        print("✅ Relación acudiente anulada")
+                except Exception as e:
+                    print(f"⚠️ Error anulando acudiente: {e}")
+                
+                # 5.3. TERCERO: Eliminar paciente SI EXISTE (ANTES de la cita)
+                if paciente_existente:
+                    try:
+                        sql_eliminar_paciente = "DELETE FROM paciente WHERE codigo_cita = %s"
+                        cursor.execute(sql_eliminar_paciente, (cita_id,))
+                        print(f"✅ Eliminado paciente con codigo_cita {cita_id}")
+                        
+                        # Verificar y eliminar usuario si no tiene más pacientes
+                        if usuario_id:
+                            sql_verificar_usuario = """
+                            SELECT COUNT(*) as total_pacientes
+                            FROM paciente 
+                            WHERE ID_usuario = %s
+                            """
+                            cursor.execute(sql_verificar_usuario, (usuario_id,))
+                            usuario_info = cursor.fetchone()
+                            
+                            if usuario_info and usuario_info['total_pacientes'] == 0:
+                                sql_eliminar_usuario = "DELETE FROM usuario WHERE ID = %s"
+                                cursor.execute(sql_eliminar_usuario, (usuario_id,))
+                                print(f"✅ Eliminado usuario {usuario_id} sin pacientes restantes")
+                                
+                    except Exception as e:
+                        print(f"❌ Error eliminando paciente: {e}")
+                        connection.rollback()
+                        return {
+                            'success': False,
+                            'error': f'Error eliminando paciente: {str(e)}'
+                        }
+                
+                # 5.4. CUARTO: Eliminar cita (AHORA SÍ, después de eliminar dependencias)
+                try:
+                    sql_eliminar_cita = "DELETE FROM cita WHERE cita_id = %s"
+                    cursor.execute(sql_eliminar_cita, (cita_id,))
+                    print(f"✅ Eliminada cita {cita_id}")
+                except Exception as e:
+                    print(f"❌ Error eliminando cita: {e}")
+                    connection.rollback()
+                    return {
+                        'success': False,
+                        'error': f'Error eliminando cita: {str(e)}'
+                    }
+                
+                connection.commit()
+                print(f"✅ Commit realizado - Transacción exitosa")
+                
+                # 6. Preparar datos para el correo
+                datos_correo = {
+                    'cita_id': cita_id,
+                    'nombre_paciente': nombre_paciente,
+                    'servicio': servicio,
+                    'fecha_cita': fecha_cita,
+                    'hora_cita': hora_cita,
+                    'terapeuta_designado': terapeuta_nombre,
+                    'motivo_cancelacion': motivo_cancelacion,
+                    'detalles_adicionales': detalles_adicionales
+                }
+                
+                # 7. Enviar correo si hay email del paciente
+                resultado_correo = {'enviado': False}
+                if email_paciente:
+                    try:
+                        from modelo.EmailModel import EmailModel
+                        resultado_correo = EmailModel.enviar_correo_cancelacion_cita(
+                            datos_cita=datos_correo,
+                            emails_destinatarios=[email_paciente],
+                            motivo_cancelacion=motivo_cancelacion,
+                            detalles_adicionales=detalles_adicionales
+                        )
+                        print(f"📧 Resultado envío correo: {resultado_correo.get('exitosos', 0)} exitosos")
+                    except Exception as e:
+                        print(f"⚠️ Error enviando correo: {e}")
+                
+                return {
+                    'success': True,
+                    'message': 'Cita cancelada correctamente',
+                    'accion': 'cancelada_con_motivo',
+                    'datos_cita': datos_correo,
+                    'correo_enviado': resultado_correo.get('exitosos', 0) > 0,
+                    'motivo': motivo_cancelacion,
+                    'paciente_eliminado': paciente_existente is not None
+                }
+                
+        except Exception as e:
+            print(f"❌ Error al cancelar cita con motivo: {e}")
+            import traceback
+            traceback.print_exc()
+            if connection:
+                connection.rollback()
+            return {
+                'success': False,
+                'error': f'Error interno: {str(e)}'
+            }
+        finally:
+            if connection:
+                connection.close()

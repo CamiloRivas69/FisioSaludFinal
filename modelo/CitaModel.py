@@ -228,7 +228,7 @@ class CitaModel:
     
     @staticmethod
     def obtener_servicios_terapia() -> List[Dict[str, Any]]:
-        """Obtiene todos los servicios de terapia disponibles"""
+        """Obtiene todos los servicios de terapia disponibles incluyendo recomendaciones"""
         conn = get_db_connection()
         if conn is None:
             return []
@@ -237,8 +237,9 @@ class CitaModel:
             with conn.cursor() as cursor:
                 sql = """
                 SELECT codigo, nombre, descripcion, terapeuta_disponible, 
-                       inicio_jornada, final_jornada, duracion, modalidad, 
-                       precio, beneficios
+                    inicio_jornada, final_jornada, duracion, modalidad, 
+                    precio, beneficios, recomendacion_precita,
+                    condiciones_tratar, requisitos, consideraciones
                 FROM servicio_terapia 
                 WHERE codigo IS NOT NULL
                 """
@@ -250,24 +251,67 @@ class CitaModel:
                 for servicio in servicios:
                     servicio_dict = dict(servicio)
                     
-                    # Convertir timedelta a string legible
-                    if isinstance(servicio_dict.get('duracion'), timedelta):
-                        total_minutes = servicio_dict['duracion'].total_seconds() / 60
-                        horas = int(total_minutes // 60)
-                        minutos = int(total_minutes % 60)
-                        if horas > 0:
-                            servicio_dict['duracion'] = f"{horas}h {minutos}min"
-                        else:
-                            servicio_dict['duracion'] = f"{minutos} min"
+                    # CORRECCIÓN: Manejar duración (puede ser int, timedelta, o None)
+                    duracion = servicio_dict.get('duracion')
+                    if isinstance(duracion, timedelta):
+                        # Convertir timedelta a minutos enteros
+                        total_minutes = int(duracion.total_seconds() / 60)
+                    elif isinstance(duracion, (int, float)):
+                        total_minutes = int(duracion)
+                    else:
+                        total_minutes = 0
                     
-                    # Convertir time a string
+                    # Formatear duración como string
+                    horas = total_minutes // 60
+                    minutos = total_minutes % 60
+                    if horas > 0:
+                        servicio_dict['duracion'] = f"{horas}h {minutos}min"
+                    elif minutos > 0:
+                        servicio_dict['duracion'] = f"{minutos} min"
+                    else:
+                        servicio_dict['duracion'] = "No especificada"
+                    
+                    # CORRECCIÓN: Convertir time objects a strings
                     for time_field in ['inicio_jornada', 'final_jornada']:
-                        if servicio_dict.get(time_field):
-                            servicio_dict[time_field] = str(servicio_dict[time_field])
+                        time_val = servicio_dict.get(time_field)
+                        if time_val:
+                            if hasattr(time_val, 'strftime'):
+                                servicio_dict[time_field] = time_val.strftime('%H:%M')
+                            elif isinstance(time_val, str):
+                                # Ya es string, mantenerlo
+                                pass
+                            else:
+                                servicio_dict[time_field] = str(time_val)
                     
                     # Asegurar que el precio sea float
-                    if servicio_dict.get('precio'):
-                        servicio_dict['precio'] = float(servicio_dict['precio'])
+                    if servicio_dict.get('precio') is not None:
+                        try:
+                            servicio_dict['precio'] = float(servicio_dict['precio'])
+                        except (ValueError, TypeError):
+                            servicio_dict['precio'] = 0.0
+                    else:
+                        servicio_dict['precio'] = 0.0
+                    
+                    # Procesar recomendaciones precita (puede ser None)
+                    recomendaciones = servicio_dict.get('recomendacion_precita')
+                    if recomendaciones:
+                        if isinstance(recomendaciones, str):
+                            # Limpiar y formatear
+                            recomendaciones = recomendaciones.strip()
+                            # Separar por puntos si es un texto largo
+                            if len(recomendaciones) > 100 and '.' in recomendaciones:
+                                recomendaciones = recomendaciones.replace('. ', '.<br>• ')
+                                recomendaciones = '• ' + recomendaciones
+                            servicio_dict['recomendacion_precita'] = recomendaciones
+                    else:
+                        servicio_dict['recomendacion_precita'] = ""
+                    
+                    # Asegurar que todos los campos de texto sean strings
+                    campos_texto = ['descripcion', 'beneficios', 'condiciones_tratar', 
+                                'requisitos', 'consideraciones', 'terapeuta_disponible']
+                    for campo in campos_texto:
+                        if servicio_dict.get(campo) is None:
+                            servicio_dict[campo] = ""
                     
                     servicios_formateados.append(servicio_dict)
                 
@@ -275,6 +319,8 @@ class CitaModel:
                 
         except Exception as e:
             print(f"Error al obtener servicios de terapia: {e}")
+            import traceback
+            traceback.print_exc()
             return []
         finally:
             close_db_connection(conn)
@@ -492,3 +538,8 @@ class CitaModel:
                 print(f"Caché inicializada con código: {estado['siguiente_disponible']}")
         except Exception as e:
             print(f"Error al inicializar caché: {e}")
+
+    
+    
+
+    

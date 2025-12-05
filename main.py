@@ -28,6 +28,8 @@ from modelo import CitaModel
 from modelo.AdministradorModel import AdministradorModel
 from controlador.AdminServicioController import AdminServicioController
 from controlador.AdminCitaController import AdminCitaController
+from controlador.PasswordResetController import PasswordResetController as PRController
+
 
 
 from fastapi import Form, status
@@ -274,7 +276,45 @@ async def validar_acceso(
 ):
     return await AuthController.validar_acceso(request, correo, contraseña)
 
+# Agregar estos endpoints después de los existentes
+@app.get("/olvidar-contrasena", response_class=HTMLResponse)
+async def olvidar_contrasena_page(request: Request):
+    """Muestra el formulario para solicitar reset de contraseña"""
+    # Limpiar mensajes previos
+    success = request.session.pop('success_message', None)
+    error = request.session.pop('error', None)
+    
+    return templates.TemplateResponse("olvidar_contraseña.html", {
+        "request": request,
+        "success_message": success,
+        "error": error
+    })
 
+@app.post("/solicitar-reset", response_class=HTMLResponse)
+async def solicitar_reset_password(
+    request: Request,
+    correo: str = Form(...)
+):
+    # ❌ ELIMINA esta línea dentro de la función:
+    # from controlador.PasswordResetController import PasswordResetController
+    
+    # ✅ USA la importación correcta:
+    return await PRController.solicitar_reset(request, correo)
+
+@app.get("/resetear-contrasena/{token}", response_class=HTMLResponse)
+async def reset_password_page(request: Request, token: str):
+    return await PRController.validar_token_reset(request, token)
+
+@app.post("/actualizar-contrasena", response_class=HTMLResponse)
+async def actualizar_contrasena(
+    request: Request,
+    token: str = Form(...),
+    nueva_contrasena: str = Form(...),
+    confirmar_contrasena: str = Form(...)
+):
+    return await PRController.actualizar_contrasena(
+        request, token, nueva_contrasena, confirmar_contrasena
+    )
 
 
 # ─────────────────────────────────────────────────────────────
@@ -315,64 +355,25 @@ async def pagina_servicios_implementos(request: Request):
 # ─────────────────────────────────────────────────────────────
 # RESTFULL API PARA CITAS
 # ─ ────────────────────────────────────────────────────────────
+@app.get("/agendar-cita", response_class=HTMLResponse)
+async def formulario_cita_page(
+    request: Request,
+    servicio: Optional[str] = None
+):
+    """Muestra el formulario HTML para agendar citas"""
+    return await CitaController.mostrar_formulario_cita(request, servicio)
 
-# API para obtener servicios
+# 2. APIS PARA EL FRONTEND
+
+# 2.1 API para obtener servicios de terapia
 @app.get("/api/servicios-terapia")
 async def obtener_servicios_terapia_api(request: Request):
+    """API para obtener todos los servicios de terapia disponibles"""
     return await CitaController.obtener_servicios_api(request)
 
-# API para agendar cita - USUARIO (pool FS-0001 a FS-0500)
-@app.post("/api/agendar-cita")
-async def agendar_cita_api(
-    request: Request,
-    servicio: str = Form(...),
-    terapeuta_designado: str = Form(...),
-    nombre_paciente: str = Form(...),
-    telefono: str = Form(...),
-    correo: str = Form(...),
-    fecha_cita: str = Form(...),
-    hora_cita: str = Form(...),
-    tipo_pago: str = Form(...),
-    notas_adicionales: Optional[str] = Form(None),
-    acudiente_nombre: Optional[str] = Form(None),
-    acudiente_id: Optional[str] = Form(None),
-    acudiente_telefono: Optional[str] = Form(None),
-    acudiente_correo: Optional[str] = Form(None),
-    emails_adicionales: Optional[str] = Form(None)
-):
-    return await CitaController.agendar_cita(
-        request=request,
-        servicio=servicio,
-        terapeuta_designado=terapeuta_designado,
-        nombre_paciente=nombre_paciente,
-        telefono=telefono,
-        correo=correo,
-        fecha_cita=fecha_cita,
-        hora_cita=hora_cita,
-        notas_adicionales=notas_adicionales,
-        tipo_pago=tipo_pago,
-        acudiente_nombre=acudiente_nombre,
-        acudiente_id=acudiente_id,
-        acudiente_telefono=acudiente_telefono,
-        acudiente_correo=acudiente_correo,
-        emails_adicionales=emails_adicionales
-    )
 
-# API para verificar estado del pool de códigos
-@app.get("/api/estado-pool-citas")
-async def verificar_pool_codigos_api(request: Request):
-    """Verifica el estado del pool de códigos FS-0001 a FS-0500"""
-    try:
-        estado = CitaModel.verificar_estado_pool_usuario()
-        return JSONResponse(content=estado)
-    except Exception as e:
-        print(f"Error al verificar pool: {e}")
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Error al verificar pool de códigos"}
-        )
 
-# API para obtener terapeutas
+# 2.2 API para obtener información de terapeutas
 @app.get("/api/terapeutas")
 async def obtener_terapeutas_api(request: Request):
     """API endpoint para obtener información de terapeutas"""
@@ -402,6 +403,311 @@ async def obtener_terapeutas_api(request: Request):
         return JSONResponse(
             status_code=500,
             content={"error": "Error al obtener información de terapeutas"}
+        )
+
+# 2.3 API para agendar cita - USUARIO (pool FS-0001 a FS-0500)
+@app.post("/api/agendar-cita")
+async def agendar_cita_api(
+    request: Request,
+    servicio: str = Form(...),
+    terapeuta_designado: str = Form(...),
+    nombre_paciente: str = Form(...),
+    telefono: str = Form(...),
+    correo: str = Form(...),
+    fecha_cita: str = Form(...),
+    hora_cita: str = Form(...),
+    tipo_pago: str = Form(...),
+    notas_adicionales: Optional[str] = Form(None),
+    acudiente_nombre: Optional[str] = Form(None),
+    acudiente_id: Optional[str] = Form(None),
+    acudiente_telefono: Optional[str] = Form(None),
+    acudiente_correo: Optional[str] = Form(None),
+    emails_adicionales: Optional[str] = Form(None)
+):
+    """API para agendar una nueva cita (usuario autogestionado)"""
+    return await CitaController.agendar_cita(
+        request=request,
+        servicio=servicio,
+        terapeuta_designado=terapeuta_designado,
+        nombre_paciente=nombre_paciente,
+        telefono=telefono,
+        correo=correo,
+        fecha_cita=fecha_cita,
+        hora_cita=hora_cita,
+        notas_adicionales=notas_adicionales,
+        tipo_pago=tipo_pago,
+        acudiente_nombre=acudiente_nombre,
+        acudiente_id=acudiente_id,
+        acudiente_telefono=acudiente_telefono,
+        acudiente_correo=acudiente_correo,
+        emails_adicionales=emails_adicionales
+    )
+
+# 2.4 API para agendar cita - ADMINISTRADOR (pool FS-0501 a FS-1000)
+@app.post("/api/agendar-cita-admin")
+async def agendar_cita_admin_api(
+    request: Request,
+    servicio: str = Form(...),
+    terapeuta_designado: str = Form(...),
+    nombre_paciente: str = Form(...),
+    telefono: str = Form(...),
+    correo: str = Form(...),
+    fecha_cita: str = Form(...),
+    hora_cita: str = Form(...),
+    tipo_pago: str = Form(...),
+    notas_adicionales: Optional[str] = Form(None),
+    acudiente_nombre: Optional[str] = Form(None),
+    acudiente_id: Optional[str] = Form(None),
+    acudiente_telefono: Optional[str] = Form(None),
+    acudiente_correo: Optional[str] = Form(None),
+    emails_adicionales: Optional[str] = Form(None)
+):
+    """API para agendar cita como administrador (pool diferente)"""
+    try:
+        from controlador.CitaController import CitaController
+        
+        # Datos de la cita
+        datos_cita = {
+            'servicio': servicio,
+            'terapeuta_designado': terapeuta_designado,
+            'nombre_paciente': nombre_paciente,
+            'telefono': telefono,
+            'correo': correo,
+            'fecha_cita': fecha_cita,
+            'hora_cita': hora_cita,
+            'notas_adicionales': notas_adicionales or '',
+            'tipo_pago': tipo_pago
+        }
+        
+        # Usar tipo_usuario = 'admin' para usar pool diferente
+        codigo_cita = CitaModel.crear_cita(datos_cita, tipo_usuario='admin')
+        
+        if not codigo_cita:
+            return JSONResponse(
+                status_code=500,
+                content={"success": False, "error": "Error al crear la cita como administrador"}
+            )
+        
+        # Crear acudiente si existe
+        acudiente_creado = False
+        if acudiente_nombre and acudiente_id:
+            datos_acudiente = {
+                'nombre_completo': acudiente_nombre,
+                'identificacion': acudiente_id,
+                'telefono': acudiente_telefono or '',
+                'correo': acudiente_correo or ''
+            }
+            
+            acudiente_creado = CitaModel.crear_acudiente(codigo_cita, datos_acudiente)
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "Cita agendada exitosamente como administrador",
+            "codigo_cita": codigo_cita,
+            "tipo_usuario": "admin",
+            "acudiente_creado": acudiente_creado
+        })
+        
+    except Exception as e:
+        print(f"Error al agendar cita como admin: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "error": "Error interno del servidor"}
+        )
+
+# 2.5 API para agendar cita - FISIOTERAPEUTA (pool FS-1001 a FS-2000)
+@app.post("/api/agendar-cita-fisio")
+async def agendar_cita_fisio_api(
+    request: Request,
+    servicio: str = Form(...),
+    terapeuta_designado: str = Form(...),
+    nombre_paciente: str = Form(...),
+    telefono: str = Form(...),
+    correo: str = Form(...),
+    fecha_cita: str = Form(...),
+    hora_cita: str = Form(...),
+    tipo_pago: str = Form(...),
+    notas_adicionales: Optional[str] = Form(None),
+    acudiente_nombre: Optional[str] = Form(None),
+    acudiente_id: Optional[str] = Form(None),
+    acudiente_telefono: Optional[str] = Form(None),
+    acudiente_correo: Optional[str] = Form(None),
+    emails_adicionales: Optional[str] = Form(None)
+):
+    """API para agendar cita como fisioterapeuta (pool diferente)"""
+    try:
+        from controlador.CitaController import CitaController
+        
+        # Datos de la cita
+        datos_cita = {
+            'servicio': servicio,
+            'terapeuta_designado': terapeuta_designado,
+            'nombre_paciente': nombre_paciente,
+            'telefono': telefono,
+            'correo': correo,
+            'fecha_cita': fecha_cita,
+            'hora_cita': hora_cita,
+            'notas_adicionales': notas_adicionales or '',
+            'tipo_pago': tipo_pago
+        }
+        
+        # Usar tipo_usuario = 'fisio' para usar pool diferente
+        codigo_cita = CitaModel.crear_cita(datos_cita, tipo_usuario='fisio')
+        
+        if not codigo_cita:
+            return JSONResponse(
+                status_code=500,
+                content={"success": False, "error": "Error al crear la cita como fisioterapeuta"}
+            )
+        
+        # Crear acudiente si existe
+        acudiente_creado = False
+        if acudiente_nombre and acudiente_id:
+            datos_acudiente = {
+                'nombre_completo': acudiente_nombre,
+                'identificacion': acudiente_id,
+                'telefono': acudiente_telefono or '',
+                'correo': acudiente_correo or ''
+            }
+            
+            acudiente_creado = CitaModel.crear_acudiente(codigo_cita, datos_acudiente)
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "Cita agendada exitosamente como fisioterapeuta",
+            "codigo_cita": codigo_cita,
+            "tipo_usuario": "fisio",
+            "acudiente_creado": acudiente_creado
+        })
+        
+    except Exception as e:
+        print(f"Error al agendar cita como fisio: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "error": "Error interno del servidor"}
+        )
+
+# 2.6 API para verificar estado del pool de códigos
+@app.get("/api/estado-pool-citas")
+async def verificar_pool_codigos_api(request: Request):
+    """Verifica el estado del pool de códigos FS-0001 a FS-0500"""
+    try:
+        estado = CitaModel.verificar_estado_pool_usuario()
+        return JSONResponse(content=estado)
+    except Exception as e:
+        print(f"Error al verificar pool: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error al verificar pool de códigos"}
+        )
+
+# 2.7 API para verificar disponibilidad de horario
+@app.get("/api/verificar-disponibilidad")
+async def verificar_disponibilidad_api(
+    request: Request,
+    fecha: str,
+    hora: str,
+    terapeuta: str
+):
+    """Verifica si un horario está disponible para un terapeuta"""
+    try:
+        disponible = CitaModel.verificar_disponibilidad_cita(fecha, hora, terapeuta)
+        return JSONResponse(content={
+            "disponible": disponible,
+            "fecha": fecha,
+            "hora": hora,
+            "terapeuta": terapeuta
+        })
+    except Exception as e:
+        print(f"Error al verificar disponibilidad: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error al verificar disponibilidad"}
+        )
+
+# 2.8 API para obtener detalles de una cita
+@app.get("/api/cita/{codigo_cita}")
+async def obtener_cita_api(request: Request, codigo_cita: str):
+    """Obtiene los detalles de una cita específica"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error de conexión"}
+            )
+        
+        with conn.cursor() as cursor:
+            # Obtener cita
+            sql = """
+            SELECT * FROM cita WHERE cita_id = %s
+            """
+            cursor.execute(sql, (codigo_cita,))
+            cita = cursor.fetchone()
+            
+            if not cita:
+                return JSONResponse(
+                    status_code=404,
+                    content={"error": "Cita no encontrada"}
+                )
+            
+            # Obtener acudiente si existe
+            cursor.execute("SELECT * FROM acudiente WHERE cita_id = %s", (codigo_cita,))
+            acudiente = cursor.fetchone()
+            
+        close_db_connection(conn)
+        
+        return JSONResponse(content={
+            "cita": dict(cita) if cita else None,
+            "acudiente": dict(acudiente) if acudiente else None
+        })
+        
+    except Exception as e:
+        print(f"Error al obtener cita: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error al obtener información de la cita"}
+        )
+
+# 2.9 API para obtener citas por fecha
+@app.get("/api/citas-por-fecha")
+async def obtener_citas_fecha_api(
+    request: Request,
+    fecha: str
+):
+    """Obtiene todas las citas de una fecha específica"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error de conexión"}
+            )
+        
+        with conn.cursor() as cursor:
+            sql = """
+            SELECT cita_id, nombre_paciente, servicio, terapeuta_designado, 
+                   hora_cita, estado, tipo_pago
+            FROM cita 
+            WHERE fecha_cita = %s
+            ORDER BY hora_cita
+            """
+            cursor.execute(sql, (fecha,))
+            citas = cursor.fetchall()
+            
+        close_db_connection(conn)
+        
+        return JSONResponse(content={
+            "fecha": fecha,
+            "total_citas": len(citas),
+            "citas": [dict(cita) for cita in citas]
+        })
+        
+    except Exception as e:
+        print(f"Error al obtener citas por fecha: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error al obtener citas"}
         )
 
 # ─────────────────────────────────────────────────────────────
@@ -867,6 +1173,12 @@ async def panel_citas_fisio(request: Request):
         traceback.print_exc()
         request.session['error'] = 'Error al cargar el panel de citas'
         return RedirectResponse(url="/login-fisio-page", status_code=303)
+    
+
+app.add_api_route("/api/citas-fisio/{cita_id}/cancelar-con-motivo", 
+                 CitaFisioController.cancelar_cita_con_motivo, 
+                 methods=["POST"])
+
 
 # ============================================
 # API ENDPOINTS (JSON)

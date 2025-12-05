@@ -89,7 +89,7 @@ class UsuarioModel:
         except Exception as e:
             print(f"Error al guardar archivo médico: {e}")
             return None
-        
+
     @staticmethod
     def obtener_usuario_por_id(usuario_id):
         """Obtiene un usuario por su ID"""
@@ -109,21 +109,22 @@ class UsuarioModel:
         finally:
             close_db_connection(conn)
 
-@staticmethod
-def obtener_usuario_por_correo(correo):
-    """Obtiene un usuario por su correo"""
-    conn = get_db_connection()
-    if not conn:
-        return None
-    
-    try:
-        with conn.cursor() as cursor:
-            query = "SELECT * FROM usuario WHERE correo = %s"
-            cursor.execute(query, (correo,))
-            user = cursor.fetchone()
-            return user
-    except Exception as e:
-        print(f"Error en modelo obtener_usuario_por_correo: {e}")
-        return None
-    finally:
-        close_db_connection(conn)
+    @staticmethod
+    def obtener_usuario_por_correo(correo):
+        """Obtiene un usuario por su correo"""
+        conn = get_db_connection()
+        if not conn:
+            return None
+        
+        try:
+            with conn.cursor() as cursor:
+                query = "SELECT * FROM usuario WHERE correo = %s"
+                cursor.execute(query, (correo,))
+                user = cursor.fetchone()
+                return user
+        except Exception as e:
+            print(f"❌ Error en modelo obtener_usuario_por_correo: {e}")
+            return None
+        finally:
+            close_db_connection(conn)
+
