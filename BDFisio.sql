@@ -1,4 +1,4 @@
--- --------------------------------------------------------
+`fisiosalud-2`-- --------------------------------------------------------
 -- Host:                         127.0.0.1
 -- Versión del servidor:         10.4.32-MariaDB - mariadb.org binary distribution
 -- SO del servidor:              Win64
@@ -38,12 +38,71 @@ CREATE TABLE IF NOT EXISTS `acudiente` (
 CREATE TABLE IF NOT EXISTS `administrador` (
   `Codigo/ID` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(255) NOT NULL,
-  `ContraseÃ±a` varchar(255) NOT NULL,
+  `Contraseña` varchar(255) NOT NULL,
   `Correo_electronico` varchar(255) NOT NULL,
   PRIMARY KEY (`Codigo/ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=101235 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla fisiosalud-2.administrador: ~0 rows (aproximadamente)
+INSERT INTO `administrador` (`Codigo/ID`, `nombre`, `Contraseña`, `Correo_electronico`) VALUES
+	(101234, 'Mario Corredor ', '1', 'mariocorredor_11@fisio.correo.gmail.com');
+
+-- Volcando estructura para tabla fisiosalud-2.autorizaciones_medicas
+CREATE TABLE IF NOT EXISTS `autorizaciones_medicas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `codigo_autorizacion` varchar(50) DEFAULT NULL,
+  `id_paciente` int(11) DEFAULT NULL,
+  `nombre_paciente` varchar(100) DEFAULT NULL,
+  `correo_paciente` varchar(100) DEFAULT NULL,
+  `telefono_paciente` varchar(20) DEFAULT NULL,
+  `servicio_solicitado` varchar(100) DEFAULT NULL,
+  `tratamiento_especifico` varchar(200) DEFAULT NULL,
+  `diagnostico` text DEFAULT NULL,
+  `notas_adicionales` text DEFAULT NULL,
+  `pdf_original_url` varchar(500) DEFAULT NULL,
+  `pdf_fusionado_url` varchar(500) DEFAULT NULL,
+  `estado` enum('pendiente','revisando','aprobado','rechazado','expirado') DEFAULT 'pendiente',
+  `codigo_temporal` varchar(50) DEFAULT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  `fecha_aprobacion` datetime DEFAULT NULL,
+  `fecha_expiracion` datetime DEFAULT NULL,
+  `id_admin_revisor` int(11) DEFAULT NULL,
+  `notas_revisor` text DEFAULT NULL,
+  `utilizado` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codigo_autorizacion` (`codigo_autorizacion`),
+  UNIQUE KEY `codigo_temporal` (`codigo_temporal`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Volcando datos para la tabla fisiosalud-2.autorizaciones_medicas: ~0 rows (aproximadamente)
+
+-- Volcando estructura para tabla fisiosalud-2.cancelaciones_citas
+CREATE TABLE IF NOT EXISTS `cancelaciones_citas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cita_id` varchar(50) NOT NULL,
+  `terapeuta` varchar(100) NOT NULL,
+  `paciente` varchar(100) NOT NULL,
+  `servicio` varchar(100) NOT NULL,
+  `fecha_programada` date NOT NULL,
+  `hora_programada` time NOT NULL,
+  `motivo_cancelacion` enum('solapamiento','razon_peso','finalizacion_terapia') NOT NULL,
+  `detalles_adicionales` text DEFAULT NULL,
+  `fecha_cancelacion` datetime DEFAULT current_timestamp(),
+  `email_enviado` tinyint(1) DEFAULT 0,
+  `paciente_id_relacionado` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_cita_id` (`cita_id`),
+  KEY `idx_fecha_cancelacion` (`fecha_cancelacion`),
+  KEY `idx_motivo` (`motivo_cancelacion`),
+  KEY `idx_paciente_id` (`paciente_id_relacionado`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Volcando datos para la tabla fisiosalud-2.cancelaciones_citas: ~0 rows (aproximadamente)
+INSERT INTO `cancelaciones_citas` (`id`, `cita_id`, `terapeuta`, `paciente`, `servicio`, `fecha_programada`, `hora_programada`, `motivo_cancelacion`, `detalles_adicionales`, `fecha_cancelacion`, `email_enviado`, `paciente_id_relacionado`) VALUES
+	(3, 'FS-0001', 'Laura Fernández', 'Miguel Gutierrez', 'Masaje Relajante', '2025-12-18', '17:00:00', 'finalizacion_terapia', '', '2025-12-05 05:17:33', 0, NULL),
+	(4, 'FS-0001', 'Laura Fernández', 'Miguel Angel Gutierrez Lopez', 'Masaje Relajante', '2025-12-12', '09:30:00', 'finalizacion_terapia', '', '2025-12-05 05:27:41', 0, NULL),
+	(5, 'FS-0002', 'Laura Fernández', 'Paula Garcia Perez', 'Masaje Relajante', '2025-12-24', '12:00:00', 'solapamiento', '', '2025-12-05 05:40:37', 0, NULL),
+	(6, 'FS-0001', 'Laura Fernández', 'Pepe Garcia', 'Masaje Relajante', '2025-12-19', '15:00:00', 'razon_peso', 'Me mori', '2025-12-05 05:40:59', 0, NULL);
 
 -- Volcando estructura para tabla fisiosalud-2.carrito
 CREATE TABLE IF NOT EXISTS `carrito` (
@@ -56,7 +115,7 @@ CREATE TABLE IF NOT EXISTS `carrito` (
   `actualizado_en` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_usuario_producto_tipo` (`usuario_id`,`producto_id`,`producto_tipo`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla fisiosalud-2.carrito: ~0 rows (aproximadamente)
 
@@ -76,28 +135,36 @@ CREATE TABLE IF NOT EXISTS `cita` (
   PRIMARY KEY (`cita_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Volcando datos para la tabla fisiosalud-2.cita: ~3 rows (aproximadamente)
-INSERT INTO `cita` (`cita_id`, `nombre_paciente`, `servicio`, `terapeuta_designado`, `telefono`, `correo`, `fecha_cita`, `hora_cita`, `notas_adicionales`, `tipo_pago`, `estado`) VALUES
-	('FS-0001', 'Pepe Garcia', 'Drenaje Linfático Manual', 'Claudia Rojas', '3106416355', 'pepe@gmail.com', '2025-12-26', '14:00:00', 'Dolor lumbar', 'transferencia', ''),
-	('FS-0002', 'Pepe Garcia', 'Rehabilitación Post-Quirúrgica', 'Diego López', '3106416355', 'pepe@gmail.com', '2025-12-26', '09:00:00', 'a', 'transferencia', ''),
-	('FS-0003', 'Pepe Garcia', 'Masaje Relajante', 'Laura Fernández', '3106416355', 'pepe@gmail.com', '2025-12-26', '16:00:00', 'xgf', 'tarjeta', '');
+-- Volcando datos para la tabla fisiosalud-2.cita: ~0 rows (aproximadamente)
 
--- Volcando estructura para tabla fisiosalud-2.detalle_compra
-CREATE TABLE IF NOT EXISTS `detalle_compra` (
+-- Volcando estructura para tabla fisiosalud-2.compras_confirmadas
+CREATE TABLE IF NOT EXISTS `compras_confirmadas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
   `orden_id` varchar(255) NOT NULL,
-  `producto_id` int(11) NOT NULL,
+  `fecha_compra` datetime NOT NULL,
+  `total` decimal(10,2) NOT NULL,
+  `estado` enum('pendiente','confirmada','enviada','entregada') DEFAULT 'confirmada',
+  `direccion_envio` text NOT NULL,
+  `ciudad` varchar(255) NOT NULL,
+  `codigo_postal` varchar(20) NOT NULL,
+  `metodo_pago` varchar(255) NOT NULL,
+  `producto_id` varchar(50) NOT NULL,
   `producto_tipo` enum('nutricion','implemento') NOT NULL,
-  `cantidad` int(11) NOT NULL,
-  `precio_unitario` decimal(10,2) NOT NULL,
-  `nombre_producto` varchar(255) DEFAULT NULL,
-  `descripcion_producto` text DEFAULT NULL,
+  `producto_nombre` varchar(255) NOT NULL,
+  `cantidad_total` int(11) NOT NULL,
+  `items_detalle` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`items_detalle`)),
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `orden_id` (`orden_id`),
-  CONSTRAINT `orden_id` FOREIGN KEY (`orden_id`) REFERENCES `historial_compras` (`orden_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  UNIQUE KEY `orden_id` (`orden_id`),
+  KEY `usuario_id` (`usuario_id`),
+  KEY `fecha_compra` (`fecha_compra`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Volcando datos para la tabla fisiosalud-2.detalle_compra: ~0 rows (aproximadamente)
+-- Volcando datos para la tabla fisiosalud-2.compras_confirmadas: ~2 rows (aproximadamente)
+INSERT INTO `compras_confirmadas` (`id`, `usuario_id`, `orden_id`, `fecha_compra`, `total`, `estado`, `direccion_envio`, `ciudad`, `codigo_postal`, `metodo_pago`, `producto_id`, `producto_tipo`, `producto_nombre`, `cantidad_total`, `items_detalle`, `creado_en`) VALUES
+	(1, 1112390178, 'ORD9DE3FFB7E653', '2025-12-03 22:22:27', 205000.00, 'confirmada', 'calle 45 #2130, buga, CP: 123', 'buga', '123', 'debit', 'BD1245', 'nutricion', 'Multivitamínico Completo', 3, '[{"producto_id": "BD1245", "producto_tipo": "nutricion", "nombre": "Multivitam\\u00ednico Completo", "descripcion": "Complejo vitam\\u00ednico y mineral de origen org\\u00e1nico para fortalecer el sistema inmunol\\u00f3gico y optimizar funciones metab\\u00f3licas.", "precio_unitario": 45000.0, "cantidad": 1, "subtotal": 45000.0}, {"producto_id": "AC3311", "producto_tipo": "nutricion", "nombre": "Prote\\u00edna en Polvo", "descripcion": "Prote\\u00edna de suero de leche de alta calidad para recuperaci\\u00f3n muscular y desarrollo de masa magra con m\\u00e1xima biodisponibilidad.", "precio_unitario": 85000.0, "cantidad": 1, "subtotal": 85000.0}, {"producto_id": "BIN8824", "producto_tipo": "nutricion", "nombre": "Batido Nutricional Completo", "descripcion": "Reemplazo de comida completo con balance perfecto de macronutrientes para control de peso y nutrici\\u00f3n optimizada.", "precio_unitario": 75000.0, "cantidad": 1, "subtotal": 75000.0}]', '2025-12-04 03:22:27'),
+	(2, 1112148132, 'ORDCA25756E3E21', '2025-12-04 03:11:48', 75000.00, 'confirmada', 'Calle 15 #4-14, Buga, CP: 123', 'Buga', '123', 'transfer', 'BP5572', 'nutricion', 'Barritas Proteicas', 4, '[{"producto_id": "BP5572", "producto_tipo": "nutricion", "nombre": "Barritas Proteicas", "descripcion": "Snack saludable alto en prote\\u00edna y fibra, perfecto para entre comidas, post-entreno o como complemento nutricional.", "precio_unitario": 25000.0, "cantidad": 3, "subtotal": 75000.0}, {"producto_id": "5903LK", "producto_tipo": "", "nombre": null, "descripcion": null, "precio_unitario": 0, "cantidad": 1, "subtotal": 0}]', '2025-12-04 08:11:48');
 
 -- Volcando estructura para tabla fisiosalud-2.ejercicios
 CREATE TABLE IF NOT EXISTS `ejercicios` (
@@ -171,49 +238,66 @@ CREATE TABLE IF NOT EXISTS `ejercicios_completados` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla fisiosalud-2.ejercicios_completados: ~0 rows (aproximadamente)
+INSERT INTO `ejercicios_completados` (`id`, `ID_usuario`, `codigo_ejercicio`, `fecha_completado`, `feedback`, `nivel_dificultad`, `created_at`) VALUES
+	(0, 1112390178, 1002, '2025-12-02', 'Lol', 'facil', NULL);
 
--- Volcando estructura para tabla fisiosalud-2.historial_compras
-CREATE TABLE IF NOT EXISTS `historial_compras` (
+-- Volcando estructura para tabla fisiosalud-2.logs_solicitudes
+CREATE TABLE IF NOT EXISTS `logs_solicitudes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `usuario_id` int(11) NOT NULL,
-  `orden_id` varchar(255) NOT NULL,
-  `fecha_compra` datetime DEFAULT NULL,
-  `total` decimal(10,2) DEFAULT NULL,
-  `estado` enum('pendiente','confirmada','enviada','entregada') DEFAULT NULL,
-  `direccion_envio` text DEFAULT NULL,
-  `metodo_pago` varchar(255) DEFAULT NULL,
-  `creado_en` timestamp NULL DEFAULT NULL,
+  `id_solicitud` int(11) DEFAULT NULL,
+  `id_admin` int(11) DEFAULT NULL,
+  `accion` varchar(50) DEFAULT NULL,
+  `mensaje` text DEFAULT NULL,
+  `fecha` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `orden_id` (`orden_id`),
-  KEY `usuario_id` (`usuario_id`)
+  KEY `id_solicitud` (`id_solicitud`),
+  KEY `id_admin` (`id_admin`),
+  CONSTRAINT `logs_solicitudes_ibfk_1` FOREIGN KEY (`id_solicitud`) REFERENCES `autorizaciones_medicas` (`id`),
+  CONSTRAINT `logs_solicitudes_ibfk_2` FOREIGN KEY (`id_admin`) REFERENCES `administrador` (`Codigo/ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Volcando datos para la tabla fisiosalud-2.historial_compras: ~0 rows (aproximadamente)
+-- Volcando datos para la tabla fisiosalud-2.logs_solicitudes: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla fisiosalud-2.paciente
 CREATE TABLE IF NOT EXISTS `paciente` (
+  `ID_paciente` int(11) NOT NULL AUTO_INCREMENT,
   `codigo_cita` varchar(50) NOT NULL,
   `ID_usuario` int(11) NOT NULL,
   `nombre_completo` varchar(255) NOT NULL,
-  `ID_acudiente` int(11) NOT NULL,
+  `ID_acudiente` int(11) DEFAULT NULL,
   `historial_medico` text DEFAULT NULL,
   `terapeuta_asignado` varchar(255) DEFAULT NULL,
   `ejercicios_registrados` text DEFAULT NULL,
   `estado_cita` varchar(255) DEFAULT NULL,
-  `reporte` text DEFAULT NULL,
+  `reporte` longblob DEFAULT NULL,
   `fecha_creacion_reporte` date DEFAULT NULL,
   `tipo_plan` varchar(255) DEFAULT NULL,
   `precio_plan` decimal(10,2) DEFAULT NULL,
-  PRIMARY KEY (`codigo_cita`),
+  PRIMARY KEY (`ID_paciente`),
+  UNIQUE KEY `idx_codigo_cita` (`codigo_cita`),
   KEY `FK_paciente_acudiente` (`ID_acudiente`),
   KEY `FK_paciente_usuario` (`ID_usuario`),
   CONSTRAINT `FK_paciente_acudiente` FOREIGN KEY (`ID_acudiente`) REFERENCES `acudiente` (`ID_acudiente`),
-  CONSTRAINT `FK_paciente_usuario` FOREIGN KEY (`ID_usuario`) REFERENCES `usuario` (`ID`),
-  CONSTRAINT `paciente_ibfk_1` FOREIGN KEY (`codigo_cita`) REFERENCES `citas` (`codigo_cita`),
-  CONSTRAINT `paciente_ibfk_2` FOREIGN KEY (`codigo_cita`) REFERENCES `citas` (`cita_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `FK_paciente_usuario` FOREIGN KEY (`ID_usuario`) REFERENCES `usuario` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla fisiosalud-2.paciente: ~0 rows (aproximadamente)
+
+-- Volcando estructura para tabla fisiosalud-2.password_reset_tokens
+CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `expiracion` datetime NOT NULL,
+  `usado` tinyint(1) DEFAULT 0,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_token` (`token`),
+  KEY `idx_usuario_expiracion` (`usuario_id`,`expiracion`),
+  CONSTRAINT `password_reset_tokens_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Volcando datos para la tabla fisiosalud-2.password_reset_tokens: ~5 rows (aproximadamente)
 
 -- Volcando estructura para tabla fisiosalud-2.servicio_implementos
 CREATE TABLE IF NOT EXISTS `servicio_implementos` (
@@ -310,23 +394,24 @@ CREATE TABLE IF NOT EXISTS `servicio_terapia` (
   `precio` decimal(10,2) DEFAULT NULL,
   `consideraciones` text DEFAULT NULL,
   `promedio_sesiones` int(11) DEFAULT NULL,
+  `recomendacion_precita` varchar(3000) DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla fisiosalud-2.servicio_terapia: ~12 rows (aproximadamente)
-INSERT INTO `servicio_terapia` (`codigo`, `nombre`, `descripcion`, `terapeuta_disponible`, `inicio_jornada`, `final_jornada`, `duracion`, `intensidad`, `equipamento`, `modalidad`, `condiciones_tratar`, `requisitos`, `beneficios`, `precio`, `consideraciones`, `promedio_sesiones`) VALUES
-	('12AB34', 'Masaje Relajante', 'Masaje suave diseñado para reducir el estrés, promover la relajación y mejorar la circulación sanguínea.', 'Laura Fernández | Carlos Ríos | Mariana Soto', '08:00:00', '18:00:00', 45, 'Baja', 'Camilla de masaje, aceites esenciales', 'Presencial', 'Estrés, ansiedad, tensión muscular leve, mala circulación', 'Ninguno específico', 'Reducción del estrés y ansiedad, Mejora de la circulación, Alivio de tensiones leves, Promueve el bienestar general', 35000.00, 'Ideal para personas con altos niveles de estrés laboral', 1),
-	('23WE45', 'Terapia de Estiramientos', 'Sesiones guiadas de estiramiento para mejorar flexibilidad, prevenir lesiones y aliviar tensiones.', 'Andrés Gómez | Camila Rojas | Felipe Duarte', '08:00:00', '18:00:00', 50, 'Moderada', 'Colchonetas, bandas elásticas, rodillos de espuma', 'Presencial', 'Rigidez muscular, mala postura, riesgo de lesiones, sedentarismo', 'Ropa cómoda para ejercicio', 'Aumento de la flexibilidad muscular, Mejora de la postura corporal, Prevención de lesiones, Alivio de dolores por sedentarismo', 40000.00, 'Recomendado para personas con trabajos de oficina', 4),
-	('56DF12', 'Rehabilitación Deportiva', 'Programa personalizado para recuperación de lesiones deportivas y mejora del rendimiento físico.', 'Daniela Pérez | Ricardo Ruiz | Sofía Torres', '09:00:00', '19:00:00', 75, 'Moderada-Alta', 'Equipo de fisioterapia, pesas terapéuticas, bosu', 'Presencial', 'Esguinces, lesiones deportivas, recuperación post-lesional', 'Evaluación inicial obligatoria', 'Recuperación de esguinces, Fortalecimiento muscular, Reeducación de la marcha, Prevención de nuevas lesiones', 65000.00, 'Programa personalizado según deporte y lesión', 8),
-	('65AF31', 'Rehabilitación Post-Quirúrgica', 'Programa intensivo de recuperación después de cirugías ortopédicas o procedimientos invasivos.', 'Manuel Quintero | Paula Vargas | Diego López', '09:00:00', '17:00:00', 120, 'Alta', 'Equipo especializado, máquinas de rehabilitación', 'Presencial', 'Post-cirugía ortopédica, reemplazos articulares, reconstrucciones', 'Historial médico completo, coordinación con equipo quirúrgico', 'Seguimiento post-operatorio, Recuperación de movilidad, Manejo del dolor post-quirúrgico, Prevención de complicaciones', 120000.00, 'Requiere supervisión médica constante', 12),
-	('67HH34', 'Punción Seca', 'Técnica especializada donde se insertan agujas finas en puntos gatillo para desactivar contracturas profundas.', 'Lucía Moreno | Santiago Peña', '10:00:00', '17:00:00', 45, 'Alta', 'Agujas estériles, equipo de punción, camilla especial', 'Presencial', 'Puntos gatillo, contracturas profundas, dolor miofascial crónico', 'Evaluación médica previa obligatoria', 'Desactivación de puntos gatillo, Alivio de dolor miofascial, Mejora de movilidad muscular, Resultados inmediatos', 75000.00, 'Técnica invasiva que requiere certificación especial', 3),
-	('67RE23', 'Vendaje Neuromuscular', 'Aplicación de vendas elásticas especiales para facilitar la función muscular y reducir el dolor.', 'Adriana Castro | Julián Rincón', '08:00:00', '18:00:00', 30, 'Baja-Moderada', 'Vendas kinesiológicas, tijeras especiales', 'Presencial', 'Dolor muscular, edema, problemas posturales, apoyo deportivo', 'Evaluación de zona a tratar', 'Alivio del dolor muscular, Mejora de la circulación linfática, Corrección de problemas posturales, Soporte durante la actividad física', 45000.00, 'Las vendas pueden permanecer varios días', 1),
-	('75KE23', 'Terapia Miofascial', 'Técnicas manuales para liberar las restricciones del tejido conectivo y aliviar el dolor crónico.', 'Valeria Martínez | Andrés López', '09:00:00', '19:00:00', 60, 'Moderada', 'Instrumentos de liberación miofascial, rodillos', 'Presencial', 'Adherencias fasciales, dolor crónico, limitación de movilidad', 'Diagnóstico previo recomendado', 'Liberación de adherencias fasciales, Mejora de la movilidad articular, Reducción del dolor crónico, Mejora de la postura', 60000.00, 'Puede causar molestias temporales durante la terapia', 4),
-	('765Q64', 'Terapia Craneosacral', 'Técnica manual suave para evaluar y mejorar el funcionamiento del sistema craneosacral.', 'Luis Castillo | Daniela Cruz', '10:00:00', '16:00:00', 60, 'Baja', 'Camilla especial, ambiente tranquilo', 'Presencial', 'Cefaleas, migrañas, estrés, trastornos del sueño, desequilibrios nerviosos', 'Evaluación previa obligatoria', 'Alivio de cefaleas y migrañas, Reducción del estrés y ansiedad, Mejora de trastornos del sueño, Equilibrio del sistema nervioso', 70000.00, 'Técnica muy suave pero requiere precisión', 6),
-	('76BG11', 'Masaje Terapéutico', 'Técnicas manuales específicas para aliviar contracturas musculares y dolores localizados.', 'Marcos Rivera | Natalia Ochoa', '08:00:00', '18:00:00', 60, 'Moderada', 'Camilla especializada, aceites terapéuticos', 'Presencial', 'Contracturas musculares, puntos gatillo, dolor localizado', 'Evaluación de zonas problemáticas', 'Alivio de contracturas musculares, Liberación de puntos gatillo, Mejora de movilidad articular, Reducción de dolor localizado', 55000.00, 'Enfoque en zonas específicas de dolor', 2),
-	('865F14', 'Drenaje Linfático Manual', 'Técnica manual suave para estimular el sistema linfático y eliminar toxinas del organismo.', 'Patricia Gil | Carlos Navarro', '09:00:00', '17:00:00', 50, 'Baja', 'Camilla, aceites especiales, ambiente controlado', 'Presencial', 'Edemas, linfoedemas, problemas circulatorios, post-cirugía', 'Historial médico para casos post-quirúrgicos', 'Reducción de edemas y linfoedemas, Mejora del sistema inmunológico, Eliminación de toxinas, Alivio de piernas cansadas', 65000.00, 'Recomendado especialmente para pacientes post-quirúrgicos', 5),
-	('87FT88', 'Electroterapia Avanzada', 'Uso de corrientes eléctricas terapéuticas para manejo del dolor y estimulación muscular.', 'Esteban Vargas | Valentina Muñoz', '10:00:00', '17:00:00', 50, 'Moderada', 'Equipo de electroterapia, electrodos, gel conductor', 'Presencial', 'Dolor crónico, atrofia muscular, inflamación, recuperación tisular', 'Diagnóstico médico previo obligatorio', 'Alivio de dolor crónico, Estimulación muscular, Reducción de inflamación, Aceleración de recuperación', 70000.00, 'Protocolo personalizado según diagnóstico', 6),
-	('90AS12', 'Terapia Neural', 'Tratamiento del sistema neurovegetativo para condiciones crónicas y alteraciones del sistema nervioso.', 'Sebastián Cano | María Pardo | Pablo Herrera | Ana Gutiérrez', '11:00:00', '16:00:00', 90, 'Alta', 'Equipo especializado, materiales estériles', 'Presencial', 'Neuralgias, alteraciones neurovegetativas, dolores crónicos complejos', 'Evaluación completa con especialista certificado', 'Tratamiento de neuralgias, Alteraciones neurovegetativas, Dolores crónicos complejos, Enfoque holístico integral', 95000.00, 'Disponible solo con especialistas certificados', 8);
+INSERT INTO `servicio_terapia` (`codigo`, `nombre`, `descripcion`, `terapeuta_disponible`, `inicio_jornada`, `final_jornada`, `duracion`, `intensidad`, `equipamento`, `modalidad`, `condiciones_tratar`, `requisitos`, `beneficios`, `precio`, `consideraciones`, `promedio_sesiones`, `recomendacion_precita`) VALUES
+	('12AB34', 'Masaje Relajante', 'Masaje suave diseñado para reducir el estrés, promover la relajación y mejorar la circulación sanguínea.', 'Laura Fernández | Carlos Ríos | Mariana Soto', '08:00:00', '18:00:00', 45, 'Baja', 'Camilla de masaje, aceites esenciales', 'Presencial', 'Estrés, ansiedad, tensión muscular leve, mala circulación', 'Ninguno específico', 'Reducción del estrés y ansiedad, Mejora de la circulación, Alivio de tensiones leves, Promueve el bienestar general', 35000.00, 'Ideal para personas con altos niveles de estrés laboral', 1, 'Traer identificación personal, ropa cómoda, evitar comer 2 horas antes. Informar al terapeuta sobre alergias a aceites esenciales si las tiene.'),
+	('23WE45', 'Terapia de Estiramientos', 'Sesiones guiadas de estiramiento para mejorar flexibilidad, prevenir lesiones y aliviar tensiones.', 'Andrés Gómez | Camila Rojas | Felipe Duarte', '08:00:00', '18:00:00', 50, 'Moderada', 'Colchonetas, bandas elásticas, rodillos de espuma', 'Presencial', 'Rigidez muscular, mala postura, riesgo de lesiones, sedentarismo', 'Ropa cómoda para ejercicio', 'Aumento de la flexibilidad muscular, Mejora de la postura corporal, Prevención de lesiones, Alivio de dolores por sedentarismo', 40000.00, 'Recomendado para personas con trabajos de oficina', 4, 'Presentar documento de identidad, traer ropa deportiva cómoda, hidratarse bien antes de la sesión. Informar sobre cualquier limitación de movimiento o lesiones previas.'),
+	('56DF12', 'Rehabilitación Deportiva', 'Programa personalizado para recuperación de lesiones deportivas y mejora del rendimiento físico.', 'Daniela Pérez | Ricardo Ruiz | Sofía Torres', '09:00:00', '19:00:00', 75, 'Moderada-Alta', 'Equipo de fisioterapia, pesas terapéuticas, bosu', 'Presencial', 'Esguinces, lesiones deportivas, recuperación post-lesional', 'Evaluación inicial obligatoria', 'Recuperación de esguinces, Fortalecimiento muscular, Reeducación de la marcha, Prevención de nuevas lesiones', 65000.00, 'Programa personalizado según deporte y lesión', 8, 'Traer identificación, exámenes diagnósticos de la lesión (radiografías, resonancias si las tiene), ropa deportiva adecuada, informe médico inicial. Preferiblemente venir con 1 hora de anticipación para evaluación preliminar.'),
+	('65AF31', 'Rehabilitación Post-Quirúrgica', 'Programa intensivo de recuperación después de cirugías ortopédicas o procedimientos invasivos.', 'Manuel Quintero | Paula Vargas | Diego López', '09:00:00', '17:00:00', 120, 'Alta', 'Equipo especializado, máquinas de rehabilitación', 'Presencial', 'Post-cirugía ortopédica, reemplazos articulares, reconstrucciones', 'Historial médico completo, coordinación con equipo quirúrgico', 'Seguimiento post-operatorio, Recuperación de movilidad, Manejo del dolor post-quirúrgico, Prevención de complicaciones', 120000.00, 'Requiere supervisión médica constante', 12, 'Traer documento de identidad, historial médico completo, informe quirúrgico detallado, recetas médicas actuales. Coordinar previamente con el cirujano tratante. Informar sobre medicamentos en uso y alergias. Llevar ropa que facilite el acceso a la zona intervenida.'),
+	('67HH34', 'Punción Seca', 'Técnica especializada donde se insertan agujas finas en puntos gatillo para desactivar contracturas profundas.', 'Lucía Moreno | Santiago Peña', '10:00:00', '17:00:00', 45, 'Alta', 'Agujas estériles, equipo de punción, camilla especial', 'Presencial', 'Puntos gatillo, contracturas profundas, dolor miofascial crónico', 'Evaluación médica previa obligatoria', 'Desactivación de puntos gatillo, Alivio de dolor miofascial, Mejora de movilidad muscular, Resultados inmediatos', 75000.00, 'Técnica invasiva que requiere certificación especial', 3, 'Documento de identidad, exámenes de diagnóstico previos si los tiene, informe médico. Informar sobre condiciones hemorrágicas, uso de anticoagulantes o marcapasos. No aplicar cremas o lociones en la zona a tratar. Puede presentar molestias posteriores durante 24-48 horas.'),
+	('67RE23', 'Vendaje Neuromuscular', 'Aplicación de vendas elásticas especiales para facilitar la función muscular y reducir el dolor.', 'Adriana Castro | Julián Rincón', '08:00:00', '18:00:00', 30, 'Baja-Moderada', 'Vendas kinesiológicas, tijeras especiales', 'Presencial', 'Dolor muscular, edema, problemas posturales, apoyo deportivo', 'Evaluación de zona a tratar', 'Alivio del dolor muscular, Mejora de la circulación linfática, Corrección de problemas posturales, Soporte durante la actividad física', 45000.00, 'Las vendas pueden permanecer varios días', 1, 'Traer documento de identificación, ropa cómoda que permita acceso a la zona a tratar. Informar sobre alergias al adhesivo (si se conoce), condiciones de piel sensible. Las vendas deben mantenerse secas por 2 horas después de la aplicación y pueden durar 3-5 días.'),
+	('75KE23', 'Terapia Miofascial', 'Técnicas manuales para liberar las restricciones del tejido conectivo y aliviar el dolor crónico.', 'Valeria Martínez | Andrés López', '09:00:00', '19:00:00', 60, 'Moderada', 'Instrumentos de liberación miofascial, rodillos', 'Presencial', 'Adherencias fasciales, dolor crónico, limitación de movilidad', 'Diagnóstico previo recomendado', 'Liberación de adherencias fasciales, Mejora de la movilidad articular, Reducción del dolor crónico, Mejora de la postura', 60000.00, 'Puede causar molestias temporales durante la terapia', 4, 'Presentar documento de identidad, traer ropa cómoda, informar sobre diagnósticos previos relacionados. La terapia puede generar sensibilidad temporal en las zonas tratadas. Hidratarse bien antes y después de la sesión. Evitar comidas pesadas 2 horas antes.'),
+	('765Q64', 'Terapia Craneosacral', 'Técnica manual suave para evaluar y mejorar el funcionamiento del sistema craneosacral.', 'Luis Castillo | Daniela Cruz', '10:00:00', '16:00:00', 60, 'Baja', 'Camilla especial, ambiente tranquilo', 'Presencial', 'Cefaleas, migrañas, estrés, trastornos del sueño, desequilibrios nerviosos', 'Evaluación previa obligatoria', 'Alivio de cefaleas y migrañas, Reducción del estrés y ansiedad, Mejora de trastornos del sueño, Equilibrio del sistema nervioso', 70000.00, 'Técnica muy suave pero requiere precisión', 6, 'Traer documento de identificación, historial médico relacionado con síntomas neurológicos. Informar sobre medicamentos para migrañas o ansiedad. Usar ropa cómoda, preferiblemente de algodón. Evitar consumo de cafeína 4 horas antes. La sesión puede generar relajación profunda; planificar no conducir inmediatamente después.'),
+	('76BG11', 'Masaje Terapéutico', 'Técnicas manuales específicas para aliviar contracturas musculares y dolores localizados.', 'Marcos Rivera | Natalia Ochoa', '08:00:00', '18:00:00', 60, 'Moderada', 'Camilla especializada, aceites terapéuticos', 'Presencial', 'Contracturas musculares, puntos gatillo, dolor localizado', 'Evaluación de zonas problemáticas', 'Alivio de contracturas musculares, Liberación de puntos gatillo, Mejora de movilidad articular, Reducción de dolor localizado', 55000.00, 'Enfoque en zonas específicas de dolor', 2, 'Documento de identidad, informe sobre zonas específicas de dolor, evaluaciones previas si las tiene. Informar sobre alergias a productos tópicos. Puede experimentar dolor temporal durante la manipulación de contracturas. Usar ropa que permita acceso a las zonas afectadas.'),
+	('865F14', 'Drenaje Linfático Manual', 'Técnica manual suave para estimular el sistema linfático y eliminar toxinas del organismo.', 'Patricia Gil | Carlos Navarro', '09:00:00', '17:00:00', 50, 'Baja', 'Camilla, aceites especiales, ambiente controlado', 'Presencial', 'Edemas, linfoedemas, problemas circulatorios, post-cirugía', 'Historial médico para casos post-quirúrgicos', 'Reducción de edemas y linfoedemas, Mejora del sistema inmunológico, Eliminación de toxinas, Alivio de piernas cansadas', 65000.00, 'Recomendado especialmente para pacientes post-quirúrgicos', 5, 'Documento de identidad, informe médico o quirúrgico si aplica, exámenes relacionados con problemas circulatorios. Informar sobre insuficiencia cardíaca, trombosis o infecciones activas. Traer ropa cómoda. Beber agua abundante antes y después para facilitar eliminación de toxinas. No aplicar cremas antes de la sesión.'),
+	('87FT88', 'Electroterapia Avanzada', 'Uso de corrientes eléctricas terapéuticas para manejo del dolor y estimulación muscular.', 'Esteban Vargas | Valentina Muñoz', '10:00:00', '17:00:00', 50, 'Moderada', 'Equipo de electroterapia, electrodos, gel conductor', 'Presencial', 'Dolor crónico, atrofia muscular, inflamación, recuperación tisular', 'Diagnóstico médico previo obligatorio', 'Alivio de dolor crónico, Estimulación muscular, Reducción de inflamación, Aceleración de recuperación', 70000.00, 'Protocolo personalizado según diagnóstico', 6, 'Presentar documento de identidad, diagnóstico médico completo, exámenes de imagen si los tiene. Informar sobre marcapasos, implantes metálicos, embarazo o epilepsia. No usar cremas o lociones antes. Zona a tratar debe estar limpia y seca. Traer ropa que permita acceso a la zona afectada.'),
+	('90AS12', 'Terapia Neural', 'Tratamiento del sistema neurovegetativo para condiciones crónicas y alteraciones del sistema nervioso.', 'Sebastián Cano | María Pardo | Pablo Herrera | Ana Gutiérrez', '11:00:00', '16:00:00', 90, 'Alta', 'Equipo especializado, materiales estériles', 'Presencial', 'Neuralgias, alteraciones neurovegetativas, dolores crónicos complejos', 'Evaluación completa con especialista certificado', 'Tratamiento de neuralgias, Alteraciones neurovegetativas, Dolores crónicos complejos, Enfoque holístico integral', 95000.00, 'Disponible solo con especialistas certificados', 8, 'Traer documento de identidad, historial médico completo, exámenes neurológicos previos, lista de medicamentos actuales. Informar sobre alergias a anestésicos locales si las tiene. Prohibido el consumo de alcohol 48 horas antes. Coordinar con otros tratamientos médicos en curso. Requiere evaluación previa obligatoria con el especialista.');
 
 -- Volcando estructura para tabla fisiosalud-2.terapeuta
 CREATE TABLE IF NOT EXISTS `terapeuta` (
@@ -343,36 +428,36 @@ CREATE TABLE IF NOT EXISTS `terapeuta` (
 
 -- Volcando datos para la tabla fisiosalud-2.terapeuta: ~30 rows (aproximadamente)
 INSERT INTO `terapeuta` (`Codigo_trabajador`, `nombre_completo`, `fisio_correo`, `telefono`, `especializacion`, `franja_horaria_dias`, `franja_horaria_horas`, `estado`) VALUES
-	('T001', 'Laura Fernández', 'laura.fernandez@fisio.correo.gmail.com', '3104567890', 'Masaje Relajante', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T002', 'Carlos Ríos', 'carlos.rios@fisio.correo.gmail.com', '3129876543', 'Masaje Relajante', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T003', 'Mariana Soto', 'mariana.soto@fisio.correo.gmail.com', '3152345678', 'Masaje Relajante', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T004', 'Andrés Gómez', 'andres.gomez@fisio.correo.gmail.com', '3187654321', 'Terapia de Estiramientos', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T005', 'Camila Rojas', 'camila.rojas@fisio.correo.gmail.com', '3119871234', 'Terapia de Estiramientos', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T006', 'Felipe Duarte', 'felipe.duarte@fisio.correo.gmail.com', '3204563214', 'Terapia de Estiramientos', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T007', 'Daniela Pérez', 'daniela.perez@fisio.correo.gmail.com', '3146547891', 'Rehabilitación Deportiva', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T008', 'Ricardo Ruiz', 'ricardo.ruiz@fisio.correo.gmail.com', '3198745632', 'Rehabilitación Deportiva', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T009', 'Sofía Torres', 'sofia.torres@fisio.correo.gmail.com', '3117563421', 'Rehabilitación Deportiva', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T010', 'Manuel Quintero', 'manuel.quintero@fisio.correo.gmail.com', '3209874123', 'Rehabilitación Post-Quirúrgica', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T011', 'Paula Vargas', 'paula.vargas@fisio.correo.gmail.com', '3127419630', 'Rehabilitación Post-Quirúrgica', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T012', 'Diego López', 'diego.lopez@fisio.correo.gmail.com', '3147532986', 'Rehabilitación Post-Quirúrgica', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T013', 'Lucía Moreno', 'lucia.moreno@fisio.correo.gmail.com', '3157539512', 'Punción Seca', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T014', 'Santiago Peña', 'santiago.pena@fisio.correo.gmail.com', '3169513579', 'Punción Seca', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T015', 'Adriana Castro', 'adriana.castro@fisio.correo.gmail.com', '3109517534', 'Vendaje Neuromuscular', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T016', 'Julián Rincón', 'julian.rincon@fisio.correo.gmail.com', '3189517531', 'Vendaje Neuromuscular', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T017', 'Valeria Martínez', 'valeria.martinez@fisio.correo.gmail.com', '3197532841', 'Terapia Miofascial', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T018', 'Andrés López', 'andres.lopez@fisio.correo.gmail.com', '3108471593', 'Terapia Miofascial', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T019', 'Marcos Rivera', 'marcos.rivera@fisio.correo.gmail.com', '3113692584', 'Masaje Terapéutico', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T020', 'Natalia Ochoa', 'natalia.ochoa@fisio.correo.gmail.com', '3209517532', 'Masaje Terapéutico', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T021', 'Luis Castillo', 'luis.castillo@fisio.correo.gmail.com', '3176547890', 'Terapia Craneosacral', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T022', 'Daniela Cruz', 'daniela.cruz@fisio.correo.gmail.com', '3163214789', 'Terapia Craneosacral', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T023', 'Patricia Gil', 'patricia.gil@fisio.correo.gmail.com', '3137896541', 'Drenaje Linfático Manual', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T024', 'Carlos Navarro', 'carlos.navarro@fisio.correo.gmail.com', '3196541237', 'Drenaje Linfático Manual', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T025', 'Esteban Vargas', 'esteban.vargas@fisio.correo.gmail.com', '3111478523', 'Electroterapia Avanzada', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T026', 'Valentina Muñoz', 'valentina.munoz@fisio.correo.gmail.com', '3152589631', 'Electroterapia Avanzada', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T027', 'Sebastián Cano', 'sebastian.cano@fisio.correo.gmail.com', '3129631478', 'Terapia Neural', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T028', 'María Pardo', 'maria.pardo@fisio.correo.gmail.com', '3104569512', 'Terapia Neural', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T029', 'Pablo Herrera', 'pablo.herrera@fisio.correo.gmail.com', '3192581473', 'Terapia Neural', '2025-11-11', '2025-12-01 11:55:19', 'Activo'),
-	('T030', 'Ana Gutiérrez', 'ana.gutierrez@fisio.correo.gmail.com', '3142589634', 'Terapia Neural', '2025-11-11', '2025-12-01 11:55:19', 'Activo');
+	('T001', 'Laura Fernández', 'laura.fernandez@fisio.correo.gmail.com', '3104567890', 'Masaje Relajante', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T002', 'Carlos Ríos', 'carlos.rios@fisio.correo.gmail.com', '3129876543', 'Masaje Relajante', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T003', 'Mariana Soto', 'mariana.soto@fisio.correo.gmail.com', '3152345678', 'Masaje Relajante', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T004', 'Andrés Gómez', 'andres.gomez@fisio.correo.gmail.com', '3187654321', 'Terapia de Estiramientos', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T005', 'Camila Rojas', 'camila.rojas@fisio.correo.gmail.com', '3119871234', 'Terapia de Estiramientos', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T006', 'Felipe Duarte', 'felipe.duarte@fisio.correo.gmail.com', '3204563214', 'Terapia de Estiramientos', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T007', 'Daniela Pérez', 'daniela.perez@fisio.correo.gmail.com', '3146547891', 'Rehabilitación Deportiva', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T008', 'Ricardo Ruiz', 'ricardo.ruiz@fisio.correo.gmail.com', '3198745632', 'Rehabilitación Deportiva', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T009', 'Sofía Torres', 'sofia.torres@fisio.correo.gmail.com', '3117563421', 'Rehabilitación Deportiva', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T010', 'Manuel Quintero', 'manuel.quintero@fisio.correo.gmail.com', '3209874123', 'Rehabilitación Post-Quirúrgica', 'Lunes a Viernes', '8:00 - 17:00', 'Activo'),
+	('T011', 'Paula Vargas', 'paula.vargas@fisio.correo.gmail.com', '3127419630', 'Rehabilitación Post-Quirúrgica', 'Lunes a Sábado', '9:00 - 18:00', 'Activo'),
+	('T012', 'Diego López', 'diego.lopez@fisio.correo.gmail.com', '3147532986', 'Rehabilitación Post-Quirúrgica', 'Lunes a Sábado', '9:00 - 18:00', 'Activo'),
+	('T013', 'Lucía Moreno', 'lucia.moreno@fisio.correo.gmail.com', '3157539512', 'Punción Seca', 'Lunes a Sábado', '9:00 - 18:00', 'Activo'),
+	('T014', 'Santiago Peña', 'santiago.pena@fisio.correo.gmail.com', '3169513579', 'Punción Seca', 'Lunes a Sábado', '9:00 - 18:00', 'Activo'),
+	('T015', 'Adriana Castro', 'adriana.castro@fisio.correo.gmail.com', '3109517534', 'Vendaje Neuromuscular', 'Lunes a Sábado', '9:00 - 18:00', 'Inactivo'),
+	('T016', 'Julián Rincón', 'julian.rincon@fisio.correo.gmail.com', '3189517531', 'Vendaje Neuromuscular', 'Lunes a Sábado', '9:00 - 18:00', 'Activo'),
+	('T017', 'Mario Rios Escobar', 'marioriosescobar@fisio.correo.gmail.com', '3106416355', 'Neurológica', 'Martes a Viernes', '10:00 - 19:00', 'Activo'),
+	('T018', 'Andrés López', 'andres.lopez@fisio.correo.gmail.com', '3108471593', 'Terapia Miofascial', 'Martes a Viernes', '10:00 - 19:00', 'Activo'),
+	('T019', 'Marcos Rivera', 'marcos.rivera@fisio.correo.gmail.com', '3113692584', 'Masaje Terapéutico', 'Martes a Viernes', '10:00 - 19:00', 'Activo'),
+	('T020', 'Natalia Ochoa', 'natalia.ochoa@fisio.correo.gmail.com', '3209517532', 'Masaje Terapéutico', 'Martes a Viernes', '10:00 - 19:00', 'Activo'),
+	('T021', 'Luis Castillo', 'luis.castillo@fisio.correo.gmail.com', '3176547890', 'Terapia Craneosacral', 'Lunes, Miércoles, Viernes', '7:00 - 16:00', 'Activo'),
+	('T022', 'Daniela Cruz', 'daniela.cruz@fisio.correo.gmail.com', '3163214789', 'Terapia Craneosacral', 'Lunes, Miércoles, Viernes', '7:00 - 16:00', 'Activo'),
+	('T023', 'Patricia Gil', 'patricia.gil@fisio.correo.gmail.com', '3137896541', 'Drenaje Linfático Manual', 'Lunes, Miércoles, Viernes', '7:00 - 16:00', 'Activo'),
+	('T024', 'Carlos Navarro', 'carlos.navarro@fisio.correo.gmail.com', '3196541237', 'Drenaje Linfático Manual', 'Lunes, Miércoles, Viernes', '7:00 - 16:00', 'Activo'),
+	('T025', 'Esteban Vargas', 'esteban.vargas@fisio.correo.gmail.com', '3111478523', 'Electroterapia Avanzada', 'Lunes a Jueves', '6:00 - 15:00', 'Activo'),
+	('T026', 'Valentina Muñoz', 'valentina.munoz@fisio.correo.gmail.com', '3152589631', 'Electroterapia Avanzada', 'Lunes a Jueves', '6:00 - 15:00', 'Activo'),
+	('T027', 'Sebastián Cano', 'sebastian.cano@fisio.correo.gmail.com', '3129631478', 'Terapia Neural', 'Lunes a Jueves', '6:00 - 15:00', 'Activo'),
+	('T028', 'María Pardo', 'maria.pardo@fisio.correo.gmail.com', '3104569512', 'Terapia Neural', 'Lunes a Jueves', '6:00 - 15:00', 'Activo'),
+	('T029', 'Pablo Herrera', 'pablo.herrera@fisio.correo.gmail.com', '3192581473', 'Terapia Neural', 'Miércoles a Domingo', '11:00 - 20:00', 'Activo'),
+	('T030', 'Ana Gutiérrez', 'ana.gutierrez@fisio.correo.gmail.com', '3142589634', 'Terapia Neural', 'Miércoles a Domingo', '11:00 - 20:00', 'Activo');
 
 -- Volcando estructura para tabla fisiosalud-2.usuario
 CREATE TABLE IF NOT EXISTS `usuario` (
@@ -387,14 +472,13 @@ CREATE TABLE IF NOT EXISTS `usuario` (
   `historial_medico` text DEFAULT NULL,
   `estado` varchar(255) DEFAULT 'Activo',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1112390179 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1113147124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Volcando datos para la tabla fisiosalud-2.usuario: ~0 rows (aproximadamente)
-INSERT INTO `usuario` (`ID`, `nombre`, `apellido`, `genero`, `correo`, `telefono`, `contraseña`, `contraseña_confirmada`, `historial_medico`, `estado`) VALUES
-	(1112390178, 'pepe', 'cabro', 'Masculino', 'pepe@gmail.com', '3106416355', '1', '1', 'uploads/medical_files/Laboratorio 3 – CI_CL (FisioSalud).docx.pdf', 'Activo');
+-- Volcando datos para la tabla fisiosalud-2.usuario: ~2 rows (aproximadamente)
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+
